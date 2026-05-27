@@ -1,0 +1,2994 @@
+{
+  "project": {
+    "name": "14ch_dispensing_system",
+    "description": "14-channel gravimetric dispensing system with Arduino Giga R1 WiFi, plug-in BIGTREETECH TMC2209 modules, plug-in HiLetgo MAX3232 RS232 converter, and JST-XH pump connections.",
+    "version": "2.0",
+    "date": "2026-05-26",
+    "author": "Jimmy Chang"
+  },
+  "schematic": {
+    "components": [
+      {
+        "ref": "U1",
+        "value": "ARDUINO_GIGA_R1_WIFI",
+        "footprint": "Arduino_Giga_R1_WiFi_Board",
+        "libsource": {
+          "lib": "Interface_Module",
+          "part": "Arduino_Giga_R1_WiFi"
+        },
+        "fields": {
+          "Manufacturer": "Arduino",
+          "MPN": "ABV00003",
+          "Description": "Arduino Giga R1 WiFi with STM32H747 MCU"
+        }
+      },
+      {
+        "ref": "J2",
+        "value": "MAX3232_MODULE",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Manufacturer": "HiLetgo / Various",
+          "MPN": "B00LPK0Z9A",
+          "Description": "RS232 to TTL Converter Module (socketed on female header)"
+        }
+      },
+      {
+        "ref": "J5",
+        "value": "TMC2209_CH1",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 1)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH1",
+        "value": "MOTOR_TERM_CH1",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 1)"
+        }
+      },
+      {
+        "ref": "J_SW_CH1",
+        "value": "LIMIT_SW_CH1",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 1)"
+        }
+      },
+      {
+        "ref": "J6",
+        "value": "TMC2209_CH2",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 2)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH2",
+        "value": "MOTOR_TERM_CH2",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 2)"
+        }
+      },
+      {
+        "ref": "J_SW_CH2",
+        "value": "LIMIT_SW_CH2",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 2)"
+        }
+      },
+      {
+        "ref": "J7",
+        "value": "TMC2209_CH3",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 3)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH3",
+        "value": "MOTOR_TERM_CH3",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 3)"
+        }
+      },
+      {
+        "ref": "J_SW_CH3",
+        "value": "LIMIT_SW_CH3",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 3)"
+        }
+      },
+      {
+        "ref": "J8",
+        "value": "TMC2209_CH4",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 4)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH4",
+        "value": "MOTOR_TERM_CH4",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 4)"
+        }
+      },
+      {
+        "ref": "J_SW_CH4",
+        "value": "LIMIT_SW_CH4",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 4)"
+        }
+      },
+      {
+        "ref": "J9",
+        "value": "TMC2209_CH5",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 5)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH5",
+        "value": "MOTOR_TERM_CH5",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 5)"
+        }
+      },
+      {
+        "ref": "J_SW_CH5",
+        "value": "LIMIT_SW_CH5",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 5)"
+        }
+      },
+      {
+        "ref": "J10",
+        "value": "TMC2209_CH6",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 6)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH6",
+        "value": "MOTOR_TERM_CH6",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 6)"
+        }
+      },
+      {
+        "ref": "J_SW_CH6",
+        "value": "LIMIT_SW_CH6",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 6)"
+        }
+      },
+      {
+        "ref": "J11",
+        "value": "TMC2209_CH7",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 7)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH7",
+        "value": "MOTOR_TERM_CH7",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 7)"
+        }
+      },
+      {
+        "ref": "J_SW_CH7",
+        "value": "LIMIT_SW_CH7",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 7)"
+        }
+      },
+      {
+        "ref": "J12",
+        "value": "TMC2209_CH8",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 8)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH8",
+        "value": "MOTOR_TERM_CH8",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 8)"
+        }
+      },
+      {
+        "ref": "J_SW_CH8",
+        "value": "LIMIT_SW_CH8",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 8)"
+        }
+      },
+      {
+        "ref": "J13",
+        "value": "TMC2209_CH9",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 9)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH9",
+        "value": "MOTOR_TERM_CH9",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 9)"
+        }
+      },
+      {
+        "ref": "J_SW_CH9",
+        "value": "LIMIT_SW_CH9",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 9)"
+        }
+      },
+      {
+        "ref": "J14",
+        "value": "TMC2209_CH10",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 10)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH10",
+        "value": "MOTOR_TERM_CH10",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 10)"
+        }
+      },
+      {
+        "ref": "J_SW_CH10",
+        "value": "LIMIT_SW_CH10",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 10)"
+        }
+      },
+      {
+        "ref": "J15",
+        "value": "TMC2209_CH11",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 11)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH11",
+        "value": "MOTOR_TERM_CH11",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 11)"
+        }
+      },
+      {
+        "ref": "J_SW_CH11",
+        "value": "LIMIT_SW_CH11",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 11)"
+        }
+      },
+      {
+        "ref": "J16",
+        "value": "TMC2209_CH12",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 12)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH12",
+        "value": "MOTOR_TERM_CH12",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 12)"
+        }
+      },
+      {
+        "ref": "J_SW_CH12",
+        "value": "LIMIT_SW_CH12",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 12)"
+        }
+      },
+      {
+        "ref": "J17",
+        "value": "TMC2209_CH13",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 13)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH13",
+        "value": "MOTOR_TERM_CH13",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 13)"
+        }
+      },
+      {
+        "ref": "J_SW_CH13",
+        "value": "LIMIT_SW_CH13",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 13)"
+        }
+      },
+      {
+        "ref": "J18",
+        "value": "TMC2209_CH14",
+        "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_02x08"
+        },
+        "fields": {
+          "Description": "BIGTREETECH TMC2209 Stepper Driver Module Socket (Channel 14)"
+        }
+      },
+      {
+        "ref": "J_MOTOR_CH14",
+        "value": "MOTOR_TERM_CH14",
+        "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x04"
+        },
+        "fields": {
+          "Description": "4-pin JST-XH connector for Kamoer KPHM100 stepper pump (Channel 14)"
+        }
+      },
+      {
+        "ref": "J_SW_CH14",
+        "value": "LIMIT_SW_CH14",
+        "footprint": "Connector_JST:JST_GH_1x02_P1.25mm_Vertical",
+        "libsource": {
+          "lib": "Connector",
+          "part": "Connector_01x02"
+        },
+        "fields": {
+          "Description": "2-pin JST-GH connector for limit switch (Channel 14)"
+        }
+      }
+    ],
+    "connections": [
+      {
+        "net": "3V3",
+        "nodes": [
+          [
+            "U1",
+            "3V3"
+          ],
+          [
+            "J2",
+            "VCC"
+          ],
+          [
+            "J5",
+            "VDD"
+          ],
+          [
+            "J6",
+            "VDD"
+          ],
+          [
+            "J7",
+            "VDD"
+          ],
+          [
+            "J8",
+            "VDD"
+          ],
+          [
+            "J9",
+            "VDD"
+          ],
+          [
+            "J10",
+            "VDD"
+          ],
+          [
+            "J11",
+            "VDD"
+          ],
+          [
+            "J12",
+            "VDD"
+          ],
+          [
+            "J13",
+            "VDD"
+          ],
+          [
+            "J14",
+            "VDD"
+          ],
+          [
+            "J15",
+            "VDD"
+          ],
+          [
+            "J16",
+            "VDD"
+          ],
+          [
+            "J17",
+            "VDD"
+          ],
+          [
+            "J18",
+            "VDD"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "U1",
+            "GND"
+          ],
+          [
+            "J2",
+            "GND"
+          ],
+          [
+            "J5",
+            "GND"
+          ],
+          [
+            "J6",
+            "GND"
+          ],
+          [
+            "J7",
+            "GND"
+          ],
+          [
+            "J8",
+            "GND"
+          ],
+          [
+            "J9",
+            "GND"
+          ],
+          [
+            "J10",
+            "GND"
+          ],
+          [
+            "J11",
+            "GND"
+          ],
+          [
+            "J12",
+            "GND"
+          ],
+          [
+            "J13",
+            "GND"
+          ],
+          [
+            "J14",
+            "GND"
+          ],
+          [
+            "J15",
+            "GND"
+          ],
+          [
+            "J16",
+            "GND"
+          ],
+          [
+            "J17",
+            "GND"
+          ],
+          [
+            "J18",
+            "GND"
+          ]
+        ]
+      },
+      {
+        "net": "24V",
+        "nodes": [
+          [
+            "J5",
+            "VM"
+          ],
+          [
+            "J6",
+            "VM"
+          ],
+          [
+            "J7",
+            "VM"
+          ],
+          [
+            "J8",
+            "VM"
+          ],
+          [
+            "J9",
+            "VM"
+          ],
+          [
+            "J10",
+            "VM"
+          ],
+          [
+            "J11",
+            "VM"
+          ],
+          [
+            "J12",
+            "VM"
+          ],
+          [
+            "J13",
+            "VM"
+          ],
+          [
+            "J14",
+            "VM"
+          ],
+          [
+            "J15",
+            "VM"
+          ],
+          [
+            "J16",
+            "VM"
+          ],
+          [
+            "J17",
+            "VM"
+          ],
+          [
+            "J18",
+            "VM"
+          ]
+        ]
+      },
+      {
+        "net": "RS232_TX",
+        "nodes": [
+          [
+            "U1",
+            "TX1"
+          ],
+          [
+            "J2",
+            "TX"
+          ]
+        ]
+      },
+      {
+        "net": "RS232_RX",
+        "nodes": [
+          [
+            "U1",
+            "RX1"
+          ],
+          [
+            "J2",
+            "RX"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH1",
+        "nodes": [
+          [
+            "J5",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D2"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH1",
+        "nodes": [
+          [
+            "J5",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D3"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH1",
+        "nodes": [
+          [
+            "J5",
+            "EN"
+          ],
+          [
+            "U1",
+            "D4"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH1",
+        "nodes": [
+          [
+            "J5",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D5"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH1",
+        "nodes": [
+          [
+            "J5",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D6"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH1",
+        "nodes": [
+          [
+            "J5",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH1",
+        "nodes": [
+          [
+            "J5",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH1",
+        "nodes": [
+          [
+            "J5",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH1",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH1",
+        "nodes": [
+          [
+            "J5",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH1",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH1",
+        "nodes": [
+          [
+            "J5",
+            "SW"
+          ],
+          [
+            "J_SW_CH1",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH1",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH2",
+        "nodes": [
+          [
+            "J6",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D22"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH2",
+        "nodes": [
+          [
+            "J6",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D23"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH2",
+        "nodes": [
+          [
+            "J6",
+            "EN"
+          ],
+          [
+            "U1",
+            "D24"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH2",
+        "nodes": [
+          [
+            "J6",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D25"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH2",
+        "nodes": [
+          [
+            "J6",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D26"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH2",
+        "nodes": [
+          [
+            "J6",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH2",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH2",
+        "nodes": [
+          [
+            "J6",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH2",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH2",
+        "nodes": [
+          [
+            "J6",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH2",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH2",
+        "nodes": [
+          [
+            "J6",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH2",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH2",
+        "nodes": [
+          [
+            "J6",
+            "SW"
+          ],
+          [
+            "J_SW_CH2",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH2",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH3",
+        "nodes": [
+          [
+            "J7",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D27"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH3",
+        "nodes": [
+          [
+            "J7",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D28"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH3",
+        "nodes": [
+          [
+            "J7",
+            "EN"
+          ],
+          [
+            "U1",
+            "D29"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH3",
+        "nodes": [
+          [
+            "J7",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D30"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH3",
+        "nodes": [
+          [
+            "J7",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D31"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH3",
+        "nodes": [
+          [
+            "J7",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH3",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH3",
+        "nodes": [
+          [
+            "J7",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH3",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH3",
+        "nodes": [
+          [
+            "J7",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH3",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH3",
+        "nodes": [
+          [
+            "J7",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH3",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH3",
+        "nodes": [
+          [
+            "J7",
+            "SW"
+          ],
+          [
+            "J_SW_CH3",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH3",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH4",
+        "nodes": [
+          [
+            "J8",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D32"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH4",
+        "nodes": [
+          [
+            "J8",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D33"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH4",
+        "nodes": [
+          [
+            "J8",
+            "EN"
+          ],
+          [
+            "U1",
+            "D34"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH4",
+        "nodes": [
+          [
+            "J8",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D35"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH4",
+        "nodes": [
+          [
+            "J8",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D36"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH4",
+        "nodes": [
+          [
+            "J8",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH4",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH4",
+        "nodes": [
+          [
+            "J8",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH4",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH4",
+        "nodes": [
+          [
+            "J8",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH4",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH4",
+        "nodes": [
+          [
+            "J8",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH4",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH4",
+        "nodes": [
+          [
+            "J8",
+            "SW"
+          ],
+          [
+            "J_SW_CH4",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH4",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH5",
+        "nodes": [
+          [
+            "J9",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D37"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH5",
+        "nodes": [
+          [
+            "J9",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D38"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH5",
+        "nodes": [
+          [
+            "J9",
+            "EN"
+          ],
+          [
+            "U1",
+            "D39"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH5",
+        "nodes": [
+          [
+            "J9",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D40"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH5",
+        "nodes": [
+          [
+            "J9",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D41"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH5",
+        "nodes": [
+          [
+            "J9",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH5",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH5",
+        "nodes": [
+          [
+            "J9",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH5",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH5",
+        "nodes": [
+          [
+            "J9",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH5",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH5",
+        "nodes": [
+          [
+            "J9",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH5",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH5",
+        "nodes": [
+          [
+            "J9",
+            "SW"
+          ],
+          [
+            "J_SW_CH5",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH5",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH6",
+        "nodes": [
+          [
+            "J10",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D42"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH6",
+        "nodes": [
+          [
+            "J10",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D43"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH6",
+        "nodes": [
+          [
+            "J10",
+            "EN"
+          ],
+          [
+            "U1",
+            "D44"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH6",
+        "nodes": [
+          [
+            "J10",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D45"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH6",
+        "nodes": [
+          [
+            "J10",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D46"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH6",
+        "nodes": [
+          [
+            "J10",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH6",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH6",
+        "nodes": [
+          [
+            "J10",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH6",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH6",
+        "nodes": [
+          [
+            "J10",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH6",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH6",
+        "nodes": [
+          [
+            "J10",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH6",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH6",
+        "nodes": [
+          [
+            "J10",
+            "SW"
+          ],
+          [
+            "J_SW_CH6",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH6",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH7",
+        "nodes": [
+          [
+            "J11",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D47"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH7",
+        "nodes": [
+          [
+            "J11",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D48"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH7",
+        "nodes": [
+          [
+            "J11",
+            "EN"
+          ],
+          [
+            "U1",
+            "D49"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH7",
+        "nodes": [
+          [
+            "J11",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D50"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH7",
+        "nodes": [
+          [
+            "J11",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D51"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH7",
+        "nodes": [
+          [
+            "J11",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH7",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH7",
+        "nodes": [
+          [
+            "J11",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH7",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH7",
+        "nodes": [
+          [
+            "J11",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH7",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH7",
+        "nodes": [
+          [
+            "J11",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH7",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH7",
+        "nodes": [
+          [
+            "J11",
+            "SW"
+          ],
+          [
+            "J_SW_CH7",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH7",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH8",
+        "nodes": [
+          [
+            "J12",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D52"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH8",
+        "nodes": [
+          [
+            "J12",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D53"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH8",
+        "nodes": [
+          [
+            "J12",
+            "EN"
+          ],
+          [
+            "U1",
+            "D54"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH8",
+        "nodes": [
+          [
+            "J12",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D55"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH8",
+        "nodes": [
+          [
+            "J12",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D56"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH8",
+        "nodes": [
+          [
+            "J12",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH8",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH8",
+        "nodes": [
+          [
+            "J12",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH8",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH8",
+        "nodes": [
+          [
+            "J12",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH8",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH8",
+        "nodes": [
+          [
+            "J12",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH8",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH8",
+        "nodes": [
+          [
+            "J12",
+            "SW"
+          ],
+          [
+            "J_SW_CH8",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH8",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH9",
+        "nodes": [
+          [
+            "J13",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D57"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH9",
+        "nodes": [
+          [
+            "J13",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D58"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH9",
+        "nodes": [
+          [
+            "J13",
+            "EN"
+          ],
+          [
+            "U1",
+            "D59"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH9",
+        "nodes": [
+          [
+            "J13",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D60"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH9",
+        "nodes": [
+          [
+            "J13",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D61"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH9",
+        "nodes": [
+          [
+            "J13",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH9",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH9",
+        "nodes": [
+          [
+            "J13",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH9",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH9",
+        "nodes": [
+          [
+            "J13",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH9",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH9",
+        "nodes": [
+          [
+            "J13",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH9",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH9",
+        "nodes": [
+          [
+            "J13",
+            "SW"
+          ],
+          [
+            "J_SW_CH9",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH9",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH10",
+        "nodes": [
+          [
+            "J14",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D62"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH10",
+        "nodes": [
+          [
+            "J14",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D63"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH10",
+        "nodes": [
+          [
+            "J14",
+            "EN"
+          ],
+          [
+            "U1",
+            "D64"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH10",
+        "nodes": [
+          [
+            "J14",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D65"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH10",
+        "nodes": [
+          [
+            "J14",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D66"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH10",
+        "nodes": [
+          [
+            "J14",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH10",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH10",
+        "nodes": [
+          [
+            "J14",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH10",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH10",
+        "nodes": [
+          [
+            "J14",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH10",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH10",
+        "nodes": [
+          [
+            "J14",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH10",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH10",
+        "nodes": [
+          [
+            "J14",
+            "SW"
+          ],
+          [
+            "J_SW_CH10",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH10",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH11",
+        "nodes": [
+          [
+            "J15",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D67"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH11",
+        "nodes": [
+          [
+            "J15",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D68"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH11",
+        "nodes": [
+          [
+            "J15",
+            "EN"
+          ],
+          [
+            "U1",
+            "D69"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH11",
+        "nodes": [
+          [
+            "J15",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D70"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH11",
+        "nodes": [
+          [
+            "J15",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D71"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH11",
+        "nodes": [
+          [
+            "J15",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH11",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH11",
+        "nodes": [
+          [
+            "J15",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH11",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH11",
+        "nodes": [
+          [
+            "J15",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH11",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH11",
+        "nodes": [
+          [
+            "J15",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH11",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH11",
+        "nodes": [
+          [
+            "J15",
+            "SW"
+          ],
+          [
+            "J_SW_CH11",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH11",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH12",
+        "nodes": [
+          [
+            "J16",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D72"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH12",
+        "nodes": [
+          [
+            "J16",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D73"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH12",
+        "nodes": [
+          [
+            "J16",
+            "EN"
+          ],
+          [
+            "U1",
+            "D74"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH12",
+        "nodes": [
+          [
+            "J16",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D75"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH12",
+        "nodes": [
+          [
+            "J16",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D76"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH12",
+        "nodes": [
+          [
+            "J16",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH12",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH12",
+        "nodes": [
+          [
+            "J16",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH12",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH12",
+        "nodes": [
+          [
+            "J16",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH12",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH12",
+        "nodes": [
+          [
+            "J16",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH12",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH12",
+        "nodes": [
+          [
+            "J16",
+            "SW"
+          ],
+          [
+            "J_SW_CH12",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH12",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH13",
+        "nodes": [
+          [
+            "J17",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D77"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH13",
+        "nodes": [
+          [
+            "J17",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D78"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH13",
+        "nodes": [
+          [
+            "J17",
+            "EN"
+          ],
+          [
+            "U1",
+            "D79"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH13",
+        "nodes": [
+          [
+            "J17",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D80"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH13",
+        "nodes": [
+          [
+            "J17",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D81"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH13",
+        "nodes": [
+          [
+            "J17",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH13",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH13",
+        "nodes": [
+          [
+            "J17",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH13",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH13",
+        "nodes": [
+          [
+            "J17",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH13",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH13",
+        "nodes": [
+          [
+            "J17",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH13",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH13",
+        "nodes": [
+          [
+            "J17",
+            "SW"
+          ],
+          [
+            "J_SW_CH13",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH13",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "STEP_CH14",
+        "nodes": [
+          [
+            "J18",
+            "STEP"
+          ],
+          [
+            "U1",
+            "D82"
+          ]
+        ]
+      },
+      {
+        "net": "DIR_CH14",
+        "nodes": [
+          [
+            "J18",
+            "DIR"
+          ],
+          [
+            "U1",
+            "D83"
+          ]
+        ]
+      },
+      {
+        "net": "EN_CH14",
+        "nodes": [
+          [
+            "J18",
+            "EN"
+          ],
+          [
+            "U1",
+            "D84"
+          ]
+        ]
+      },
+      {
+        "net": "MS1_CH14",
+        "nodes": [
+          [
+            "J18",
+            "MS1"
+          ],
+          [
+            "U1",
+            "D85"
+          ]
+        ]
+      },
+      {
+        "net": "MS2_CH14",
+        "nodes": [
+          [
+            "J18",
+            "MS2"
+          ],
+          [
+            "U1",
+            "D86"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A1_CH14",
+        "nodes": [
+          [
+            "J18",
+            "1B"
+          ],
+          [
+            "J_MOTOR_CH14",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_A2_CH14",
+        "nodes": [
+          [
+            "J18",
+            "1A"
+          ],
+          [
+            "J_MOTOR_CH14",
+            "2"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B1_CH14",
+        "nodes": [
+          [
+            "J18",
+            "2A"
+          ],
+          [
+            "J_MOTOR_CH14",
+            "3"
+          ]
+        ]
+      },
+      {
+        "net": "MOTOR_B2_CH14",
+        "nodes": [
+          [
+            "J18",
+            "2B"
+          ],
+          [
+            "J_MOTOR_CH14",
+            "4"
+          ]
+        ]
+      },
+      {
+        "net": "LIMIT_SW_CH14",
+        "nodes": [
+          [
+            "J18",
+            "SW"
+          ],
+          [
+            "J_SW_CH14",
+            "1"
+          ]
+        ]
+      },
+      {
+        "net": "GND",
+        "nodes": [
+          [
+            "J_SW_CH14",
+            "2"
+          ]
+        ]
+      }
+    ]
+  },
+  "pcb": {
+    "board_size": {
+      "width": 200,
+      "height": 150,
+      "unit": "mm"
+    },
+    "layers": 4,
+    "trace_width": {
+      "power": 2.0,
+      "signal": 0.25,
+      "ground": 0.5
+    },
+    "clearance": 0.2,
+    "via_size": 0.6,
+    "via_hole": 0.3,
+    "placement": {
+      "arduino": {
+        "x": 100,
+        "y": 75,
+        "rotation": 0
+      },
+      "max3232": {
+        "x": 150,
+        "y": 75,
+        "rotation": 0
+      },
+      "tmc_modules": [
+        {
+          "ref": "J5",
+          "x": 20,
+          "y": 25
+        },
+        {
+          "ref": "J6",
+          "x": 40,
+          "y": 25
+        },
+        {
+          "ref": "J7",
+          "x": 60,
+          "y": 25
+        },
+        {
+          "ref": "J8",
+          "x": 80,
+          "y": 25
+        },
+        {
+          "ref": "J9",
+          "x": 100,
+          "y": 25
+        },
+        {
+          "ref": "J10",
+          "x": 120,
+          "y": 25
+        },
+        {
+          "ref": "J11",
+          "x": 140,
+          "y": 25
+        },
+        {
+          "ref": "J12",
+          "x": 160,
+          "y": 25
+        },
+        {
+          "ref": "J13",
+          "x": 180,
+          "y": 25
+        },
+        {
+          "ref": "J14",
+          "x": 20,
+          "y": 55
+        },
+        {
+          "ref": "J15",
+          "x": 40,
+          "y": 55
+        },
+        {
+          "ref": "J16",
+          "x": 60,
+          "y": 55
+        },
+        {
+          "ref": "J17",
+          "x": 80,
+          "y": 55
+        },
+        {
+          "ref": "J18",
+          "x": 100,
+          "y": 55
+        }
+      ],
+      "motor_connectors": [
+        {
+          "ref": "J_MOTOR_CH1",
+          "x": 20,
+          "y": 10
+        },
+        {
+          "ref": "J_MOTOR_CH2",
+          "x": 40,
+          "y": 10
+        },
+        {
+          "ref": "J_MOTOR_CH3",
+          "x": 60,
+          "y": 10
+        },
+        {
+          "ref": "J_MOTOR_CH4",
+          "x": 80,
+          "y": 10
+        },
+        {
+          "ref": "J_MOTOR_CH5",
+          "x": 100,
+          "y": 10
+        },
+        {
+          "ref": "J_MOTOR_CH6",
+          "x": 120,
+          "y": 10
+        },
+        {
+          "ref": "J_MOTOR_CH7",
+          "x": 140,
+          "y": 10
+        },
+        {
+          "ref": "J_MOTOR_CH8",
+          "x": 160,
+          "y": 10
+        },
+        {
+          "ref": "J_MOTOR_CH9",
+          "x": 180,
+          "y": 10
+        },
+        {
+          "ref": "J_MOTOR_CH10",
+          "x": 20,
+          "y": 40
+        },
+        {
+          "ref": "J_MOTOR_CH11",
+          "x": 40,
+          "y": 40
+        },
+        {
+          "ref": "J_MOTOR_CH12",
+          "x": 60,
+          "y": 40
+        },
+        {
+          "ref": "J_MOTOR_CH13",
+          "x": 80,
+          "y": 40
+        },
+        {
+          "ref": "J_MOTOR_CH14",
+          "x": 100,
+          "y": 40
+        }
+      ],
+      "limit_switch_connectors": [
+        {
+          "ref": "J_SW_CH1",
+          "x": 30,
+          "y": 10
+        },
+        {
+          "ref": "J_SW_CH2",
+          "x": 50,
+          "y": 10
+        },
+        {
+          "ref": "J_SW_CH3",
+          "x": 70,
+          "y": 10
+        },
+        {
+          "ref": "J_SW_CH4",
+          "x": 90,
+          "y": 10
+        },
+        {
+          "ref": "J_SW_CH5",
+          "x": 110,
+          "y": 10
+        },
+        {
+          "ref": "J_SW_CH6",
+          "x": 130,
+          "y": 10
+        },
+        {
+          "ref": "J_SW_CH7",
+          "x": 150,
+          "y": 10
+        },
+        {
+          "ref": "J_SW_CH8",
+          "x": 170,
+          "y": 10
+        },
+        {
+          "ref": "J_SW_CH9",
+          "x": 190,
+          "y": 10
+        },
+        {
+          "ref": "J_SW_CH10",
+          "x": 30,
+          "y": 40
+        },
+        {
+          "ref": "J_SW_CH11",
+          "x": 50,
+          "y": 40
+        },
+        {
+          "ref": "J_SW_CH12",
+          "x": 70,
+          "y": 40
+        },
+        {
+          "ref": "J_SW_CH13",
+          "x": 90,
+          "y": 40
+        },
+        {
+          "ref": "J_SW_CH14",
+          "x": 110,
+          "y": 40
+        }
+      ]
+    },
+    "bom": [
+      {
+        "ref": "U1",
+        "value": "ARDUINO_GIGA_R1_WIFI",
+        "qty": 1,
+        "description": "Main controller board (plugged into PCB via female headers)"
+      },
+      {
+        "ref": "J2",
+        "value": "MAX3232_MODULE",
+        "qty": 1,
+        "description": "HiLetgo MAX3232 RS232 to TTL Converter Module (plug-in)"
+      },
+      {
+        "ref": "J5-J18",
+        "value": "TMC2209_SOCKET",
+        "qty": 14,
+        "description": "BIGTREETECH TMC2209 Stepper Driver socket (dual 1x8 female header)"
+      },
+      {
+        "ref": "J_MOTOR_CH1-CH14",
+        "value": "JST-XH-4PIN",
+        "qty": 14,
+        "description": "4-pin JST-XH vertical header for pump connection"
+      },
+      {
+        "ref": "J_SW_CH1-CH14",
+        "value": "JST-GH-2PIN",
+        "qty": 14,
+        "description": "2-pin JST-GH vertical header for limit switch"
+      }
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/.claude"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/.pio"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/.vscode"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/14ch_dispensing_project"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/archive"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/dashboard"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/include"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/kicad-mcp-server"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/lib"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/mcp_server"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/scratch"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/src"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/test"
+		},
+		{
+			"path": "../260330-225943-uno_r4_wifi/.antigravitycli"
+		}
+	],
+	"settings": {}
+}

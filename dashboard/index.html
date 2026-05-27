@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequential Additive Dispensing System Dashboard</title>
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #080b11;
+            --bg-surface: rgba(16, 22, 35, 0.65);
+            --bg-surface-hover: rgba(26, 35, 54, 0.8);
+            --border-glass: rgba(255, 255, 255, 0.07);
+            --border-glow: rgba(0, 242, 254, 0.15);
+            
+            --primary: #00f2fe;
+            --primary-glow: rgba(0, 242, 254, 0.4);
+            --accent: #4facfe;
+            --success: #00e676;
+            --success-glow: rgba(0, 230, 118, 0.3);
+            --warning: #ffb300;
+            --danger: #ff1744;
+            --danger-glow: rgba(255, 23, 68, 0.55);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            
+            --font-display: 'Outfit', sans-serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
+            
+            --shadow-neon: 0 0 20px rgba(0, 242, 254, 0.15);
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(79, 172, 254, 0.05) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-glow);
+        }
+
+        /* --- Header Layout --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 32px;
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-neon);
+        }
+
+        .title-area h1 {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 26px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .title-area p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 4px;
+            font-weight: 300;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* --- Glowing Status Indicator --- */
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: 30px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+            transition: var(--transition-smooth);
+        }
+
+        .status-dot.connected {
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* --- Buttons & Inputs --- */
+        .btn {
+            background: linear-gradient(135deg, var(--accent), rgba(79, 172, 254, 0.4));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            font-family: var(--font-display);
+            font-weight: 600;
+            padding: 11px 22px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.3);
+            border-color: var(--primary);
+        }
+
+        .btn-connect {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            color: #080b11;
+        }
+
+        .btn-connect.active {
+            background: linear-gradient(135deg, #ff1744, #d50000);
+            color: var(--text-main);
+        }
+
+        .btn-estop {
+            background: linear-gradient(135deg, var(--danger), #b71c1c);
+            animation: pulse-danger 1.5s infinite;
+            border: 1px solid var(--danger);
+            font-size: 16px;
+            padding: 12px 28px;
+        }
+
+        @keyframes pulse-danger {
+            0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 23, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); }
+        }
+
+        .btn-estop:hover {
+            box-shadow: 0 0 25px var(--danger-glow);
+            transform: scale(1.05);
+        }
+
+        /* --- Main Layout Grid --- */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* --- Top Shared Scale & Telemetry Card --- */
+        .shared-scale-card {
+            background: linear-gradient(135deg, rgba(16, 22, 35, 0.8), rgba(8, 12, 21, 0.9));
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--primary-glow);
+            border-radius: 20px;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 24px;
+            box-shadow: 0 8px 32px rgba(0, 242, 254, 0.08);
+        }
+
+        .scale-gauge {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            padding-right: 24px;
+        }
+
+        .scale-label {
+            font-family: var(--font-display);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .scale-readout {
+            font-family: var(--font-mono);
+            font-size: 52px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .scale-readout span {
+            font-size: 22px;
+            color: var(--text-muted);
+            text-shadow: none;
+        }
+
+        .telemetry-plot-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .plot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .plot-header h2 {
+            font-family: var(--font-display);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 140px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            overflow: hidden;
+        }
+
+        /* --- Grid of 14 Channels --- */
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .channel-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 20px;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .channel-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            opacity: 0.3;
+            transition: var(--transition-smooth);
+        }
+
+        .channel-card:hover {
+            background: var(--bg-surface-hover);
+            transform: translateY(-2px);
+            border-color: var(--border-glow);
+            box-shadow: 0 8px 30px rgba(0, 242, 254, 0.05);
+        }
+
+        .channel-card:hover::before {
+            opacity: 1;
+            background: var(--primary);
+        }
+
+        .channel-card.active::before {
+            opacity: 1;
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .channel-card.limit-triggered::before {
+            opacity: 1;
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+
+        .channel-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .channel-label {
+            font-family: var(--font-display);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .channel-card.active .channel-label {
+            color: var(--primary);
+        }
+
+        .channel-badge {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .channel-badge.active {
+            color: var(--success);
+            background: var(--success-glow);
+            animation: pulse-glow 1.5s infinite;
+        }
+
+        .channel-badge.limit {
+            color: var(--danger);
+            background: rgba(255, 23, 68, 0.15);
+            animation: flash-red 1s infinite alternate;
+        }
+
+        @keyframes flash-red {
+            from { opacity: 0.4; }
+            to { opacity: 1; }
+        }
+
+        .weight-display {
+            font-family: var(--font-mono);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin: 8px 0;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .weight-display.active-dispense {
+            color: var(--success);
+        }
+
+        /* --- Progress Bar --- */
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        .channel-card.active .progress-bar-fill {
+            background: linear-gradient(90deg, var(--accent), var(--success));
+        }
+
+        /* --- Inline Card Controls (No Tare Button) --- */
+        .card-controls {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            padding: 8px 24px 8px 10px;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
+        }
+
+        .input-group span {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .btn-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-dispense {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
+            border-color: rgba(0, 242, 254, 0.25);
+        }
+
+        .btn-dispense:hover {
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            color: #080b11;
+            border-color: var(--primary);
+        }
+
+        /* --- Right Column Sidebar --- */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .sidebar-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-card h3 {
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- System Config Form --- */
+        .form-row {
+            margin-bottom: 16px;
+        }
+
+        .form-row label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .select-input, .text-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-glass);
+            border-radius: 8px;
+            padding: 10px;
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .select-input:focus, .text-input:focus {
+            border-color: var(--primary);
+        }
+
+        .config-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* --- Serial Console --- */
+        .console-area {
+            background: #04060a;
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 14px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            height: 180px;
+            overflow-y: auto;
+            color: #39ff14; /* matrix green */
+            margin-bottom: 12px;
+        }
+
+        .console-line {
+            margin-bottom: 6px;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+
+        .console-line.tx {
+            color: var(--primary);
+        }
+
+        .console-line.rx {
+            color: var(--success);
+        }
+
+        .console-line.err {
+            color: var(--danger);
+        }
+
+        /* --- Demo Mode Badge --- */
+        .demo-mode-badge {
+            background: var(--warning);
+            color: #080b11;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            font-family: var(--font-sans);
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="title-area">
+            <h1>SEQUENTIAL MULTI-PUMP ADDITIVE CONTROLLER <span class="demo-mode-badge" id="demoModeBadge">SIMULATOR MODE</span></h1>
+            <p>Single Shared Load Cell feedback loop controller with sequential gravimetric dosing logic</p>
+        </div>
+        <div class="header-controls">
+            <div class="status-badge">
+                <span class="status-dot" id="connStatusDot"></span>
+                <span id="connStatusText">SYSTEM STANDBY</span>
+            </div>
+            <button class="btn btn-connect" id="btnConnect">CONNECT USB</button>
+            <button class="btn btn-estop" id="btnEstop">E-STOP (SPACE)</button>
+        </div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <div class="layout-grid">
+        <div class="left-column">
+            
+            <!-- Shared Load Cell Scale & Live Telemetry Curve -->
+            <div class="shared-scale-card">
+                <div class="scale-gauge">
+                    <div class="scale-label">Shared Scale Weight</div>
+                    <div class="scale-readout" id="sharedScaleReadout">
+                        0.00<span>g</span>
+                    </div>
+                    <button class="btn btn-card" id="btnGlobalTare" style="margin-top: 15px; width: 100%; border-color: var(--primary-glow); color: var(--primary);">TARE SHARED SCALE</button>
+                </div>
+                <div class="telemetry-plot-area">
+                    <div class="plot-header">
+                        <h2>Real-Time Closed-Loop Scale Telemetry (Cumulative Weight)</h2>
+                        <span class="channel-badge active" id="telemetryChBadge" style="color: var(--primary); background: rgba(0, 242, 254, 0.1);">Scale Loop Running</span>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="telemetryCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid of 14 Channel Cards -->
+            <div class="channels-grid" id="channelsGrid">
+                <!-- Programmatically generated -->
+            </div>
+
+        </div>
+
+        <div class="right-column">
+            
+            <!-- Quick Batch Config Panel -->
+            <div class="sidebar-card">
+                <h3>Global & Batch Operations</h3>
+                <div class="form-row">
+                    <label>Set Target Weight for ALL channels</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" value="10.00" id="globalTargetInput">
+                        <span>g</span>
+                    </div>
+                </div>
+                <div class="config-buttons">
+                    <button class="btn btn-card" id="btnApplyAll">APPLY TO ALL</button>
+                </div>
+                <div style="margin-top: 16px;">
+                    <button class="btn btn-card btn-dispense" id="btnDispenseAll" style="width: 100%; justify-content: center;">SEQUENTIAL BATCH START</button>
+                </div>
+            </div>
+
+            <!-- Calibration & Diagnostics -->
+            <div class="sidebar-card">
+                <h3>Load Cell Calibration</h3>
+                <div class="form-row">
+                    <label>Known Reference Calibration Weight</label>
+                    <div class="input-group">
+                        <input type="number" step="0.01" value="100.00" id="calWeightInput">
+                        <span>g</span>
+                    </div>
+                </div>
+                <div class="config-buttons">
+                    <button class="btn btn-card btn-dispense" id="btnCalibrateScale">CALIBRATE SCALE</button>
+                </div>
+            </div>
+
+            <!-- Terminal Serial Console Log -->
+            <div class="sidebar-card" style="flex: 1; display: flex; flex-direction: column;">
+                <h3>Serial communication terminal</h3>
+                <div class="console-area" id="serialConsole">
+                    <div class="console-line">Terminal system ready. Standing by for connection...</div>
+                </div>
+                <button class="btn btn-card" id="btnClearConsole" style="align-self: flex-end;">CLEAR LOG</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Web Serial API Connection ---
+        let serialPort = null;
+        let serialWriter = null;
+        let serialReader = null;
+        let isConnected = false;
+        let isDemoMode = true;
+
+        // --- Shared Load Cell State ---
+        let globalWeight = 0.00;
+        let scaleBaseline = 0.00; // tare offset
+        let scaleHistory = Array(50).fill(0.0); // Scrolling weight history
+
+        // --- Simulated/Real Channel States ---
+        const channels = Array.from({ length: 14 }, (_, i) => ({
+            id: i + 1,
+            target: 10.00,
+            currentDispensed: 0.00, // weight added during current step
+            active: false,
+            limit: false,
+            flowRate: 0.0
+        }));
+
+        let activeSeqIndex = -1; // -1 means no sequential batch is active
+
+        // --- DOM Elements ---
+        const connStatusDot = document.getElementById('connStatusDot');
+        const connStatusText = document.getElementById('connStatusText');
+        const btnConnect = document.getElementById('btnConnect');
+        const btnEstop = document.getElementById('btnEstop');
+        const demoModeBadge = document.getElementById('demoModeBadge');
+        const channelsGrid = document.getElementById('channelsGrid');
+        const serialConsole = document.getElementById('serialConsole');
+        const sharedScaleReadout = document.getElementById('sharedScaleReadout');
+        const btnGlobalTare = document.getElementById('btnGlobalTare');
+
+        // --- Initialize UI Grid ---
+        function initUI() {
+            channelsGrid.innerHTML = '';
+            
+            channels.forEach(ch => {
+                // Create channel card widget (removed TARE button)
+                const card = document.createElement('div');
+                card.className = 'channel-card';
+                card.id = `card-ch-${ch.id}`;
+
+                card.innerHTML = `
+                    <div class="channel-top">
+                        <div class="channel-label">Pump Channel ${ch.id}</div>
+                        <div class="channel-badge" id="badge-ch-${ch.id}">Idle</div>
+                    </div>
+                    <div class="weight-display" id="weight-ch-${ch.id}">
+                        Target: ${ch.target.toFixed(2)}<span>g</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progress-ch-${ch.id}"></div>
+                    </div>
+                    <div class="card-controls">
+                        <div class="input-group">
+                            <input type="number" step="0.01" value="10.00" id="target-ch-${ch.id}" onchange="updateSingleTarget(${ch.id}, this.value)">
+                            <span>g</span>
+                        </div>
+                        <button class="btn-card btn-dispense" onclick="dispenseSingleCh(${ch.id});">DISPENSE</button>
+                    </div>
+                `;
+                channelsGrid.appendChild(card);
+            });
+        }
+
+        // --- Log Communication Packets ---
+        function logConsole(text, type = '') {
+            const line = document.createElement('div');
+            line.className = `console-line ${type}`;
+            const time = new Date().toLocaleTimeString();
+            line.textContent = `[${time}] ${text}`;
+            serialConsole.appendChild(line);
+            serialConsole.scrollTop = serialConsole.scrollHeight;
+        }
+
+        // --- Canvas Telemetry Plotter ---
+        const canvas = document.getElementById('telemetryCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function drawTelemetry() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 1;
+            const gridCount = 5;
+            for(let i = 1; i < gridCount; i++) {
+                const y = (canvas.height / gridCount) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // Draw weight telemetry line (Neon cyan gradient)
+            const points = scaleHistory;
+            ctx.strokeStyle = '#00f2fe';
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'rgba(0, 242, 254, 0.5)';
+            ctx.beginPath();
+
+            const xStep = canvas.width / (points.length - 1);
+            points.forEach((val, i) => {
+                const x = i * xStep;
+                // scale weight value to canvas height (auto-scaling based on max weight in history)
+                const maxVal = Math.max(...points, 20.0);
+                const y = canvas.height - (val / (maxVal * 1.1)) * (canvas.height - 30) - 15;
+                if(i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            ctx.shadowBlur = 0; // reset shadow
+
+            // Draw weight area fill (faded gradient)
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            const areaGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            areaGrad.addColorStop(0, 'rgba(0, 242, 254, 0.12)');
+            areaGrad.addColorStop(1, 'rgba(0, 242, 254, 0.0)');
+            ctx.fillStyle = areaGrad;
+            ctx.fill();
+
+            requestAnimationFrame(drawTelemetry);
+        }
+
+        // --- Single Channel target updating ---
+        function updateSingleTarget(id, value) {
+            const val = parseFloat(value) || 0.00;
+            channels[id - 1].target = val;
+            const display = document.getElementById(`weight-ch-${id}`);
+            if(display) display.innerHTML = `Target: ${val.toFixed(2)}<span>g</span>`;
+            logConsole(`Configured target weight for Pump Channel ${id}: ${val.toFixed(2)} g`);
+        }
+
+        // --- Batch operations ---
+        document.getElementById('btnApplyAll').onclick = () => {
+            const val = parseFloat(document.getElementById('globalTargetInput').value) || 10.00;
+            channels.forEach(ch => {
+                ch.target = val;
+                const input = document.getElementById(`target-ch-${ch.id}`);
+                if (input) input.value = val.toFixed(2);
+                const display = document.getElementById(`weight-ch-${ch.id}`);
+                if(display) display.innerHTML = `Target: ${val.toFixed(2)}<span>g</span>`;
+            });
+            logConsole(`Applied target weight ${val.toFixed(2)} g to all 14 channels.`);
+        };
+
+        // --- Global Scale Tare ---
+        function tareScale() {
+            if (isDemoMode) {
+                scaleBaseline = globalWeight;
+                updateScaleReadout();
+                logConsole("Demonstration Mode: Tared shared scale to 0.00g.");
+            } else {
+                sendCommand({ cmd: "tare" });
+            }
+        }
+        btnGlobalTare.onclick = tareScale;
+
+        function updateScaleReadout() {
+            const currentShow = Math.max(globalWeight - scaleBaseline, 0.00);
+            sharedScaleReadout.innerHTML = `${currentShow.toFixed(2)}<span>g</span>`;
+        }
+
+        // --- System commands over Serial/Web Serial ---
+        async function sendCommand(obj) {
+            let commandText = "";
+            
+            // Map the structured command object to plain text microcontroller commands
+            if (obj && obj.cmd) {
+                if (obj.cmd === "stop" || obj.cmd === "estop") {
+                    commandText = "S";
+                } else if (obj.cmd === "dispense") {
+                    commandText = typeof obj.val === "number" ? obj.val.toFixed(2) : String(obj.val);
+                } else if (obj.cmd === "tare") {
+                    commandText = "T";
+                } else if (obj.cmd === "cal") {
+                    commandText = "C " + (typeof obj.val === "number" ? obj.val.toFixed(2) : String(obj.val));
+                } else {
+                    commandText = JSON.stringify(obj);
+                }
+            } else {
+                commandText = typeof obj === "string" ? obj : JSON.stringify(obj);
+            }
+
+            logConsole(`TX (Plain Text) >> ${commandText}`, 'tx');
+            
+            if (!isDemoMode && serialWriter) {
+                try {
+                    await serialWriter.write(new TextEncoder().encode(commandText + '\n'));
+                } catch(e) {
+                    logConsole(`Failed to send command: ${e.message}`, 'err');
+                }
+            }
+        }
+
+        // --- Dispatching Dispense Loops ---
+        function dispenseSingleCh(id) {
+            const ch = channels[id - 1];
+            if (isDemoMode) {
+                simulateDispenseSequential(id);
+            } else {
+                sendCommand({ cmd: "dispense", ch: id, val: ch.target });
+            }
+        }
+
+        // --- Sequential Dispense Simulation (Lab Bench Model) ---
+        function simulateDispenseSequential(id) {
+            const ch = channels[id - 1];
+            if(ch.active || activeSeqIndex !== -1) return; // ignore if running
+
+            ch.active = true;
+            ch.currentDispensed = 0.00;
+            scaleBaseline = globalWeight; // auto-tare before start
+            logConsole(`[Sequential Additive Dispense] Starting Pump ${id}... Target: ${ch.target}g`);
+
+            const interval = setInterval(() => {
+                if(!ch.active) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                const remaining = ch.target - ch.currentDispensed;
+                
+                if(remaining <= 0.01) {
+                    ch.currentDispensed = ch.target;
+                    ch.active = false;
+                    ch.flowRate = 0.0;
+                    updateChCardUI(id);
+                    logConsole(`[Sequential Additive Dispense] Pump ${id} complete! Added ${ch.target.toFixed(2)}g into scale.`, 'rx');
+                    clearInterval(interval);
+                    return;
+                }
+
+                // PID Deceleration loop
+                const maxFlow = 1.60; // g/s
+                const speedCoeff = Math.min(remaining / (ch.target * 0.25), 1.0);
+                ch.flowRate = maxFlow * speedCoeff;
+                
+                const jitter = (Math.random() - 0.5) * 0.02;
+                const addedThisTick = (ch.flowRate * 0.1) + jitter;
+                
+                ch.currentDispensed += addedThisTick;
+                globalWeight += addedThisTick;
+                if(ch.currentDispensed < 0) ch.currentDispensed = 0;
+
+                // Telemetry plot updates
+                scaleHistory.push(globalWeight - scaleBaseline);
+                scaleHistory.shift();
+
+                updateScaleReadout();
+                updateChCardUI(id);
+            }, 100);
+        }
+
+        // --- Sequential Batch Dispenser Logic (1 by 1) ---
+        async function runSequentialBatchSim() {
+            if(activeSeqIndex !== -1) return;
+            logConsole("Starting Sequential Additive Batch Dispensing on Shared Scale...");
+            
+            // Loop through channels sequentially
+            for(let i = 0; i < channels.length; i++) {
+                const ch = channels[i];
+                if(ch.target <= 0.00) continue; // skip if target is zero
+
+                activeSeqIndex = i;
+                ch.active = true;
+                ch.currentDispensed = 0.00;
+                scaleBaseline = globalWeight; // Tare before this pump begins
+                
+                logConsole(`[Batch Step ${i+1}/14] Tared shared scale. Activating Pump ${ch.id} (Target: ${ch.target.toFixed(2)}g)...`);
+
+                await new Promise((resolve) => {
+                    const interval = setInterval(() => {
+                        const remaining = ch.target - ch.currentDispensed;
+                        
+                        if(remaining <= 0.01) {
+                            ch.currentDispensed = ch.target;
+                            ch.active = false;
+                            ch.flowRate = 0.0;
+                            updateChCardUI(ch.id);
+                            logConsole(`[Batch Step ${i+1}/14] Pump ${ch.id} finished. Added ${ch.target.toFixed(2)}g.`, 'rx');
+                            clearInterval(interval);
+                            setTimeout(resolve, 1000); // 1-second pause before taring and starting next pump
+                            return;
+                        }
+
+                        const maxFlow = 1.60;
+                        const speedCoeff = Math.min(remaining / (ch.target * 0.25), 1.0);
+                        ch.flowRate = maxFlow * speedCoeff;
+                        
+                        const jitter = (Math.random() - 0.5) * 0.02;
+                        const addedThisTick = (ch.flowRate * 0.1) + jitter;
+                        
+                        ch.currentDispensed += addedThisTick;
+                        globalWeight += addedThisTick;
+
+                        scaleHistory.push(globalWeight - scaleBaseline);
+                        scaleHistory.shift();
+
+                        updateScaleReadout();
+                        updateChCardUI(ch.id);
+                    }, 100);
+                });
+            }
+
+            activeSeqIndex = -1;
+            logConsole("Success! Sequential Additive Batch Dispensing completed successfully.", 'rx');
+        }
+
+        document.getElementById('btnDispenseAll').onclick = () => {
+            if(isDemoMode) {
+                runSequentialBatchSim();
+            } else {
+                sendCommand({ cmd: "batch_dispense" });
+            }
+        };
+
+        // --- E-STOP Emergency Trigger ---
+        function triggerEstop() {
+            logConsole("!!! EMERGENCY STOP ACTIVE !!! ALL STEPPER DRIVERS SHUTDOWN", 'err');
+            channels.forEach(ch => {
+                ch.active = false;
+                ch.flowRate = 0.0;
+                updateChCardUI(ch.id);
+            });
+            activeSeqIndex = -1;
+            sendCommand({ cmd: "stop" });
+        }
+        btnEstop.onclick = triggerEstop;
+        
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                triggerEstop();
+            }
+        });
+
+        // --- Calibration actions ---
+        document.getElementById('btnCalibrateScale').onclick = () => {
+            const val = parseFloat(document.getElementById('calWeightInput').value) || 100.00;
+            if (isDemoMode) {
+                logConsole(`Demonstration Mode: Calibrated scale against reference weight of ${val.toFixed(2)}g`);
+            } else {
+                sendCommand({ cmd: "cal", val: val });
+            }
+        };
+
+        document.getElementById('btnClearConsole').onclick = () => {
+            serialConsole.innerHTML = '';
+        };
+
+        // --- UI Card Renderer ---
+        function updateChCardUI(id) {
+            const ch = channels[id - 1];
+            const card = document.getElementById(`card-ch-${id}`);
+            const badge = document.getElementById(`badge-ch-${id}`);
+            const fill = document.getElementById(`progress-ch-${id}`);
+            const display = document.getElementById(`weight-ch-${id}`);
+
+            if(!card) return;
+
+            // Fill card progress bar
+            const percentage = Math.min((ch.currentDispensed / ch.target) * 100, 100);
+            fill.style.width = `${percentage}%`;
+
+            if(ch.active) {
+                card.className = 'channel-card active';
+                badge.className = 'channel-badge active';
+                badge.textContent = 'Dosing';
+                if(display) display.innerHTML = `<span class="active-dispense">Dosing: +${ch.currentDispensed.toFixed(2)}g</span>`;
+            } else if(ch.limit) {
+                card.className = 'channel-card limit-triggered';
+                badge.className = 'channel-badge limit';
+                badge.textContent = 'Switch Err';
+            } else {
+                card.className = 'channel-card';
+                badge.className = 'channel-badge';
+                badge.textContent = 'Idle';
+                if(display) display.innerHTML = `Target: ${ch.target.toFixed(2)}<span>g</span>`;
+            }
+        }
+
+        // --- Web Serial API Connection Process ---
+        btnConnect.onclick = async () => {
+            if (isConnected) {
+                disconnectSerial();
+                return;
+            }
+
+            try {
+                logConsole("Requesting Serial access...", 'tx');
+                serialPort = await navigator.serial.requestPort();
+                await serialPort.open({ baudRate: 115200 });
+                
+                const encoder = new TextEncoderStream();
+                encoder.readable.pipeTo(serialPort.writable);
+                serialWriter = encoder.writable.getWriter();
+                
+                isConnected = true;
+                isDemoMode = false;
+
+                btnConnect.textContent = "DISCONNECT USB";
+                btnConnect.classList.add('active');
+                connStatusText.textContent = "CONNECTED (USB SERIAL)";
+                connStatusDot.classList.add('connected');
+                demoModeBadge.style.display = 'none';
+
+                logConsole("Successfully connected to Arduino Giga R1 WiFi over USB!", 'rx');
+                
+                // Start read loop
+                readSerialLoop();
+
+            } catch (e) {
+                logConsole(`Serial connection failed: ${e.message}. Entering Simulator Demo mode.`, 'err');
+                isDemoMode = true;
+                demoModeBadge.style.display = 'inline-block';
+            }
+        };
+
+        function disconnectSerial() {
+            if (serialWriter) serialWriter.releaseLock();
+            if (serialPort) serialPort.close();
+            
+            isConnected = false;
+            isDemoMode = true;
+
+            btnConnect.textContent = "CONNECT USB";
+            btnConnect.classList.remove('active');
+            connStatusText.textContent = "SYSTEM STANDBY";
+            connStatusDot.classList.remove('connected');
+            demoModeBadge.style.display = 'inline-block';
+
+            logConsole("Disconnected from Serial interface. Simulator mode restored.", 'err');
+        }
+
+        // --- Read Loop for Incoming scale feedback telemetry ---
+        async function readSerialLoop() {
+            while (serialPort && serialPort.readable && isConnected) {
+                try {
+                    const textDecoder = new TextDecoderStream();
+                    serialPort.readable.pipeTo(textDecoder.writable);
+                    const reader = textDecoder.readable.getReader();
+                    
+                    let buffer = "";
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) break;
+                        
+                        buffer += value;
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop(); // keep remainder
+                        
+                        for (const line of lines) {
+                            if (line.trim()) {
+                                handleIncomingData(line.trim());
+                            }
+                        }
+                    }
+                } catch (e) {
+                    logConsole(`Incoming read error: ${e.message}`, 'err');
+                    break;
+                }
+            }
+        }
+
+        // --- Process Incoming Telemetry packets ---
+        function handleIncomingData(jsonStr) {
+            logConsole(`RX << ${jsonStr}`, 'rx');
+            try {
+                const data = JSON.parse(jsonStr);
+                
+                // Update Shared Scale reading
+                if(data.scale_weight_g !== undefined) {
+                    globalWeight = data.scale_weight_g;
+                    updateScaleReadout();
+
+                    // Push weight history
+                    scaleHistory.push(globalWeight - scaleBaseline);
+                    scaleHistory.shift();
+                }
+
+                // Update active channels status
+                if(data.telemetry) {
+                    for(const [chKey, val] of Object.entries(data.telemetry)) {
+                        const chId = parseInt(chKey.replace('ch', ''));
+                        const ch = channels[chId - 1];
+                        
+                        ch.currentDispensed = val.current_step_dispensed_g;
+                        ch.active = val.motor_active;
+                        ch.limit = val.limit_triggered;
+
+                        updateChCardUI(chId);
+                    }
+                }
+            } catch(e) {
+                // Plain text logs from Arduino
+                logConsole(`TEXT: ${jsonStr}`);
+            }
+        }
+
+        // --- Initial Load ---
+        initUI();
+        drawTelemetry();
+
+    </script>
+</body>
+</html>

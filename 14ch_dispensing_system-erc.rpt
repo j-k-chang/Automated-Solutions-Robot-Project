@@ -1,0 +1,464 @@
+ERC report (2026-05-26T00:11:29, Encoding UTF8)
+Report includes: Errors, Warnings
+
+***** Sheet /
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 105.08 mm): Label 'RS232_TX'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 110.16 mm): Label 'STEP_CH1'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 115.24 mm): Label 'EN_CH1'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 120.32 mm): Label 'MS2_CH1'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 125.40 mm): Label 'DIR_CH2'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 135.56 mm): Label 'STEP_CH3'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 140.64 mm): Label 'EN_CH3'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 145.72 mm): Label 'MS2_CH3'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 155.88 mm): Label 'MS1_CH4'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 166.04 mm): Label 'EN_CH5'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 171.12 mm): Label 'MS2_CH5'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 176.20 mm): Label 'DIR_CH6'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 105.08 mm): Label 'RS232_RX'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 181.28 mm): Label 'MS1_CH6'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 115.24 mm): Label 'MS1_CH1'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 125.40 mm): Label 'EN_CH2'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 135.56 mm): Label 'DIR_CH3'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 140.64 mm): Label 'MS1_CH3'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 206.68 mm): Label 'MS1_CH8'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 216.84 mm): Label 'EN_CH9'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 166.04 mm): Label 'MS1_CH5'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 176.20 mm): Label 'EN_CH6'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 181.28 mm): Label 'MS2_CH6'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 237.16 mm): Label 'STEP_CH11'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 191.44 mm): Label 'MS1_CH7'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 242.24 mm): Label 'EN_CH11'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 201.60 mm): Label 'EN_CH8'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 206.68 mm): Label 'MS2_CH8'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 252.40 mm): Label 'DIR_CH12'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 211.76 mm): Label 'DIR_CH9'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 257.48 mm): Label 'MS1_CH12'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 216.84 mm): Label 'MS1_CH9'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 262.56 mm): Label 'STEP_CH13'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 221.92 mm): Label 'STEP_CH10'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 267.64 mm): Label 'EN_CH13'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 227.00 mm): Label 'EN_CH10'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 232.08 mm): Label 'MS2_CH10'
+[label_dangling]: Label not connected
+    ; error
+    @(174.60 mm, 277.80 mm): Label 'DIR_CH14'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 242.24 mm): Label 'MS1_CH11'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 252.40 mm): Label 'EN_CH12'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 262.56 mm): Label 'DIR_CH13'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 267.64 mm): Label 'MS1_CH13'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 272.72 mm): Label 'STEP_CH14'
+[label_dangling]: Label not connected
+    ; error
+    @(225.40 mm, 277.80 mm): Label 'EN_CH14'
+[label_dangling]: Label not connected
+    ; error
+    @(102.30 mm, 384.76 mm): Label 'MS1_CH2'
+[label_dangling]: Label not connected
+    ; error
+    @(72.70 mm, 394.92 mm): Label 'MOTOR_B2_CH1'
+[label_dangling]: Label not connected
+    ; error
+    @(102.30 mm, 389.84 mm): Label 'MS2_CH2'
+[label_dangling]: Label not connected
+    ; error
+    @(72.70 mm, 400.00 mm): Label 'MOTOR_A1_CH1'
+[label_dangling]: Label not connected
+    ; error
+    @(127.70 mm, 389.84 mm): Label 'MOTOR_B1_CH2'
+[label_dangling]: Label not connected
+    ; error
+    @(47.30 mm, 415.24 mm): Label 'DIR_CH1'
+[label_dangling]: Label not connected
+    ; error
+    @(127.70 mm, 400.00 mm): Label 'MOTOR_A1_CH2'
+[label_dangling]: Label not connected
+    ; error
+    @(102.30 mm, 410.16 mm): Label 'STEP_CH2'
+[label_dangling]: Label not connected
+    ; error
+    @(182.70 mm, 389.84 mm): Label 'MOTOR_B1_CH3'
+[label_dangling]: Label not connected
+    ; error
+    @(182.70 mm, 394.92 mm): Label 'MOTOR_B2_CH3'
+[label_dangling]: Label not connected
+    ; error
+    @(62.30 mm, 434.92 mm): Label 'MOTOR_A2_CH1'
+[label_dangling]: Label not connected
+    ; error
+    @(212.30 mm, 389.84 mm): Label 'MS2_CH4'
+[label_dangling]: Label not connected
+    ; error
+    @(182.70 mm, 405.08 mm): Label 'MOTOR_A2_CH3'
+[label_dangling]: Label not connected
+    ; error
+    @(62.30 mm, 440.00 mm): Label 'MOTOR_B1_CH1'
+[label_dangling]: Label not connected
+    ; error
+    @(182.70 mm, 410.16 mm): Label '3V3'
+[label_dangling]: Label not connected
+    ; error
+    @(117.30 mm, 434.92 mm): Label 'MOTOR_A2_CH2'
+[label_dangling]: Label not connected
+    ; error
+    @(237.70 mm, 389.84 mm): Label 'MOTOR_B1_CH4'
+[label_dangling]: Label not connected
+    ; error
+    @(117.30 mm, 445.08 mm): Label 'MOTOR_B2_CH2'
+[label_dangling]: Label not connected
+    ; error
+    @(212.30 mm, 410.16 mm): Label 'STEP_CH4'
+[label_dangling]: Label not connected
+    ; error
+    @(172.30 mm, 429.84 mm): Label 'MOTOR_A1_CH3'
+[label_dangling]: Label not connected
+    ; error
+    @(237.70 mm, 400.00 mm): Label 'MOTOR_A1_CH4'
+[label_dangling]: Label not connected
+    ; error
+    @(212.30 mm, 415.24 mm): Label 'DIR_CH4'
+[label_dangling]: Label not connected
+    ; error
+    @(237.70 mm, 405.08 mm): Label 'MOTOR_A2_CH4'
+[label_dangling]: Label not connected
+    ; error
+    @(197.30 mm, 434.92 mm): Label 'LIMIT_SW_CH4'
+[label_dangling]: Label not connected
+    ; error
+    @(237.70 mm, 415.24 mm): Label 'GND'
+[label_dangling]: Label not connected
+    ; error
+    @(292.70 mm, 389.84 mm): Label 'MOTOR_B1_CH5'
+[label_dangling]: Label not connected
+    ; error
+    @(267.30 mm, 410.16 mm): Label 'STEP_CH5'
+[label_dangling]: Label not connected
+    ; error
+    @(267.30 mm, 415.24 mm): Label 'DIR_CH5'
+[label_dangling]: Label not connected
+    ; error
+    @(292.70 mm, 400.00 mm): Label 'MOTOR_A1_CH5'
+[label_dangling]: Label not connected
+    ; error
+    @(227.30 mm, 445.08 mm): Label 'MOTOR_B2_CH4'
+[label_dangling]: Label not connected
+    ; error
+    @(282.30 mm, 434.92 mm): Label 'MOTOR_A2_CH5'
+[label_dangling]: Label not connected
+    ; error
+    @(322.30 mm, 410.16 mm): Label 'STEP_CH6'
+[label_dangling]: Label not connected
+    ; error
+    @(347.70 mm, 389.84 mm): Label 'MOTOR_B1_CH6'
+[label_dangling]: Label not connected
+    ; error
+    @(347.70 mm, 394.92 mm): Label 'MOTOR_B2_CH6'
+[label_dangling]: Label not connected
+    ; error
+    @(282.30 mm, 445.08 mm): Label 'MOTOR_B2_CH5'
+[label_dangling]: Label not connected
+    ; error
+    @(347.70 mm, 405.08 mm): Label 'MOTOR_A2_CH6'
+[label_dangling]: Label not connected
+    ; error
+    @(377.30 mm, 389.84 mm): Label 'MS2_CH7'
+[label_dangling]: Label not connected
+    ; error
+    @(337.30 mm, 429.84 mm): Label 'MOTOR_A1_CH6'
+[label_dangling]: Label not connected
+    ; error
+    @(102.30 mm, 539.84 mm): Label 'MS2_CH9'
+[label_dangling]: Label not connected
+    ; error
+    @(402.70 mm, 379.68 mm): Label '24V'
+[label_dangling]: Label not connected
+    ; error
+    @(72.70 mm, 550.00 mm): Label 'MOTOR_A1_CH8'
+[label_dangling]: Label not connected
+    ; error
+    @(377.30 mm, 410.16 mm): Label 'STEP_CH7'
+[label_dangling]: Label not connected
+    ; error
+    @(157.30 mm, 534.76 mm): Label 'MS1_CH10'
+[label_dangling]: Label not connected
+    ; error
+    @(72.70 mm, 555.08 mm): Label 'MOTOR_A2_CH8'
+[label_dangling]: Label not connected
+    ; error
+    @(377.30 mm, 415.24 mm): Label 'DIR_CH7'
+[label_dangling]: Label not connected
+    ; error
+    @(47.30 mm, 560.16 mm): Label 'STEP_CH8'
+[label_dangling]: Label not connected
+    ; error
+    @(402.70 mm, 394.92 mm): Label 'MOTOR_B2_CH7'
+[label_dangling]: Label not connected
+    ; error
+    @(362.30 mm, 434.92 mm): Label 'LIMIT_SW_CH7'
+[label_dangling]: Label not connected
+    ; error
+    @(47.30 mm, 565.24 mm): Label 'DIR_CH8'
+[label_dangling]: Label not connected
+    ; error
+    @(102.30 mm, 560.16 mm): Label 'STEP_CH9'
+[label_dangling]: Label not connected
+    ; error
+    @(127.70 mm, 555.08 mm): Label 'MOTOR_A2_CH9'
+[label_dangling]: Label not connected
+    ; error
+    @(182.70 mm, 539.84 mm): Label 'MOTOR_B1_CH10'
+[label_dangling]: Label not connected
+    ; error
+    @(402.70 mm, 405.08 mm): Label 'MOTOR_A2_CH7'
+[label_dangling]: Label not connected
+    ; error
+    @(182.70 mm, 550.00 mm): Label 'MOTOR_A1_CH10'
+[label_dangling]: Label not connected
+    ; error
+    @(212.30 mm, 539.84 mm): Label 'MS2_CH11'
+[label_dangling]: Label not connected
+    ; error
+    @(392.30 mm, 429.84 mm): Label 'MOTOR_A1_CH7'
+[label_dangling]: Label not connected
+    ; error
+    @(182.70 mm, 555.08 mm): Label 'MOTOR_A2_CH10'
+[label_dangling]: Label not connected
+    ; error
+    @(157.30 mm, 565.24 mm): Label 'DIR_CH10'
+[label_dangling]: Label not connected
+    ; error
+    @(392.30 mm, 440.00 mm): Label 'MOTOR_B1_CH7'
+[label_dangling]: Label not connected
+    ; error
+    @(117.30 mm, 579.84 mm): Label 'MOTOR_A1_CH9'
+[label_dangling]: Label not connected
+    ; error
+    @(62.30 mm, 590.00 mm): Label 'MOTOR_B1_CH8'
+[label_dangling]: Label not connected
+    ; error
+    @(237.70 mm, 544.92 mm): Label 'MOTOR_B2_CH11'
+[label_dangling]: Label not connected
+    ; error
+    @(62.30 mm, 595.08 mm): Label 'MOTOR_B2_CH8'
+[label_dangling]: Label not connected
+    ; error
+    @(117.30 mm, 590.00 mm): Label 'MOTOR_B1_CH9'
+[label_dangling]: Label not connected
+    ; error
+    @(267.30 mm, 539.84 mm): Label 'MS2_CH12'
+[label_dangling]: Label not connected
+    ; error
+    @(212.30 mm, 565.24 mm): Label 'DIR_CH11'
+[label_dangling]: Label not connected
+    ; error
+    @(117.30 mm, 595.08 mm): Label 'MOTOR_B2_CH9'
+[label_dangling]: Label not connected
+    ; error
+    @(292.70 mm, 539.84 mm): Label 'MOTOR_B1_CH12'
+[label_dangling]: Label not connected
+    ; error
+    @(292.70 mm, 544.92 mm): Label 'MOTOR_B2_CH12'
+[label_dangling]: Label not connected
+    ; error
+    @(172.30 mm, 595.08 mm): Label 'MOTOR_B2_CH10'
+[label_dangling]: Label not connected
+    ; error
+    @(267.30 mm, 560.16 mm): Label 'STEP_CH12'
+[label_dangling]: Label not connected
+    ; error
+    @(227.30 mm, 579.84 mm): Label 'MOTOR_A1_CH11'
+[label_dangling]: Label not connected
+    ; error
+    @(292.70 mm, 550.00 mm): Label 'MOTOR_A1_CH12'
+[label_dangling]: Label not connected
+    ; error
+    @(292.70 mm, 555.08 mm): Label 'MOTOR_A2_CH12'
+[label_dangling]: Label not connected
+    ; error
+    @(227.30 mm, 584.92 mm): Label 'MOTOR_A2_CH11'
+[label_dangling]: Label not connected
+    ; error
+    @(322.30 mm, 539.84 mm): Label 'MS2_CH13'
+[label_dangling]: Label not connected
+    ; error
+    @(227.30 mm, 590.00 mm): Label 'MOTOR_B1_CH11'
+[label_dangling]: Label not connected
+    ; error
+    @(347.70 mm, 550.00 mm): Label 'MOTOR_A1_CH13'
+[label_dangling]: Label not connected
+    ; error
+    @(377.30 mm, 534.76 mm): Label 'MS1_CH14'
+[label_dangling]: Label not connected
+    ; error
+    @(377.30 mm, 539.84 mm): Label 'MS2_CH14'
+[label_dangling]: Label not connected
+    ; error
+    @(402.70 mm, 539.84 mm): Label 'MOTOR_B1_CH14'
+[label_dangling]: Label not connected
+    ; error
+    @(337.30 mm, 584.92 mm): Label 'MOTOR_A2_CH13'
+[label_dangling]: Label not connected
+    ; error
+    @(402.70 mm, 544.92 mm): Label 'MOTOR_B2_CH14'
+[label_dangling]: Label not connected
+    ; error
+    @(337.30 mm, 590.00 mm): Label 'MOTOR_B1_CH13'
+[label_dangling]: Label not connected
+    ; error
+    @(402.70 mm, 550.00 mm): Label 'MOTOR_A1_CH14'
+[label_dangling]: Label not connected
+    ; error
+    @(337.30 mm, 595.08 mm): Label 'MOTOR_B2_CH13'
+[label_dangling]: Label not connected
+    ; error
+    @(402.70 mm, 555.08 mm): Label 'MOTOR_A2_CH14'
+[footprint_link_issues]: Footprint 'Arduino_Giga_R1_WiFi_Board' not found in library 'Connector'
+    ; warning
+    @(200.00 mm, 200.00 mm): Symbol U1 [ARDUINO_GIGA_R1_WIFI]
+[multiple_net_names]: Both EN_CH3 and LIMIT_SW_CH3 are attached to the same items; EN_CH3 will be used in the netlist
+    ; warning
+    @(174.60 mm, 140.64 mm): Label 'EN_CH3'
+    @(157.30 mm, 379.68 mm): Label 'LIMIT_SW_CH3'
+[multiple_net_names]: Both EN_CH1 and LIMIT_SW_CH1 are attached to the same items; EN_CH1 will be used in the netlist
+    ; warning
+    @(174.60 mm, 115.24 mm): Label 'EN_CH1'
+    @(32.30 mm, 434.92 mm): Label 'LIMIT_SW_CH1'
+[multiple_net_names]: Both EN_CH2 and LIMIT_SW_CH2 are attached to the same items; EN_CH2 will be used in the netlist
+    ; warning
+    @(102.30 mm, 379.68 mm): Label 'EN_CH2'
+    @(87.30 mm, 434.92 mm): Label 'LIMIT_SW_CH2'
+[multiple_net_names]: Both EN_CH4 and LIMIT_SW_CH4 are attached to the same items; EN_CH4 will be used in the netlist
+    ; warning
+    @(212.30 mm, 379.68 mm): Label 'EN_CH4'
+    @(197.30 mm, 434.92 mm): Label 'LIMIT_SW_CH4'
+[multiple_net_names]: Both EN_CH6 and LIMIT_SW_CH6 are attached to the same items; EN_CH6 will be used in the netlist
+    ; warning
+    @(225.40 mm, 176.20 mm): Label 'EN_CH6'
+    @(322.30 mm, 379.68 mm): Label 'LIMIT_SW_CH6'
+[multiple_net_names]: Both EN_CH5 and LIMIT_SW_CH5 are attached to the same items; EN_CH5 will be used in the netlist
+    ; warning
+    @(174.60 mm, 166.04 mm): Label 'EN_CH5'
+    @(252.30 mm, 434.92 mm): Label 'LIMIT_SW_CH5'
+[multiple_net_names]: Both EN_CH7 and LIMIT_SW_CH7 are attached to the same items; EN_CH7 will be used in the netlist
+    ; warning
+    @(377.30 mm, 379.68 mm): Label 'EN_CH7'
+    @(377.30 mm, 379.68 mm): Label 'LIMIT_SW_CH7'
+[multiple_net_names]: Both EN_CH9 and LIMIT_SW_CH9 are attached to the same items; EN_CH9 will be used in the netlist
+    ; warning
+    @(102.30 mm, 529.68 mm): Label 'EN_CH9'
+    @(102.30 mm, 529.68 mm): Label 'LIMIT_SW_CH9'
+[multiple_net_names]: Both EN_CH10 and LIMIT_SW_CH10 are attached to the same items; EN_CH10 will be used in the netlist
+    ; warning
+    @(157.30 mm, 529.68 mm): Label 'EN_CH10'
+    @(157.30 mm, 529.68 mm): Label 'LIMIT_SW_CH10'
+[multiple_net_names]: Both EN_CH11 and LIMIT_SW_CH11 are attached to the same items; EN_CH11 will be used in the netlist
+    ; warning
+    @(212.30 mm, 529.68 mm): Label 'EN_CH11'
+    @(212.30 mm, 529.68 mm): Label 'LIMIT_SW_CH11'
+[multiple_net_names]: Both EN_CH8 and LIMIT_SW_CH8 are attached to the same items; EN_CH8 will be used in the netlist
+    ; warning
+    @(225.40 mm, 201.60 mm): Label 'EN_CH8'
+    @(32.30 mm, 584.92 mm): Label 'LIMIT_SW_CH8'
+[multiple_net_names]: Both EN_CH12 and LIMIT_SW_CH12 are attached to the same items; EN_CH12 will be used in the netlist
+    ; warning
+    @(267.30 mm, 529.68 mm): Label 'EN_CH12'
+    @(252.30 mm, 584.92 mm): Label 'LIMIT_SW_CH12'
+[multiple_net_names]: Both EN_CH13 and LIMIT_SW_CH13 are attached to the same items; EN_CH13 will be used in the netlist
+    ; warning
+    @(174.60 mm, 267.64 mm): Label 'EN_CH13'
+    @(307.30 mm, 584.92 mm): Label 'LIMIT_SW_CH13'
+[multiple_net_names]: Both EN_CH14 and LIMIT_SW_CH14 are attached to the same items; EN_CH14 will be used in the netlist
+    ; warning
+    @(377.30 mm, 529.68 mm): Label 'EN_CH14'
+    @(362.30 mm, 584.92 mm): Label 'LIMIT_SW_CH14'
+
+ ** ERC messages: 146  Errors 131  Warnings 15
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters

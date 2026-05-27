@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>C:\Users\littl\Documents\PlatformIO\Projects\260330-225943-uno_r4_wifi\14ch_dispensing_project\14ch_dispensing_system.kicad_sch</source>
+    <date>2026-05-26T00:11:29</date>
+    <tool>Eeschema 10.0.0</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>14-channel gravimetric dispensing system with Arduino Giga R1 WiFi, plug-in BIGTREETECH TMC2209 modules, plug-in HiLetgo MAX3232 RS232 converter, and JST-XH pump connections.</title>
+        <company>Jimmy Chang</company>
+        <rev>0</rev>
+        <date>2026-05-26</date>
+        <source>14ch_dispensing_system.kicad_sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components/>
+  <libparts/>
+  <libraries/>
+  <nets/>
+</export>

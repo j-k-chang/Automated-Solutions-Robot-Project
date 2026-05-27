@@ -1,0 +1,697 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-05-26T01:41:40",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning"
+    ],
+    "kicad_version": "10.0.0",
+    "schematic_parity": [],
+    "source": "14ch_dispensing_system.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Footprint 'Arduino_Giga_R1_WiFi_Board' not found in library 'Connector'",
+            "items": [
+                {
+                    "description": "Footprint U1",
+                    "pos": {
+                        "x": 100.0,
+                        "y": 75.0
+                    },
+                    "uuid": "91a0bbb7-675f-4445-bb09-d39d0193693f"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_issues"
+        },
+        {
+            "description": "Footprint 'PinHeader_1x04_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J2",
+                    "pos": {
+                        "x": 160.0,
+                        "y": 75.0
+                    },
+                    "uuid": "9c76f72c-452b-43ff-959d-b93e161c28de"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J5",
+                    "pos": {
+                        "x": 25.0,
+                        "y": 45.0
+                    },
+                    "uuid": "f7d48bdd-8646-41b1-8aa6-cea3d05a1790"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH1",
+                    "pos": {
+                        "x": 25.0,
+                        "y": 15.0
+                    },
+                    "uuid": "d340b401-55a4-44cf-8b0c-ca67b242310b"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH1",
+                    "pos": {
+                        "x": 25.0,
+                        "y": 27.0
+                    },
+                    "uuid": "41a364eb-2f36-405e-84bc-7b1f166b8bef"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J6",
+                    "pos": {
+                        "x": 50.0,
+                        "y": 45.0
+                    },
+                    "uuid": "02609949-2345-40c6-81cb-882802719481"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH2",
+                    "pos": {
+                        "x": 50.0,
+                        "y": 15.0
+                    },
+                    "uuid": "31e3bedd-8eeb-4a2b-bdb1-9655fc43cac7"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH2",
+                    "pos": {
+                        "x": 50.0,
+                        "y": 27.0
+                    },
+                    "uuid": "713132d1-49b6-49d4-a877-e50297b5db4d"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J7",
+                    "pos": {
+                        "x": 75.0,
+                        "y": 45.0
+                    },
+                    "uuid": "61d64b3c-6338-4476-8e41-fade4e15b81a"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH3",
+                    "pos": {
+                        "x": 75.0,
+                        "y": 15.0
+                    },
+                    "uuid": "6caaf145-a186-47a5-af5d-cb4445554642"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH3",
+                    "pos": {
+                        "x": 75.0,
+                        "y": 27.0
+                    },
+                    "uuid": "80e96479-ad90-4d21-ab65-8d821113dfb1"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J8",
+                    "pos": {
+                        "x": 100.0,
+                        "y": 45.0
+                    },
+                    "uuid": "93e1572f-524a-4558-b948-40c15edfab6e"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH4",
+                    "pos": {
+                        "x": 100.0,
+                        "y": 15.0
+                    },
+                    "uuid": "a35585ad-9b82-4f71-9794-d867641ade29"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH4",
+                    "pos": {
+                        "x": 100.0,
+                        "y": 27.0
+                    },
+                    "uuid": "18021c42-8b25-43a3-992c-fbc71233e63d"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J9",
+                    "pos": {
+                        "x": 125.0,
+                        "y": 45.0
+                    },
+                    "uuid": "3eef98e5-f698-46c7-bbfb-409c6dd25070"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH5",
+                    "pos": {
+                        "x": 125.0,
+                        "y": 15.0
+                    },
+                    "uuid": "e9566ab6-699a-493b-a21a-8ff9cb66531f"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH5",
+                    "pos": {
+                        "x": 125.0,
+                        "y": 27.0
+                    },
+                    "uuid": "e97d26df-066d-4be5-85f2-524aa029b79d"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J10",
+                    "pos": {
+                        "x": 150.0,
+                        "y": 45.0
+                    },
+                    "uuid": "36cb3a26-1e99-4cd0-af8c-627fed97251a"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH6",
+                    "pos": {
+                        "x": 150.0,
+                        "y": 15.0
+                    },
+                    "uuid": "36643a22-2867-42d3-a1e8-1b3955387537"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH6",
+                    "pos": {
+                        "x": 150.0,
+                        "y": 27.0
+                    },
+                    "uuid": "86dba918-c891-4188-9bee-89356f6132c7"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J11",
+                    "pos": {
+                        "x": 175.0,
+                        "y": 45.0
+                    },
+                    "uuid": "2d55f2b8-65da-4157-aa78-7e7bf0e6dc4d"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH7",
+                    "pos": {
+                        "x": 175.0,
+                        "y": 15.0
+                    },
+                    "uuid": "f11ff028-11bc-4d4a-b760-c248e26aa361"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH7",
+                    "pos": {
+                        "x": 175.0,
+                        "y": 27.0
+                    },
+                    "uuid": "0691576b-9619-48cc-8edf-ed89c2c415ee"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J12",
+                    "pos": {
+                        "x": 25.0,
+                        "y": 105.0
+                    },
+                    "uuid": "40c55707-e21e-496e-8774-d4d55185a330"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH8",
+                    "pos": {
+                        "x": 25.0,
+                        "y": 135.0
+                    },
+                    "uuid": "e86b00e2-a82f-42db-a827-7318b6599da4"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH8",
+                    "pos": {
+                        "x": 25.0,
+                        "y": 123.0
+                    },
+                    "uuid": "f87da512-516a-4387-bd01-7d9cbbb73ec4"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J13",
+                    "pos": {
+                        "x": 50.0,
+                        "y": 105.0
+                    },
+                    "uuid": "bc366b47-5957-49b2-b11d-4d14eec7fedd"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH9",
+                    "pos": {
+                        "x": 50.0,
+                        "y": 135.0
+                    },
+                    "uuid": "27865a67-747f-4b35-9ac3-2a93a62b38a3"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH9",
+                    "pos": {
+                        "x": 50.0,
+                        "y": 123.0
+                    },
+                    "uuid": "6d5f70e3-84fb-4331-8193-c33338e4994e"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J14",
+                    "pos": {
+                        "x": 75.0,
+                        "y": 105.0
+                    },
+                    "uuid": "ea22d531-4d55-4d71-a1f8-5894c348bcec"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH10",
+                    "pos": {
+                        "x": 75.0,
+                        "y": 135.0
+                    },
+                    "uuid": "92c74f40-44ba-4374-a6fe-92668e329f18"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH10",
+                    "pos": {
+                        "x": 75.0,
+                        "y": 123.0
+                    },
+                    "uuid": "3520efc3-947f-4a96-93d3-9f671a512aa6"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J15",
+                    "pos": {
+                        "x": 100.0,
+                        "y": 105.0
+                    },
+                    "uuid": "63355232-892e-4eec-82cd-dd10a9fc26a0"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH11",
+                    "pos": {
+                        "x": 100.0,
+                        "y": 135.0
+                    },
+                    "uuid": "6215a789-9b8a-4a62-b39d-d86d9e6496de"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH11",
+                    "pos": {
+                        "x": 100.0,
+                        "y": 123.0
+                    },
+                    "uuid": "b0a113f8-0f9a-4df8-b69e-6e6f9f3c63ec"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J16",
+                    "pos": {
+                        "x": 125.0,
+                        "y": 105.0
+                    },
+                    "uuid": "caa8e0d8-ce47-4fff-8417-795df577b5c1"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH12",
+                    "pos": {
+                        "x": 125.0,
+                        "y": 135.0
+                    },
+                    "uuid": "5bf94e78-7052-4368-9778-a39ca5fbf9fa"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH12",
+                    "pos": {
+                        "x": 125.0,
+                        "y": 123.0
+                    },
+                    "uuid": "32447132-a3ce-4597-84f6-c545edb0c8fe"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J17",
+                    "pos": {
+                        "x": 150.0,
+                        "y": 105.0
+                    },
+                    "uuid": "4e3eb94d-2e43-4310-a812-f0da7eab2dc9"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH13",
+                    "pos": {
+                        "x": 150.0,
+                        "y": 135.0
+                    },
+                    "uuid": "b80223ad-b2e0-4d05-8b9a-5c7298ac7428"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH13",
+                    "pos": {
+                        "x": 150.0,
+                        "y": 123.0
+                    },
+                    "uuid": "f0b4e3f3-728f-4f8e-967a-6a0c557860a1"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'PinHeader_2x08_P2.54mm_Vertical' does not match copy in library 'Connector_PinHeader_2.54mm'",
+            "items": [
+                {
+                    "description": "Footprint J18",
+                    "pos": {
+                        "x": 175.0,
+                        "y": 105.0
+                    },
+                    "uuid": "f5ec7904-33f8-4afd-8f0d-5f54b3c3184d"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_MOTOR_CH14",
+                    "pos": {
+                        "x": 175.0,
+                        "y": 135.0
+                    },
+                    "uuid": "b98c168b-08ac-4ebf-8ef7-c572e3fd72bb"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical' does not match copy in library 'Connector_JST'",
+            "items": [
+                {
+                    "description": "Footprint J_SW_CH14",
+                    "pos": {
+                        "x": 175.0,
+                        "y": 123.0
+                    },
+                    "uuid": "db071319-7deb-46aa-8c4a-7265ba30433f"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        }
+    ]
+}

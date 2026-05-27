@@ -1,0 +1,15 @@
+{
+    "ChemicalDefinitions": {
+        "HCl": {"name": "Hydrochloric Acid", "description": "Strong acid."},
+        "NaOH": {"name": "Sodium Hydroxide", "description": "Strong base."}
+    },
+    "Recipes": [
+        {
+            "recipe_name": "Neutralization Test Mix",
+            "steps": [
+                {"pump_id": "pump_A", "chemical_code": "HCl", "target_volume_ml": 15.0},
+                {"pump_id": "pump_B", "chemical_code": "NaOH", "target_volume_ml": 20.0}
+            ]
+        }
+    ]
+}
