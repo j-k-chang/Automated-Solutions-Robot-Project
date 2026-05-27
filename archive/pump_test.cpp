@@ -1,140 +1,211 @@
 #include <Arduino.h>
 #include <AccelStepper.h>
 
-// Pin definitions
+// --- Pin Definitions ---
 const int stepPin = 2;
 const int dirPin = 3;
 const int enPin = 4;
 const int ms1Pin = 5;
 const int ms2Pin = 6;
 
-// Create AccelStepper object
-// AccelStepper::DRIVER means it uses standard step and direction pins
-AccelStepper stepper(AccelStepper::DRIVER, stepPin, dirPin);
+// --- Communication Settings ---
+const long SCALE_BAUD = 9600;
+const long USB_BAUD = 9600; 
 
-// ==========================================
-// USER CONFIGURATION
-// ==========================================
-// Set the microstepping resolution. 
-// Valid options for TMC2209 standalone: 8, 16, 32, 64
-const int MICROSTEPS = 8; 
+// --- Dispensing Configuration ---
+float initialSpeed = 10000;    
+const float approachSpeed = 4000.0; 
+const float trickleSpeed = 2500.0;   
+const long suckBackSteps = 250;    
+const float suckBackSpeed = 800.0; 
 
-// Initial Speed & Acceleration Configuration
-float currentMaxSpeed = 4000.0;
-float currentAcceleration = 1000.0;
-// ==========================================
+// --- Precision Tuning ---
+const float stopOffset = 0.10;      
+const unsigned long settleTimeLimit = 500; 
 
-void setMicrostepping(int resolution) {
-  // TMC2209 Standalone Truth Table
-  switch(resolution) {
-    case 8:
-      digitalWrite(ms1Pin, LOW);
-      digitalWrite(ms2Pin, LOW);
-      Serial.println("Microstepping set to 1/8");
-      break;
-    case 16:
-      digitalWrite(ms1Pin, HIGH);
-      digitalWrite(ms2Pin, LOW);
-      Serial.println("Microstepping set to 1/16");
-      break;
-    case 32:
-      digitalWrite(ms1Pin, LOW);
-      digitalWrite(ms2Pin, HIGH);
-      Serial.println("Microstepping set to 1/32");
-      break;
-    case 64:
-      digitalWrite(ms1Pin, HIGH);
-      digitalWrite(ms2Pin, HIGH);
-      Serial.println("Microstepping set to 1/64");
-      break;
-    default:
-      digitalWrite(ms1Pin, LOW);
-      digitalWrite(ms2Pin, LOW);
-      Serial.println("Invalid resolution! Defaulting to 1/8");
-      break;
-  }
-}
+enum State { IDLE, FAST_FILL, APPROACH, TRICKLE, SETTLE, SUCK_BACK, ERROR_STATE };
+State currentState = IDLE;
 
-void printMenu() {
-  Serial.println("\n=== AccelStepper Control Menu ===");
-  Serial.println("Send commands via Serial Monitor:");
-  Serial.println("  V<number> - Set Speed (steps/second) e.g., V1500");
-  Serial.println("  A<number> - Set Acceleration (steps/sec^2) e.g., A500");
-  Serial.println("  M<number> - Move relative steps (pos/neg) e.g., M800 or M-800");
-  Serial.println("  S         - Stop immediately with deceleration");
-  Serial.println("  ?         - Print this menu");
-  Serial.println("=================================");
-  Serial.print("Current Speed: "); Serial.println(currentMaxSpeed);
-  Serial.print("Current Accel: "); Serial.println(currentAcceleration);
-}
+AccelStepper pump(AccelStepper::DRIVER, stepPin, dirPin);
+float targetWeight = 0.0;
+float currentWeight = 0.0;
+float startWeight = 0.0;
+unsigned long lastScaleUpdateTime = 0;
+unsigned long settleStartTime = 0;
+String scaleBuffer = "";
+String usbBuffer = "";
+const unsigned int MAX_BUF = 50;
+
+void processScaleData(String raw);
+void handleUsbCommands();
+void setMicrostepping(int resolution);
 
 void setup() {
-  Serial.begin(9600);
-  
-  // Configure additional hardware pins
+  delay(2000); 
+  Serial.begin(USB_BAUD);
+  Serial1.begin(SCALE_BAUD); 
+
   pinMode(enPin, OUTPUT);
   pinMode(ms1Pin, OUTPUT);
   pinMode(ms2Pin, OUTPUT);
   
-  // Enable the TMC2209 driver
-  digitalWrite(enPin, LOW);
-  
-  // Apply microstepping
-  setMicrostepping(MICROSTEPS);
-  
-  // Configure AccelStepper settings
-  stepper.setMaxSpeed(currentMaxSpeed);
-  stepper.setAcceleration(currentAcceleration);
-  
-  delay(100);
-  Serial.println("\nTMC2209 Motor Ready (AccelStepper Mode).");
-  printMenu();
+  digitalWrite(enPin, LOW); 
+  setMicrostepping(16); 
+
+  pump.setMaxSpeed(10000);
+  pump.setAcceleration(3000);
+
+  Serial.println("\n========================================");
+  Serial.println("Gravimetric Feedback System V5 (Anti-Overshoot)");
+  Serial.println("Pre-Stop: 0.10g | Settle Delay: 500ms");
+  Serial.println("========================================");
 }
 
 void loop() {
-  // This function must be called as frequently as possible for smooth motion
-  stepper.run();
-
-  // Check for incoming Serial commands
-  if (Serial.available() > 0) {
-    char cmd = Serial.read();
-    
-    // Ignore whitespaces and newlines
-    if (cmd == '\n' || cmd == '\r' || cmd == ' ') return;
-
-    if (cmd == 'S' || cmd == 's') {
-      stepper.stop(); // Calculates target position to stop with deceleration
-      Serial.println("\n*** STOPPING ***");
-      // Clear the rest of the serial buffer
-      while(Serial.available() > 0) Serial.read();
-      
-    } else if (cmd == 'V' || cmd == 'v') {
-      float v = Serial.parseFloat();
-      if (v > 0) {
-        currentMaxSpeed = v;
-        stepper.setMaxSpeed(currentMaxSpeed);
-        Serial.print("\n-> Max Speed set to: ");
-        Serial.println(currentMaxSpeed);
-      }
-      
-    } else if (cmd == 'A' || cmd == 'a') {
-      float a = Serial.parseFloat();
-      if (a > 0) {
-        currentAcceleration = a;
-        stepper.setAcceleration(currentAcceleration);
-        Serial.print("\n-> Acceleration set to: ");
-        Serial.println(currentAcceleration);
-      }
-      
-    } else if (cmd == 'M' || cmd == 'm') {
-      long m = Serial.parseInt();
-      stepper.move(m);
-      Serial.print("\n-> Moving ");
-      Serial.print(m);
-      Serial.println(" steps...");
-      
-    } else if (cmd == '?') {
-      printMenu();
+  while (Serial1.available() > 0) {
+    char c = Serial1.read();
+    if (c == '+' || c == '-') {
+      if (scaleBuffer.length() > 0) processScaleData(scaleBuffer);
+      scaleBuffer = String(c); 
+    } else if (scaleBuffer.length() < MAX_BUF) {
+      scaleBuffer += c;
     }
   }
+
+  handleUsbCommands();
+
+  if (currentState != IDLE && currentState != ERROR_STATE && currentState != SETTLE) {
+    if (millis() - lastScaleUpdateTime > 1000) {
+      pump.stop();
+      digitalWrite(enPin, HIGH); 
+      currentState = ERROR_STATE;
+      Serial.println("\n!!! ERROR: SCALE TIMEOUT !!!");
+    }
+  }
+
+  float delivered = currentWeight - startWeight;
+  float remaining = targetWeight - delivered;
+
+  switch (currentState) {
+    case FAST_FILL:
+      if (remaining <= (targetWeight * 0.10) || remaining <= 2.0) {
+        currentState = APPROACH;
+        setMicrostepping(16);
+        pump.setSpeed(approachSpeed);
+        Serial.println("-> State: APPROACH");
+      } else {
+        pump.runSpeed();
+      }
+      break;
+
+    case APPROACH:
+      if (remaining <= (targetWeight * 0.01) || remaining <= 0.5) {
+        currentState = TRICKLE;
+        pump.setSpeed(trickleSpeed);
+        Serial.println("-> State: TRICKLE");
+      } else {
+        pump.runSpeed();
+      }
+      break;
+
+    case TRICKLE:
+      if (remaining <= stopOffset) {
+        pump.stop();
+        settleStartTime = millis();
+        currentState = SETTLE;
+        Serial.println("-> Braking early. Settling 500ms...");
+      } else {
+        pump.runSpeed();
+      }
+      break;
+
+    case SETTLE:
+      if (millis() - settleStartTime >= settleTimeLimit) {
+        if (remaining > 0.01) { 
+          Serial.print("Current: "); Serial.print(delivered, 2); 
+          Serial.print("g | Need: "); Serial.print(remaining, 2); 
+          Serial.println("g. Pulsing motor...");
+          currentState = TRICKLE;
+          pump.setSpeed(trickleSpeed);
+        } else {
+          Serial.print("Target Met ("); Serial.print(delivered, 2); Serial.println("g). Finalizing...");
+          pump.setCurrentPosition(0);
+          pump.moveTo(-suckBackSteps);
+          pump.setSpeed(-suckBackSpeed); 
+          currentState = SUCK_BACK;
+        }
+      }
+      break;
+
+    case SUCK_BACK:
+      if (pump.distanceToGo() != 0) pump.runSpeedToPosition();
+      else {
+        Serial.println("Dispense Complete.");
+        currentState = IDLE;
+      }
+      break;
+    
+    default: break;
+  }
+}
+
+void processScaleData(String raw) {
+  String cleanStr = "";
+  for (unsigned int i = 0; i < raw.length(); i++) {
+    char ch = raw.charAt(i);
+    if (isDigit(ch) || ch == '.' || ch == '-') cleanStr += ch;
+  }
+  if (cleanStr.length() > 0) {
+    currentWeight = cleanStr.toFloat();
+    lastScaleUpdateTime = millis();
+    static unsigned long lastPrint = 0;
+    if (millis() - lastPrint > 500) {
+      if (currentState != IDLE && currentState != ERROR_STATE && currentState != SETTLE) {
+        Serial.print("Net: "); Serial.print(currentWeight - startWeight, 2);
+        Serial.print("g | Rem: "); Serial.print(targetWeight - (currentWeight - startWeight), 2);
+        Serial.println("g");
+      }
+      lastPrint = millis();
+    }
+  }
+}
+
+void handleUsbCommands() {
+  while (Serial.available() > 0) {
+    char c = Serial.read();
+    if (c == '\n' || c == '\r') {
+      if (usbBuffer.length() > 0) {
+        usbBuffer.trim();
+        if (usbBuffer.equalsIgnoreCase("S")) {
+          pump.stop(); digitalWrite(enPin, HIGH); currentState = IDLE;
+          Serial.println("!!! STOP !!!");
+        } 
+        else {
+          float target = usbBuffer.toFloat();
+          if (target > 0) {
+            digitalWrite(enPin, LOW); 
+            targetWeight = target;
+            startWeight = currentWeight;
+            lastScaleUpdateTime = millis();
+            setMicrostepping(8);
+            pump.setSpeed(initialSpeed);
+            currentState = FAST_FILL;
+            Serial.println("1/8 microstepping (fast fill)");
+            Serial.print("Starting: "); Serial.println(targetWeight);
+          }
+        }
+        usbBuffer = "";
+      }
+    } else if (usbBuffer.length() < MAX_BUF) usbBuffer += c;
+  }
+}
+
+// TMC2209 standalone mode microstep selection via MS1/MS2 pins
+// Bridged pin configurations (user's hardware):
+//   1/8  |  1/16  |  1/32  |  1/64
+void setMicrostepping(int resolution) {
+  if (resolution == 8)  { digitalWrite(ms1Pin, LOW);  digitalWrite(ms2Pin, LOW);  }
+  else if (resolution == 16) { digitalWrite(ms1Pin, HIGH); digitalWrite(ms2Pin, HIGH); }
+  else if (resolution == 32) { digitalWrite(ms1Pin, HIGH); digitalWrite(ms2Pin, LOW);  }
+  else if (resolution == 64) { digitalWrite(ms1Pin, LOW);  digitalWrite(ms2Pin, HIGH); }
 }
