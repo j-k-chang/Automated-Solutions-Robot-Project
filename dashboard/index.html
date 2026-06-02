@@ -3,37 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sequential Additive Dispensing System Dashboard</title>
-    <!-- Premium Google Fonts -->
+    <title>Progressive Approximation Gravimetric Dosing Dashboard</title>
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-base: #080b11;
-            --bg-surface: rgba(16, 22, 35, 0.65);
-            --bg-surface-hover: rgba(26, 35, 54, 0.8);
-            --border-glass: rgba(255, 255, 255, 0.07);
-            --border-glow: rgba(0, 242, 254, 0.15);
+            /* Theme Color Palette */
+            --bg-base: #060913;
+            --bg-surface: rgba(13, 20, 38, 0.65);
+            --bg-surface-hover: rgba(22, 32, 59, 0.8);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(0, 242, 254, 0.2);
             
             --primary: #00f2fe;
-            --primary-glow: rgba(0, 242, 254, 0.4);
+            --primary-glow: rgba(0, 242, 254, 0.35);
             --accent: #4facfe;
-            --success: #00e676;
-            --success-glow: rgba(0, 230, 118, 0.3);
+            --accent-glow: rgba(79, 172, 254, 0.25);
+            
+            --success: #05ffc4;
+            --success-glow: rgba(5, 255, 196, 0.25);
             --warning: #ffb300;
-            --danger: #ff1744;
-            --danger-glow: rgba(255, 23, 68, 0.55);
+            --warning-glow: rgba(255, 179, 0, 0.25);
+            --danger: #ff0055;
+            --danger-glow: rgba(255, 0, 85, 0.5);
+            
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
+            --text-dark: #0f172a;
             
+            /* Typography */
             --font-display: 'Outfit', sans-serif;
             --font-sans: 'Inter', sans-serif;
             --font-mono: 'Share Tech Mono', monospace;
             
-            --shadow-neon: 0 0 20px rgba(0, 242, 254, 0.15);
-            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Effects */
+            --shadow-neon: 0 0 25px rgba(0, 242, 254, 0.15);
+            --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -48,13 +56,13 @@
             font-family: var(--font-sans);
             overflow-x: hidden;
             background-image: 
-                radial-gradient(at 10% 20%, rgba(79, 172, 254, 0.05) 0px, transparent 50%),
-                radial-gradient(at 90% 80%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(79, 172, 254, 0.06) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.06) 0px, transparent 50%);
             min-height: 100vh;
             padding: 24px;
         }
 
-        /* --- Custom Scrollbar --- */
+        /* --- Scrollbar --- */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -63,21 +71,21 @@
             background: var(--bg-base);
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: var(--primary-glow);
         }
 
-        /* --- Header Layout --- */
+        /* --- Layout --- */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 32px;
             background: var(--bg-surface);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--border-glass);
             border-radius: 16px;
             margin-bottom: 24px;
@@ -87,18 +95,34 @@
         .title-area h1 {
             font-family: var(--font-display);
             font-weight: 800;
-            font-size: 26px;
+            font-size: 24px;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .title-area p {
             color: var(--text-muted);
             font-size: 13px;
             margin-top: 4px;
-            font-weight: 300;
+            font-weight: 400;
+        }
+
+        .demo-mode-badge {
+            background: rgba(255, 179, 0, 0.15);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 10px rgba(255, 179, 0, 0.1);
         }
 
         .header-controls {
@@ -107,7 +131,6 @@
             gap: 20px;
         }
 
-        /* --- Glowing Status Indicator --- */
         .status-badge {
             display: flex;
             align-items: center;
@@ -124,8 +147,8 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background-color: var(--danger);
-            box-shadow: 0 0 10px var(--danger);
+            background-color: var(--warning);
+            box-shadow: 0 0 10px var(--warning);
             transition: var(--transition-smooth);
         }
 
@@ -141,14 +164,14 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* --- Buttons & Inputs --- */
+        /* --- Buttons --- */
         .btn {
             background: linear-gradient(135deg, var(--accent), rgba(79, 172, 254, 0.4));
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-main);
             font-family: var(--font-display);
             font-weight: 600;
-            padding: 11px 22px;
+            padding: 10px 20px;
             border-radius: 12px;
             cursor: pointer;
             transition: var(--transition-smooth);
@@ -156,68 +179,122 @@
             align-items: center;
             gap: 8px;
             font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .btn:hover {
+        .btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.25);
             border-color: var(--primary);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
 
         .btn-connect {
             background: linear-gradient(135deg, #00f2fe, #4facfe);
-            color: #080b11;
+            color: var(--text-dark);
+            font-weight: 700;
         }
 
         .btn-connect.active {
-            background: linear-gradient(135deg, #ff1744, #d50000);
+            background: linear-gradient(135deg, var(--danger), #b71c1c);
             color: var(--text-main);
+            border-color: var(--danger);
+        }
+
+        .btn-connect.active:hover {
+            box-shadow: 0 8px 20px rgba(255, 0, 85, 0.35);
         }
 
         .btn-estop {
-            background: linear-gradient(135deg, var(--danger), #b71c1c);
+            background: linear-gradient(135deg, var(--danger), #a30030);
             animation: pulse-danger 1.5s infinite;
             border: 1px solid var(--danger);
-            font-size: 16px;
-            padding: 12px 28px;
+            font-size: 15px;
+            padding: 10px 24px;
+            font-weight: 700;
         }
 
         @keyframes pulse-danger {
-            0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(255, 23, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.6); }
+            70% { box-shadow: 0 0 0 12px rgba(255, 0, 85, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); }
         }
 
         .btn-estop:hover {
             box-shadow: 0 0 25px var(--danger-glow);
-            transform: scale(1.05);
+            transform: scale(1.03);
         }
 
-        /* --- Main Layout Grid --- */
+        /* --- Main Grid --- */
         .layout-grid {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: 1.2fr 1fr;
             gap: 24px;
             margin-bottom: 24px;
         }
 
-        .left-column {
+        .left-column, .right-column {
             display: flex;
             flex-direction: column;
             gap: 24px;
         }
 
-        /* --- Top Shared Scale & Telemetry Card --- */
-        .shared-scale-card {
-            background: linear-gradient(135deg, rgba(16, 22, 35, 0.8), rgba(8, 12, 21, 0.9));
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--primary-glow);
+        /* --- Card Containers --- */
+        .card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
             border-radius: 20px;
             padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: border-color 0.3s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+            opacity: 0.15;
+            transition: var(--transition-smooth);
+        }
+
+        .card:hover {
+            border-color: var(--border-glow);
+        }
+
+        .card:hover::before {
+            opacity: 0.8;
+        }
+
+        .card h2 {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- Scale Reading Card --- */
+        .scale-grid {
             display: grid;
-            grid-template-columns: 240px 1fr;
+            grid-template-columns: 200px 1fr;
             gap: 24px;
-            box-shadow: 0 8px 32px rgba(0, 242, 254, 0.08);
         }
 
         .scale-gauge {
@@ -231,27 +308,27 @@
 
         .scale-label {
             font-family: var(--font-display);
-            font-size: 13px;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             color: var(--primary);
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .scale-readout {
             font-family: var(--font-mono);
-            font-size: 52px;
+            font-size: 46px;
             font-weight: 700;
             color: var(--text-main);
-            text-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            text-shadow: 0 0 15px var(--primary-glow);
             display: flex;
             align-items: baseline;
             gap: 4px;
         }
 
         .scale-readout span {
-            font-size: 22px;
+            font-size: 20px;
             color: var(--text-muted);
             text-shadow: none;
         }
@@ -259,264 +336,252 @@
         .telemetry-plot-area {
             display: flex;
             flex-direction: column;
-        }
-
-        .plot-header {
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .plot-header h2 {
-            font-family: var(--font-display);
-            font-size: 15px;
-            font-weight: 600;
         }
 
         .canvas-container {
             width: 100%;
-            height: 140px;
+            height: 120px;
             position: relative;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.03);
             overflow: hidden;
         }
 
-        /* --- Grid of 14 Channels --- */
-        .channels-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .channel-card {
-            background: var(--bg-surface);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border-glass);
-            border-radius: 16px;
-            padding: 20px;
-            transition: var(--transition-smooth);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .channel-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
+        canvas {
+            width: 100%;
             height: 100%;
-            background: var(--accent);
-            opacity: 0.3;
-            transition: var(--transition-smooth);
+            display: block;
         }
 
-        .channel-card:hover {
-            background: var(--bg-surface-hover);
-            transform: translateY(-2px);
-            border-color: var(--border-glow);
-            box-shadow: 0 8px 30px rgba(0, 242, 254, 0.05);
-        }
-
-        .channel-card:hover::before {
-            opacity: 1;
-            background: var(--primary);
-        }
-
-        .channel-card.active::before {
-            opacity: 1;
-            background: var(--success);
-            box-shadow: 0 0 10px var(--success);
-        }
-
-        .channel-card.limit-triggered::before {
-            opacity: 1;
-            background: var(--danger);
-            box-shadow: 0 0 10px var(--danger);
-        }
-
-        .channel-top {
-            display: flex;
-            justify-content: space-between;
+        /* --- Pump State Visualizer Card --- */
+        .state-container {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 24px;
             align-items: center;
-            margin-bottom: 12px;
         }
 
-        .channel-label {
+        .pump-illustration {
+            width: 140px;
+            height: 140px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-glass);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .pump-rotor {
+            width: 90px;
+            height: 90px;
+            border: 4px dashed var(--primary);
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: border-color 0.5s ease;
+        }
+
+        .pump-rotor.spinning {
+            animation: spin 3s linear infinite;
+            border-color: var(--success);
+            box-shadow: 0 0 20px var(--success-glow);
+        }
+
+        .pump-rotor.spinning-fast {
+            animation: spin 0.8s linear infinite;
+            border-color: var(--success);
+            box-shadow: 0 0 20px var(--success-glow);
+        }
+
+        .pump-rotor.spinning-reverse {
+            animation: spin-reverse 2s linear infinite;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .pump-rotor.pulsing {
+            animation: pulse-amber 1.5s alternate infinite;
+            border-color: var(--warning);
+            box-shadow: 0 0 20px var(--warning-glow);
+        }
+
+        .pump-rotor.error {
+            border-color: var(--danger);
+            box-shadow: 0 0 20px var(--danger-glow);
+            animation: shake 0.5s infinite;
+        }
+
+        .pump-rotor-node {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: var(--bg-base);
+            border: 3px solid currentColor;
+            border-radius: 50%;
+        }
+
+        .pump-rotor-node:nth-child(1) { top: -9px; left: calc(50% - 9px); color: inherit; }
+        .pump-rotor-node:nth-child(2) { bottom: -9px; left: calc(50% - 9px); color: inherit; }
+        .pump-rotor-node:nth-child(3) { left: -9px; top: calc(50% - 9px); color: inherit; }
+        .pump-rotor-node:nth-child(4) { right: -9px; top: calc(50% - 9px); color: inherit; }
+
+        .pump-center {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--bg-surface), #2a3754);
+            border: 2px solid var(--border-glass);
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        @keyframes pulse-amber {
+            0% { box-shadow: 0 0 5px var(--warning-glow); transform: scale(0.98); }
+            100% { box-shadow: 0 0 25px var(--warning-glow); transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            20%, 60% { transform: translate(-2px, 2px); }
+            40%, 80% { transform: translate(2px, -2px); }
+        }
+
+        .state-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .state-badge {
+            align-self: flex-start;
+            padding: 6px 14px;
+            border-radius: 30px;
             font-family: var(--font-display);
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        .channel-card.active .channel-label {
-            color: var(--primary);
-        }
-
-        .channel-badge {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            padding: 4px 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .channel-badge.active {
-            color: var(--success);
-            background: var(--success-glow);
-            animation: pulse-glow 1.5s infinite;
-        }
+        .state-badge.idle { color: var(--text-muted); border-color: rgba(255,255,255,0.1); }
+        .state-badge.dispensing { color: var(--success); border-color: var(--success-glow); background: rgba(5,255,196,0.08); }
+        .state-badge.calibrating { color: var(--warning); border-color: var(--warning-glow); background: rgba(255,179,0,0.08); }
+        .state-badge.error { color: var(--danger); border-color: var(--danger-glow); background: rgba(255,0,85,0.08); animation: blink 1s infinite alternate; }
 
-        .channel-badge.limit {
-            color: var(--danger);
-            background: rgba(255, 23, 68, 0.15);
-            animation: flash-red 1s infinite alternate;
-        }
-
-        @keyframes flash-red {
-            from { opacity: 0.4; }
+        @keyframes blink {
+            from { opacity: 0.6; }
             to { opacity: 1; }
         }
 
-        .weight-display {
-            font-family: var(--font-mono);
-            font-size: 20px;
-            font-weight: 600;
+        .state-desc {
+            font-size: 14px;
             color: var(--text-muted);
-            margin: 8px 0;
-            display: flex;
-            align-items: baseline;
-            gap: 4px;
+            line-height: 1.5;
         }
 
-        .weight-display.active-dispense {
-            color: var(--success);
-        }
-
-        /* --- Progress Bar --- */
         .progress-bar-container {
             width: 100%;
-            height: 6px;
+            height: 8px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
+            border-radius: 4px;
             overflow: hidden;
-            margin-bottom: 16px;
+            margin-top: 6px;
         }
 
         .progress-bar-fill {
             width: 0%;
             height: 100%;
             background: linear-gradient(90deg, var(--accent), var(--primary));
-            border-radius: 3px;
-            transition: width 0.1s linear;
+            border-radius: 4px;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .channel-card.active .progress-bar-fill {
+        .state-badge.dispensing ~ .progress-bar-container .progress-bar-fill {
             background: linear-gradient(90deg, var(--accent), var(--success));
         }
 
-        /* --- Inline Card Controls (No Tare Button) --- */
-        .card-controls {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .input-group {
-            position: relative;
-        }
-
-        .input-group input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid var(--border-glass);
-            border-radius: 8px;
-            padding: 8px 24px 8px 10px;
-            color: var(--text-main);
+        .progress-text {
             font-family: var(--font-mono);
-            font-size: 13px;
-            outline: none;
-            transition: var(--transition-smooth);
-        }
-
-        .input-group input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
-        }
-
-        .input-group span {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .btn-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-glass);
-            color: var(--text-main);
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-family: var(--font-display);
             font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+        }
+
+        /* --- Viscosity Profile Selector --- */
+        .viscosity-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid var(--border-glass);
+            margin-bottom: 12px;
+        }
+
+        .viscosity-option {
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-family: var(--font-display);
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition-smooth);
+            border: 1px solid transparent;
+            color: var(--text-muted);
         }
 
-        .btn-card:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--primary);
-            color: var(--primary);
+        .viscosity-option:hover {
+            color: var(--text-main);
         }
 
-        .btn-dispense {
-            background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2));
-            border-color: rgba(0, 242, 254, 0.25);
-        }
-
-        .btn-dispense:hover {
-            background: linear-gradient(135deg, var(--accent), var(--primary));
-            color: #080b11;
-            border-color: var(--primary);
-        }
-
-        /* --- Right Column Sidebar --- */
-        .right-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .sidebar-card {
+        .viscosity-option.active {
             background: var(--bg-surface);
-            backdrop-filter: blur(16px);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .active-multiplier-info {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.02);
+            padding: 8px 12px;
+            border-radius: 8px;
             border: 1px solid var(--border-glass);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            font-family: var(--font-mono);
+            display: flex;
+            justify-content: space-between;
         }
 
-        .sidebar-card h3 {
-            font-family: var(--font-display);
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* --- System Config Form --- */
+        /* --- Form Elements --- */
         .form-row {
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .form-row label {
@@ -525,35 +590,55 @@
             color: var(--text-muted);
             margin-bottom: 6px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .select-input, .text-input {
+        .input-group {
+            position: relative;
+            display: flex;
+        }
+
+        .input-group input {
             width: 100%;
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border-glass);
-            border-radius: 8px;
-            padding: 10px;
+            border-radius: 10px;
+            padding: 12px 36px 12px 14px;
             color: var(--text-main);
-            font-family: var(--font-sans);
-            font-size: 13px;
+            font-family: var(--font-mono);
+            font-size: 15px;
             outline: none;
             transition: var(--transition-smooth);
         }
 
-        .select-input:focus, .text-input:focus {
+        .input-group input:focus {
             border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
         }
 
-        .config-buttons {
+        .input-group span {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: var(--text-muted);
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        /* --- Calibration Sub-Grid --- */
+        .calibration-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr auto;
             gap: 12px;
-            margin-top: 20px;
+            align-items: flex-end;
         }
 
-        /* --- Serial Console --- */
+        /* --- Serial Console Panel --- */
         .console-area {
-            background: #04060a;
+            background: #04060b;
             border: 1px solid var(--border-glass);
             border-radius: 12px;
             padding: 14px;
@@ -561,48 +646,59 @@
             font-size: 12px;
             height: 180px;
             overflow-y: auto;
-            color: #39ff14; /* matrix green */
+            color: #39ff14; /* Matrix Green */
             margin-bottom: 12px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
         }
 
         .console-line {
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             line-height: 1.4;
             word-break: break-all;
         }
 
-        .console-line.tx {
-            color: var(--primary);
+        .console-line.tx { color: var(--primary); }
+        .console-line.rx { color: var(--success); }
+        .console-line.err { color: var(--danger); }
+        .console-line.telemetry { color: #8b5cf6; opacity: 0.5; font-size: 10px; } /* hide telemetry logs by default or show small */
+
+        .console-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .console-line.rx {
-            color: var(--success);
+        .toggle-telemetry-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
         }
 
-        .console-line.err {
-            color: var(--danger);
+        .toggle-telemetry-label input {
+            accent-color: var(--primary);
         }
 
-        /* --- Demo Mode Badge --- */
-        .demo-mode-badge {
-            background: var(--warning);
-            color: #080b11;
-            padding: 2px 8px;
+        /* --- Hotkey Hint --- */
+        .hotkey-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 10px;
-            font-weight: 800;
-            font-family: var(--font-sans);
-            margin-left: 10px;
+            font-family: var(--font-mono);
         }
     </style>
 </head>
 <body>
 
-    <!-- Header Section -->
+    <!-- Header Panel -->
     <header>
         <div class="title-area">
-            <h1>SEQUENTIAL MULTI-PUMP ADDITIVE CONTROLLER <span class="demo-mode-badge" id="demoModeBadge">SIMULATOR MODE</span></h1>
-            <p>Single Shared Load Cell feedback loop controller with sequential gravimetric dosing logic</p>
+            <h1>GRAVIMETRIC DOSING CONTROL CENTER <span class="demo-mode-badge" id="modeBadge">SIMULATOR MODE</span></h1>
+            <p>Adaptive Progressive Approximation Loop Controller (Uno R4 WiFi Integration)</p>
         </div>
         <div class="header-controls">
             <div class="status-badge">
@@ -610,168 +706,232 @@
                 <span id="connStatusText">SYSTEM STANDBY</span>
             </div>
             <button class="btn btn-connect" id="btnConnect">CONNECT USB</button>
-            <button class="btn btn-estop" id="btnEstop">E-STOP (SPACE)</button>
+            <button class="btn btn-estop" id="btnEstop">E-STOP <span class="hotkey-hint" style="margin-left:5px; color:inherit;">SPACE</span></button>
         </div>
     </header>
 
-    <!-- Main Grid Layout -->
+    <!-- Main Content -->
     <div class="layout-grid">
+        
+        <!-- Left Side: Telemetry Plots and State Machine Monitor -->
         <div class="left-column">
             
-            <!-- Shared Load Cell Scale & Live Telemetry Curve -->
-            <div class="shared-scale-card">
-                <div class="scale-gauge">
-                    <div class="scale-label">Shared Scale Weight</div>
-                    <div class="scale-readout" id="sharedScaleReadout">
-                        0.00<span>g</span>
+            <!-- Scale Gauge Card -->
+            <div class="card">
+                <h2>Scale Feedback Monitor</h2>
+                <div class="scale-grid">
+                    <div class="scale-gauge">
+                        <div class="scale-label">Live Scale Reading</div>
+                        <div class="scale-readout" id="scaleReadout">0.00<span>g</span></div>
+                        <button class="btn" id="btnTare" style="margin-top: 16px; width: 100%; font-size:12px; padding: 8px 12px; border-color: var(--primary-glow); color: var(--primary); background: transparent;">TARE LOAD CELL</button>
                     </div>
-                    <button class="btn btn-card" id="btnGlobalTare" style="margin-top: 15px; width: 100%; border-color: var(--primary-glow); color: var(--primary);">TARE SHARED SCALE</button>
-                </div>
-                <div class="telemetry-plot-area">
-                    <div class="plot-header">
-                        <h2>Real-Time Closed-Loop Scale Telemetry (Cumulative Weight)</h2>
-                        <span class="channel-badge active" id="telemetryChBadge" style="color: var(--primary); background: rgba(0, 242, 254, 0.1);">Scale Loop Running</span>
-                    </div>
-                    <div class="canvas-container">
-                        <canvas id="telemetryCanvas"></canvas>
+                    <div class="telemetry-plot-area">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-size:13px; color:var(--text-muted);">Cumulative Scale Value (g)</span>
+                            <span class="hotkey-hint" id="refreshRate" style="color:var(--primary);">Rate: Sim 10Hz</span>
+                        </div>
+                        <div class="canvas-container">
+                            <canvas id="telemetryCanvas"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Grid of 14 Channel Cards -->
-            <div class="channels-grid" id="channelsGrid">
-                <!-- Programmatically generated -->
+            <!-- Active Pump State Visualizer -->
+            <div class="card">
+                <h2>Real-Time Pump State Monitor</h2>
+                <div class="state-container">
+                    <div class="pump-illustration">
+                        <div class="pump-rotor" id="pumpRotor">
+                            <div class="pump-rotor-node"></div>
+                            <div class="pump-rotor-node"></div>
+                            <div class="pump-rotor-node"></div>
+                            <div class="pump-rotor-node"></div>
+                            <div class="pump-center"></div>
+                        </div>
+                    </div>
+                    <div class="state-details">
+                        <div class="state-badge idle" id="stateBadge">
+                            <span style="width:8px; height:8px; border-radius:50%; background:currentColor; display:inline-block;"></span>
+                            <span id="stateText">IDLE</span>
+                        </div>
+                        <p class="state-desc" id="stateDesc">System is standing by. Choose a viscosity profile, calibrate, or set a target weight to begin gravimetric dispensing.</p>
+                        
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="progressBar"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="progressLeft">Delivered: 0.00g</span>
+                            <span id="progressPercent">0%</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
 
+        <!-- Right Side: Config & Operation Panels -->
         <div class="right-column">
             
-            <!-- Quick Batch Config Panel -->
-            <div class="sidebar-card">
-                <h3>Global & Batch Operations</h3>
-                <div class="form-row">
-                    <label>Set Target Weight for ALL channels</label>
-                    <div class="input-group">
-                        <input type="number" step="0.01" value="10.00" id="globalTargetInput">
-                        <span>g</span>
-                    </div>
+            <!-- Viscosity & System Profiles -->
+            <div class="card">
+                <h2>Viscosity Calibration Profile</h2>
+                <div class="viscosity-selector">
+                    <div class="viscosity-option active" id="viscLow" onclick="setViscosity(false)">WATER (LOW)</div>
+                    <div class="viscosity-option" id="viscHigh" onclick="setViscosity(true)">GLYCEROL (HIGH)</div>
                 </div>
-                <div class="config-buttons">
-                    <button class="btn btn-card" id="btnApplyAll">APPLY TO ALL</button>
-                </div>
-                <div style="margin-top: 16px;">
-                    <button class="btn btn-card btn-dispense" id="btnDispenseAll" style="width: 100%; justify-content: center;">SEQUENTIAL BATCH START</button>
+                <div class="active-multiplier-info">
+                    <span>Base Calibration:</span>
+                    <span id="stepsPerGramVal">700.0 steps/g (1/16 step)</span>
                 </div>
             </div>
 
-            <!-- Calibration & Diagnostics -->
-            <div class="sidebar-card">
-                <h3>Load Cell Calibration</h3>
+            <!-- Gravimetric Target Dispensing -->
+            <div class="card">
+                <h2>Dosing Operations</h2>
                 <div class="form-row">
-                    <label>Known Reference Calibration Weight</label>
+                    <label>Set Target Weight (Min 1.50g)</label>
                     <div class="input-group">
-                        <input type="number" step="0.01" value="100.00" id="calWeightInput">
+                        <input type="number" step="0.01" min="1.50" value="10.00" id="targetWeightInput">
                         <span>g</span>
                     </div>
                 </div>
-                <div class="config-buttons">
-                    <button class="btn btn-card btn-dispense" id="btnCalibrateScale">CALIBRATE SCALE</button>
+                <button class="btn btn-connect" id="btnStartDispense" style="width: 100%; justify-content: center; font-size:15px; padding: 12px 24px;">START DISPENSING RUN</button>
+            </div>
+
+            <!-- Profile Calibration -->
+            <div class="card">
+                <h2>System Calibration</h2>
+                <div class="form-row">
+                    <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">
+                        Calibrating determines the exact steps/gram index. Click below to dispense 10000 microsteps at 1/16, weigh the output, and type the weight below.
+                    </p>
+                    <button class="btn" id="btnTriggerCal" style="width: 100%; justify-content: center; margin-bottom:12px; border-color:var(--warning-glow); color:var(--warning); background:transparent;">RUN CALIBRATION DISPENSE (10000 STEPS)</button>
+                    
+                    <label>Enter Measured Weight (g)</label>
+                    <div class="calibration-grid">
+                        <div class="input-group">
+                            <input type="number" step="0.001" placeholder="e.g. 1.29" id="measuredWeightInput" disabled>
+                            <span>g</span>
+                        </div>
+                        <button class="btn" id="btnSubmitCal" disabled>SUBMIT</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Terminal Serial Console Log -->
-            <div class="sidebar-card" style="flex: 1; display: flex; flex-direction: column;">
-                <h3>Serial communication terminal</h3>
-                <div class="console-area" id="serialConsole">
-                    <div class="console-line">Terminal system ready. Standing by for connection...</div>
+            <!-- Live Serial Communication Logs -->
+            <div class="card" style="flex: 1; display: flex; flex-direction: column;">
+                <h2>Diagnostic Console Terminal</h2>
+                <div class="console-area" id="consoleLog">
+                    <div class="console-line">Terminal listening... Standing by for connection.</div>
                 </div>
-                <button class="btn btn-card" id="btnClearConsole" style="align-self: flex-end;">CLEAR LOG</button>
+                <div class="console-footer">
+                    <label class="toggle-telemetry-label">
+                        <input type="checkbox" id="showRawTelemetry">
+                        Show raw TELEMETRY streams
+                    </label>
+                    <button class="btn" id="btnClearLog" style="font-size:11px; padding: 6px 12px; background:rgba(255,255,255,0.03);">CLEAR CONSOLE</button>
+                </div>
             </div>
 
         </div>
+
     </div>
 
+    <!-- Scripting for Dash, Communication & High Fidelity Simulator -->
     <script>
-        // --- Web Serial API Connection ---
+        // --- System State Machine Definitions (matches main.cpp) ---
+        const STATE_IDLE = 0;
+        const STATE_CALIBRATE_RUN = 1;
+        const STATE_CALIBRATE_WAIT_INPUT = 2;
+        const STATE_BULK_FILL = 3;
+        const STATE_SETTLE_BULK = 4;
+        const STATE_TRIM_PULSE = 5;
+        const STATE_SETTLE_TRIM = 6;
+        const STATE_SUCK_BACK = 7;
+        const STATE_RETRACTING = 8;
+        const STATE_COMPLETE = 9;
+        const STATE_ERROR_STATE = 10;
+
+        const STATE_NAMES = {
+            [STATE_IDLE]: "STATE_IDLE",
+            [STATE_CALIBRATE_RUN]: "STATE_CALIBRATE_RUN",
+            [STATE_CALIBRATE_WAIT_INPUT]: "STATE_CALIBRATE_WAIT_INPUT",
+            [STATE_BULK_FILL]: "STATE_BULK_FILL",
+            [STATE_SETTLE_BULK]: "STATE_SETTLE_BULK",
+            [STATE_TRIM_PULSE]: "STATE_TRIM_PULSE",
+            [STATE_SETTLE_TRIM]: "STATE_SETTLE_TRIM",
+            [STATE_SUCK_BACK]: "STATE_SUCK_BACK",
+            [STATE_RETRACTING]: "STATE_RETRACTING",
+            [STATE_COMPLETE]: "STATE_COMPLETE",
+            [STATE_ERROR_STATE]: "STATE_ERROR_STATE"
+        };
+
+        // --- Global Variables ---
         let serialPort = null;
         let serialWriter = null;
-        let serialReader = null;
         let isConnected = false;
         let isDemoMode = true;
 
-        // --- Shared Load Cell State ---
-        let globalWeight = 0.00;
-        let scaleBaseline = 0.00; // tare offset
-        let scaleHistory = Array(50).fill(0.0); // Scrolling weight history
+        // Telemetry state
+        let currentWeight = 0.00;
+        let currentSystemState = STATE_IDLE;
+        let isHighViscosity = false;
 
-        // --- Simulated/Real Channel States ---
-        const channels = Array.from({ length: 14 }, (_, i) => ({
-            id: i + 1,
-            target: 10.00,
-            currentDispensed: 0.00, // weight added during current step
-            active: false,
-            limit: false,
-            flowRate: 0.0
-        }));
+        // Configuration profiles (Steps per gram)
+        let stepsPerGramLow = 700.0;
+        let stepsPerGramHigh = 1400.0;
 
-        let activeSeqIndex = -1; // -1 means no sequential batch is active
+        // Plots scrolling history
+        const plotHistory = Array(80).fill(0.0);
+
+        // --- Simulator State Variables ---
+        let simState = STATE_IDLE;
+        let simCurrentWeight = 0.00;
+        let simStartWeight = 0.00;
+        let simTargetWeight = 0.00;
+        let simStepsRemaining = 0;
+        let simLastSettleWeight = 0.00;
+        let simSettleTimer = 0;
+        let simStopTime = 0;
+        let simPumpActive = false;
+        let simPumpSpeed = 0.0; // g/s
+        let simActiveMicrosteps = 64;
 
         // --- DOM Elements ---
+        const scaleReadout = document.getElementById('scaleReadout');
+        const modeBadge = document.getElementById('modeBadge');
         const connStatusDot = document.getElementById('connStatusDot');
         const connStatusText = document.getElementById('connStatusText');
         const btnConnect = document.getElementById('btnConnect');
         const btnEstop = document.getElementById('btnEstop');
-        const demoModeBadge = document.getElementById('demoModeBadge');
-        const channelsGrid = document.getElementById('channelsGrid');
-        const serialConsole = document.getElementById('serialConsole');
-        const sharedScaleReadout = document.getElementById('sharedScaleReadout');
-        const btnGlobalTare = document.getElementById('btnGlobalTare');
+        const refreshRate = document.getElementById('refreshRate');
+        
+        const stateBadge = document.getElementById('stateBadge');
+        const stateText = document.getElementById('stateText');
+        const stateDesc = document.getElementById('stateDesc');
+        const pumpRotor = document.getElementById('pumpRotor');
+        const progressBar = document.getElementById('progressBar');
+        const progressLeft = document.getElementById('progressLeft');
+        const progressPercent = document.getElementById('progressPercent');
 
-        // --- Initialize UI Grid ---
-        function initUI() {
-            channelsGrid.innerHTML = '';
-            
-            channels.forEach(ch => {
-                // Create channel card widget (removed TARE button)
-                const card = document.createElement('div');
-                card.className = 'channel-card';
-                card.id = `card-ch-${ch.id}`;
+        const viscLow = document.getElementById('viscLow');
+        const viscHigh = document.getElementById('viscHigh');
+        const stepsPerGramVal = document.getElementById('stepsPerGramVal');
+        
+        const targetWeightInput = document.getElementById('targetWeightInput');
+        const btnStartDispense = document.getElementById('btnStartDispense');
+        
+        const btnTriggerCal = document.getElementById('btnTriggerCal');
+        const measuredWeightInput = document.getElementById('measuredWeightInput');
+        const btnSubmitCal = document.getElementById('btnSubmitCal');
+        
+        const consoleLog = document.getElementById('consoleLog');
+        const showRawTelemetry = document.getElementById('showRawTelemetry');
+        const btnClearLog = document.getElementById('btnClearLog');
+        const btnTare = document.getElementById('btnTare');
 
-                card.innerHTML = `
-                    <div class="channel-top">
-                        <div class="channel-label">Pump Channel ${ch.id}</div>
-                        <div class="channel-badge" id="badge-ch-${ch.id}">Idle</div>
-                    </div>
-                    <div class="weight-display" id="weight-ch-${ch.id}">
-                        Target: ${ch.target.toFixed(2)}<span>g</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-fill" id="progress-ch-${ch.id}"></div>
-                    </div>
-                    <div class="card-controls">
-                        <div class="input-group">
-                            <input type="number" step="0.01" value="10.00" id="target-ch-${ch.id}" onchange="updateSingleTarget(${ch.id}, this.value)">
-                            <span>g</span>
-                        </div>
-                        <button class="btn-card btn-dispense" onclick="dispenseSingleCh(${ch.id});">DISPENSE</button>
-                    </div>
-                `;
-                channelsGrid.appendChild(card);
-            });
-        }
-
-        // --- Log Communication Packets ---
-        function logConsole(text, type = '') {
-            const line = document.createElement('div');
-            line.className = `console-line ${type}`;
-            const time = new Date().toLocaleTimeString();
-            line.textContent = `[${time}] ${text}`;
-            serialConsole.appendChild(line);
-            serialConsole.scrollTop = serialConsole.scrollHeight;
-        }
-
-        // --- Canvas Telemetry Plotter ---
+        // --- Canvas Telemetry ---
         const canvas = document.getElementById('telemetryCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -782,13 +942,13 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        function drawTelemetry() {
+        function drawPlot() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw grid lines
+            // Draw clean Grid lines
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
             ctx.lineWidth = 1;
-            const gridCount = 5;
+            const gridCount = 4;
             for(let i = 1; i < gridCount; i++) {
                 const y = (canvas.height / gridCount) * i;
                 ctx.beginPath();
@@ -797,27 +957,26 @@
                 ctx.stroke();
             }
 
-            // Draw weight telemetry line (Neon cyan gradient)
-            const points = scaleHistory;
+            // Draw Telemetry scrolling line
             ctx.strokeStyle = '#00f2fe';
-            ctx.lineWidth = 3;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = 'rgba(0, 242, 254, 0.5)';
+            ctx.lineWidth = 2.5;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = 'rgba(0, 242, 254, 0.4)';
             ctx.beginPath();
 
-            const xStep = canvas.width / (points.length - 1);
-            points.forEach((val, i) => {
+            const xStep = canvas.width / (plotHistory.length - 1);
+            const maxVal = Math.max(...plotHistory, 5.0) * 1.1; // dynamic headroom
+
+            plotHistory.forEach((val, i) => {
                 const x = i * xStep;
-                // scale weight value to canvas height (auto-scaling based on max weight in history)
-                const maxVal = Math.max(...points, 20.0);
-                const y = canvas.height - (val / (maxVal * 1.1)) * (canvas.height - 30) - 15;
+                const y = canvas.height - (val / maxVal) * (canvas.height - 20) - 10;
                 if(i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
             });
             ctx.stroke();
             ctx.shadowBlur = 0; // reset shadow
 
-            // Draw weight area fill (faded gradient)
+            // Area Gradient Fill under chart curve
             ctx.lineTo(canvas.width, canvas.height);
             ctx.lineTo(0, canvas.height);
             const areaGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -826,268 +985,495 @@
             ctx.fillStyle = areaGrad;
             ctx.fill();
 
-            requestAnimationFrame(drawTelemetry);
+            requestAnimationFrame(drawPlot);
+        }
+        drawPlot();
+
+        // --- Log output helper ---
+        function log(text, type = '') {
+            if (type === 'telemetry' && !showRawTelemetry.checked) return;
+
+            const line = document.createElement('div');
+            line.className = `console-line ${type}`;
+            const time = new Date().toLocaleTimeString();
+            line.textContent = `[${time}] ${text}`;
+            consoleLog.appendChild(line);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
         }
 
-        // --- Single Channel target updating ---
-        function updateSingleTarget(id, value) {
-            const val = parseFloat(value) || 0.00;
-            channels[id - 1].target = val;
-            const display = document.getElementById(`weight-ch-${id}`);
-            if(display) display.innerHTML = `Target: ${val.toFixed(2)}<span>g</span>`;
-            logConsole(`Configured target weight for Pump Channel ${id}: ${val.toFixed(2)} g`);
+        // --- UI Operations ---
+        btnClearLog.onclick = () => { consoleLog.innerHTML = ''; };
+
+        function updateStepsPerGramUI() {
+            const activeProfile = isHighViscosity ? 'Glycerol' : 'Water';
+            const activeVal = isHighViscosity ? stepsPerGramHigh : stepsPerGramLow;
+            stepsPerGramVal.textContent = `${activeVal.toFixed(1)} steps/g (${isHighViscosity ? '1/16' : '1/64'} microstep)`;
         }
 
-        // --- Batch operations ---
-        document.getElementById('btnApplyAll').onclick = () => {
-            const val = parseFloat(document.getElementById('globalTargetInput').value) || 10.00;
-            channels.forEach(ch => {
-                ch.target = val;
-                const input = document.getElementById(`target-ch-${ch.id}`);
-                if (input) input.value = val.toFixed(2);
-                const display = document.getElementById(`weight-ch-${ch.id}`);
-                if(display) display.innerHTML = `Target: ${val.toFixed(2)}<span>g</span>`;
-            });
-            logConsole(`Applied target weight ${val.toFixed(2)} g to all 14 channels.`);
-        };
+        // Switch Viscosity
+        async function setViscosity(high) {
+            isHighViscosity = high;
+            if (isHighViscosity) {
+                viscLow.classList.remove('active');
+                viscHigh.classList.add('active');
+            } else {
+                viscLow.classList.add('active');
+                viscHigh.classList.remove('active');
+            }
+            updateStepsPerGramUI();
 
-        // --- Global Scale Tare ---
-        function tareScale() {
+            const cmd = isHighViscosity ? 'H' : 'L';
+            log(`Viscosity select: ${isHighViscosity ? 'GLYCEROL (HIGH)' : 'WATER (LOW)'}`);
+            
             if (isDemoMode) {
-                scaleBaseline = globalWeight;
-                updateScaleReadout();
-                logConsole("Demonstration Mode: Tared shared scale to 0.00g.");
+                simActiveMicrosteps = isHighViscosity ? 16 : 64;
+                simState = STATE_IDLE;
+                simPumpActive = false;
+                simPumpSpeed = 0.0;
+                log(`Simulator Profile Loaded: ${activeProfileInfo()} settings applied.`);
             } else {
-                sendCommand({ cmd: "tare" });
+                await sendSerialCommand(cmd);
             }
         }
-        btnGlobalTare.onclick = tareScale;
 
-        function updateScaleReadout() {
-            const currentShow = Math.max(globalWeight - scaleBaseline, 0.00);
-            sharedScaleReadout.innerHTML = `${currentShow.toFixed(2)}<span>g</span>`;
+        function activeProfileInfo() {
+            return isHighViscosity ? 'Glycerol' : 'Water';
         }
 
-        // --- System commands over Serial/Web Serial ---
-        async function sendCommand(obj) {
-            let commandText = "";
-            
-            // Map the structured command object to plain text microcontroller commands
-            if (obj && obj.cmd) {
-                if (obj.cmd === "stop" || obj.cmd === "estop") {
-                    commandText = "S";
-                } else if (obj.cmd === "dispense") {
-                    commandText = typeof obj.val === "number" ? obj.val.toFixed(2) : String(obj.val);
-                } else if (obj.cmd === "tare") {
-                    commandText = "T";
-                } else if (obj.cmd === "cal") {
-                    commandText = "C " + (typeof obj.val === "number" ? obj.val.toFixed(2) : String(obj.val));
-                } else {
-                    commandText = JSON.stringify(obj);
-                }
-            } else {
-                commandText = typeof obj === "string" ? obj : JSON.stringify(obj);
-            }
-
-            logConsole(`TX (Plain Text) >> ${commandText}`, 'tx');
-            
-            if (!isDemoMode && serialWriter) {
+        // Send character commands
+        async function sendSerialCommand(cmd) {
+            log(`TX >> ${cmd}`, 'tx');
+            if (serialWriter && isConnected) {
                 try {
-                    await serialWriter.write(new TextEncoder().encode(commandText + '\n'));
+                    await serialWriter.write(cmd + '\n');
                 } catch(e) {
-                    logConsole(`Failed to send command: ${e.message}`, 'err');
+                    log(`Failed to transmit command: ${e.message}`, 'err');
                 }
             }
         }
 
-        // --- Dispatching Dispense Loops ---
-        function dispenseSingleCh(id) {
-            const ch = channels[id - 1];
+        // Emergency E-STOP
+        async function estop() {
+            log("!!! EMERGENCY HALT TRIGGERED !!!", 'err');
             if (isDemoMode) {
-                simulateDispenseSequential(id);
+                simState = STATE_IDLE;
+                simPumpActive = false;
+                simPumpSpeed = 0.0;
+                updateTelemetryUI(simCurrentWeight, STATE_IDLE, isHighViscosity ? 1 : 0);
             } else {
-                sendCommand({ cmd: "dispense", ch: id, val: ch.target });
+                await sendSerialCommand('S');
             }
         }
-
-        // --- Sequential Dispense Simulation (Lab Bench Model) ---
-        function simulateDispenseSequential(id) {
-            const ch = channels[id - 1];
-            if(ch.active || activeSeqIndex !== -1) return; // ignore if running
-
-            ch.active = true;
-            ch.currentDispensed = 0.00;
-            scaleBaseline = globalWeight; // auto-tare before start
-            logConsole(`[Sequential Additive Dispense] Starting Pump ${id}... Target: ${ch.target}g`);
-
-            const interval = setInterval(() => {
-                if(!ch.active) {
-                    clearInterval(interval);
-                    return;
-                }
-
-                const remaining = ch.target - ch.currentDispensed;
-                
-                if(remaining <= 0.01) {
-                    ch.currentDispensed = ch.target;
-                    ch.active = false;
-                    ch.flowRate = 0.0;
-                    updateChCardUI(id);
-                    logConsole(`[Sequential Additive Dispense] Pump ${id} complete! Added ${ch.target.toFixed(2)}g into scale.`, 'rx');
-                    clearInterval(interval);
-                    return;
-                }
-
-                // PID Deceleration loop
-                const maxFlow = 1.60; // g/s
-                const speedCoeff = Math.min(remaining / (ch.target * 0.25), 1.0);
-                ch.flowRate = maxFlow * speedCoeff;
-                
-                const jitter = (Math.random() - 0.5) * 0.02;
-                const addedThisTick = (ch.flowRate * 0.1) + jitter;
-                
-                ch.currentDispensed += addedThisTick;
-                globalWeight += addedThisTick;
-                if(ch.currentDispensed < 0) ch.currentDispensed = 0;
-
-                // Telemetry plot updates
-                scaleHistory.push(globalWeight - scaleBaseline);
-                scaleHistory.shift();
-
-                updateScaleReadout();
-                updateChCardUI(id);
-            }, 100);
-        }
-
-        // --- Sequential Batch Dispenser Logic (1 by 1) ---
-        async function runSequentialBatchSim() {
-            if(activeSeqIndex !== -1) return;
-            logConsole("Starting Sequential Additive Batch Dispensing on Shared Scale...");
-            
-            // Loop through channels sequentially
-            for(let i = 0; i < channels.length; i++) {
-                const ch = channels[i];
-                if(ch.target <= 0.00) continue; // skip if target is zero
-
-                activeSeqIndex = i;
-                ch.active = true;
-                ch.currentDispensed = 0.00;
-                scaleBaseline = globalWeight; // Tare before this pump begins
-                
-                logConsole(`[Batch Step ${i+1}/14] Tared shared scale. Activating Pump ${ch.id} (Target: ${ch.target.toFixed(2)}g)...`);
-
-                await new Promise((resolve) => {
-                    const interval = setInterval(() => {
-                        const remaining = ch.target - ch.currentDispensed;
-                        
-                        if(remaining <= 0.01) {
-                            ch.currentDispensed = ch.target;
-                            ch.active = false;
-                            ch.flowRate = 0.0;
-                            updateChCardUI(ch.id);
-                            logConsole(`[Batch Step ${i+1}/14] Pump ${ch.id} finished. Added ${ch.target.toFixed(2)}g.`, 'rx');
-                            clearInterval(interval);
-                            setTimeout(resolve, 1000); // 1-second pause before taring and starting next pump
-                            return;
-                        }
-
-                        const maxFlow = 1.60;
-                        const speedCoeff = Math.min(remaining / (ch.target * 0.25), 1.0);
-                        ch.flowRate = maxFlow * speedCoeff;
-                        
-                        const jitter = (Math.random() - 0.5) * 0.02;
-                        const addedThisTick = (ch.flowRate * 0.1) + jitter;
-                        
-                        ch.currentDispensed += addedThisTick;
-                        globalWeight += addedThisTick;
-
-                        scaleHistory.push(globalWeight - scaleBaseline);
-                        scaleHistory.shift();
-
-                        updateScaleReadout();
-                        updateChCardUI(ch.id);
-                    }, 100);
-                });
-            }
-
-            activeSeqIndex = -1;
-            logConsole("Success! Sequential Additive Batch Dispensing completed successfully.", 'rx');
-        }
-
-        document.getElementById('btnDispenseAll').onclick = () => {
-            if(isDemoMode) {
-                runSequentialBatchSim();
-            } else {
-                sendCommand({ cmd: "batch_dispense" });
-            }
-        };
-
-        // --- E-STOP Emergency Trigger ---
-        function triggerEstop() {
-            logConsole("!!! EMERGENCY STOP ACTIVE !!! ALL STEPPER DRIVERS SHUTDOWN", 'err');
-            channels.forEach(ch => {
-                ch.active = false;
-                ch.flowRate = 0.0;
-                updateChCardUI(ch.id);
-            });
-            activeSeqIndex = -1;
-            sendCommand({ cmd: "stop" });
-        }
-        btnEstop.onclick = triggerEstop;
+        btnEstop.onclick = estop;
         
+        // Listen to Spacebar for immediate hardware safety E-Stop
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
-                triggerEstop();
+                estop();
             }
         });
 
-        // --- Calibration actions ---
-        document.getElementById('btnCalibrateScale').onclick = () => {
-            const val = parseFloat(document.getElementById('calWeightInput').value) || 100.00;
+        // Tare Scale
+        async function tareScale() {
+            log("Tare load cell request sent.");
             if (isDemoMode) {
-                logConsole(`Demonstration Mode: Calibrated scale against reference weight of ${val.toFixed(2)}g`);
+                simCurrentWeight = 0.00;
+                simLastSettleWeight = 0.00;
+                plotHistory.fill(0.0);
+                updateTelemetryUI(0.00, simState, isHighViscosity ? 1 : 0);
+                log("Simulator Mode: Load cell calibrated to 0.00g.");
             } else {
-                sendCommand({ cmd: "cal", val: val });
+                await sendSerialCommand('T');
+            }
+        }
+        btnTare.onclick = tareScale;
+
+        // Dispensing Start
+        btnStartDispense.onclick = async () => {
+            const target = parseFloat(targetWeightInput.value);
+            if (isNaN(target) || target <= 1.50) {
+                log("Error: Target weight must be greater than 1.50g", "err");
+                alert("Target weight must be greater than 1.50g");
+                return;
+            }
+
+            log(`Initiating dispensing routine for target weight: ${target.toFixed(2)}g...`);
+            if (isDemoMode) {
+                startSimDispense(target);
+            } else {
+                await sendSerialCommand(target.toFixed(2));
             }
         };
 
-        document.getElementById('btnClearConsole').onclick = () => {
-            serialConsole.innerHTML = '';
+        // Calibration dispensed run start
+        btnTriggerCal.onclick = async () => {
+            log("Activating Calibration sequence (10000 step dispense)...");
+            if (isDemoMode) {
+                startSimCalibration();
+            } else {
+                await sendSerialCommand('C');
+            }
         };
 
-        // --- UI Card Renderer ---
-        function updateChCardUI(id) {
-            const ch = channels[id - 1];
-            const card = document.getElementById(`card-ch-${id}`);
-            const badge = document.getElementById(`badge-ch-${id}`);
-            const fill = document.getElementById(`progress-ch-${id}`);
-            const display = document.getElementById(`weight-ch-${id}`);
+        // Calibration measured input submit
+        btnSubmitCal.onclick = async () => {
+            const weight = parseFloat(measuredWeightInput.value);
+            if (isNaN(weight) || weight <= 0.05) {
+                log("Error: Weight must be a positive float > 0.05g.", 'err');
+                alert("Enter a valid weight > 0.05g");
+                return;
+            }
 
-            if(!card) return;
-
-            // Fill card progress bar
-            const percentage = Math.min((ch.currentDispensed / ch.target) * 100, 100);
-            fill.style.width = `${percentage}%`;
-
-            if(ch.active) {
-                card.className = 'channel-card active';
-                badge.className = 'channel-badge active';
-                badge.textContent = 'Dosing';
-                if(display) display.innerHTML = `<span class="active-dispense">Dosing: +${ch.currentDispensed.toFixed(2)}g</span>`;
-            } else if(ch.limit) {
-                card.className = 'channel-card limit-triggered';
-                badge.className = 'channel-badge limit';
-                badge.textContent = 'Switch Err';
+            log(`Submitting measured weight calibration coefficient: ${weight.toFixed(3)}g`);
+            if (isDemoMode) {
+                submitSimCalibration(weight);
             } else {
-                card.className = 'channel-card';
-                badge.className = 'channel-badge';
-                badge.textContent = 'Idle';
-                if(display) display.innerHTML = `Target: ${ch.target.toFixed(2)}<span>g</span>`;
+                await sendSerialCommand(weight.toFixed(3));
+            }
+        };
+
+
+        // --- Telemetry Parser & UI States Update ---
+        function updateTelemetryUI(weight, state, viscosityCode) {
+            currentWeight = weight;
+            currentSystemState = state;
+            isHighViscosity = viscosityCode === 1;
+
+            // Update scale reading display
+            scaleReadout.innerHTML = `${currentWeight.toFixed(2)}<span>g</span>`;
+
+            // Append to scrolling history
+            plotHistory.push(currentWeight);
+            plotHistory.shift();
+
+            // Update state badge classes and rotor styles
+            stateBadge.className = 'state-badge';
+            pumpRotor.className = 'pump-rotor';
+            
+            // Map the 11 states into user categories (Dispensing, Calibrating, Idle, Error)
+            let category = "stopped";
+            let stateName = STATE_NAMES[state] || "UNKNOWN";
+            let stateDescText = "";
+            let progressRatio = 0.0;
+            
+            let isDispMode = false;
+            let targetWeightSimOrReal = isDemoMode ? simTargetWeight : (parseFloat(targetWeightInput.value) || 10.0);
+            let deliveredSimOrReal = isDemoMode ? (simCurrentWeight - simStartWeight) : currentWeight;
+            if(deliveredSimOrReal < 0) deliveredSimOrReal = 0;
+
+            switch(state) {
+                case STATE_IDLE:
+                    category = "idle";
+                    stateBadge.classList.add('idle');
+                    stateText.textContent = "READY / IDLE";
+                    stateDescText = "Dosing system is online and standing by. Configure viscosity mode or set target weight to proceed.";
+                    measuredWeightInput.disabled = true;
+                    btnSubmitCal.disabled = true;
+                    targetWeightInput.disabled = false;
+                    btnStartDispense.disabled = false;
+                    btnTriggerCal.disabled = false;
+                    break;
+                    
+                case STATE_CALIBRATE_RUN:
+                    category = "calibrating";
+                    stateBadge.classList.add('calibrating');
+                    stateText.textContent = "CALIBRATION DISPENSE";
+                    stateDescText = "Dispensing exactly 10000 microsteps at 1/16 step resolution to sample liquid density properties.";
+                    pumpRotor.classList.add('spinning', 'pulsing');
+                    measuredWeightInput.disabled = true;
+                    btnSubmitCal.disabled = true;
+                    targetWeightInput.disabled = true;
+                    btnStartDispense.disabled = true;
+                    btnTriggerCal.disabled = true;
+                    break;
+                    
+                case STATE_CALIBRATE_WAIT_INPUT:
+                    category = "calibrating";
+                    stateBadge.classList.add('calibrating');
+                    stateText.textContent = "WAIT CALIBRATION WEIGHT";
+                    stateDescText = "Calibration pulse completed. Please weigh the dispensed liquid, enter its weight below, and click SUBMIT.";
+                    pumpRotor.classList.add('pulsing');
+                    measuredWeightInput.disabled = false;
+                    btnSubmitCal.disabled = false;
+                    targetWeightInput.disabled = true;
+                    btnStartDispense.disabled = true;
+                    btnTriggerCal.disabled = true;
+                    break;
+                    
+                case STATE_BULK_FILL:
+                    category = "dispensing";
+                    stateBadge.classList.add('dispensing');
+                    stateText.textContent = "DISPENSING: BULK FILL";
+                    stateDescText = "High-speed volumetric fill phase active. Pumping 85% of target volume rapidly at 1/8 microstepping.";
+                    pumpRotor.classList.add('spinning-fast');
+                    isDispMode = true;
+                    break;
+                    
+                case STATE_SETTLE_BULK:
+                    category = "dispensing";
+                    stateBadge.classList.add('dispensing');
+                    stateText.textContent = "SETTLING: BULK";
+                    stateDescText = "Volumetric fill complete. Stepper halted. Waiting for liquid scale turbulence to settle...";
+                    pumpRotor.classList.add('pulsing');
+                    isDispMode = true;
+                    break;
+                    
+                case STATE_TRIM_PULSE:
+                    category = "dispensing";
+                    stateBadge.classList.add('dispensing');
+                    stateText.textContent = "DISPENSING: TRIM PULSE";
+                    stateDescText = "Fine micro-dosing active. Dispensing a highly controlled trickle pulse to approximate remaining target weight.";
+                    pumpRotor.classList.add('spinning');
+                    isDispMode = true;
+                    break;
+                    
+                case STATE_SETTLE_TRIM:
+                    category = "dispensing";
+                    stateBadge.classList.add('dispensing');
+                    stateText.textContent = "SETTLING: TRIM";
+                    stateDescText = "Micro-pulse complete. Enforcing settlement slope algorithm to measure stable fluid accumulation.";
+                    pumpRotor.classList.add('pulsing');
+                    isDispMode = true;
+                    break;
+                    
+                case STATE_SUCK_BACK:
+                    category = "dispensing";
+                    stateBadge.classList.add('dispensing');
+                    stateText.textContent = "PRESSURE RELIEF RUN";
+                    stateDescText = "Preparing suck-back sequence to alleviate nozzle pressure and stop capillary dripping.";
+                    isDispMode = true;
+                    break;
+                    
+                case STATE_RETRACTING:
+                    category = "dispensing";
+                    stateBadge.classList.add('dispensing');
+                    stateText.textContent = "RETRACTING (SUCK BACK)";
+                    stateDescText = "Reversing pump direction dynamically to retract fluid column slightly from needle tip.";
+                    pumpRotor.classList.add('spinning-reverse');
+                    isDispMode = true;
+                    break;
+                    
+                case STATE_COMPLETE:
+                    category = "idle";
+                    stateBadge.classList.add('idle');
+                    stateText.textContent = "DISPENSE COMPLETED";
+                    stateDescText = "Success! Dosing sequence completed with high-accuracy tolerances.";
+                    break;
+                    
+                case STATE_ERROR_STATE:
+                    category = "error";
+                    stateBadge.classList.add('error');
+                    stateText.textContent = "SCALE WATCHDOG TIMEOUT";
+                    stateDescText = "CRITICAL ERROR: Scale serial heartbeat lost during active pumping! Motor shut down for overflow prevention.";
+                    pumpRotor.classList.add('error');
+                    measuredWeightInput.disabled = true;
+                    btnSubmitCal.disabled = true;
+                    targetWeightInput.disabled = false;
+                    btnStartDispense.disabled = false;
+                    btnTriggerCal.disabled = false;
+                    break;
+            }
+
+            stateDesc.textContent = stateDescText;
+
+            // Handle Progress Bar & Controls Locking
+            if (isDispMode) {
+                measuredWeightInput.disabled = true;
+                btnSubmitCal.disabled = true;
+                targetWeightInput.disabled = true;
+                btnStartDispense.disabled = true;
+                btnTriggerCal.disabled = true;
+
+                if (targetWeightSimOrReal > 0) {
+                    progressRatio = deliveredSimOrReal / targetWeightSimOrReal;
+                    if(progressRatio > 1.0) progressRatio = 1.0;
+                    if(progressRatio < 0.0) progressRatio = 0.0;
+                }
+                
+                progressBar.style.width = `${progressRatio * 100}%`;
+                progressLeft.textContent = `Delivered: ${deliveredSimOrReal.toFixed(2)}g / ${targetWeightSimOrReal.toFixed(2)}g`;
+                progressPercent.textContent = `${(progressRatio * 100).toFixed(0)}%`;
+            } else {
+                progressBar.style.width = `0%`;
+                progressLeft.textContent = `Delivered: 0.00g`;
+                progressPercent.textContent = `0%`;
             }
         }
 
-        // --- Web Serial API Connection Process ---
+        // Initialize state UI
+        updateTelemetryUI(0.00, STATE_IDLE, 0);
+
+
+        // --- HIGH FIDELITY SIMULATION MODE ENGINE (Matches src/main.cpp loops exactly) ---
+        
+        function startSimDispense(target) {
+            simState = STATE_BULK_FILL;
+            simTargetWeight = target - 0.04; // Safety margin applied internally
+            simStartWeight = simCurrentWeight;
+            
+            log(`[Simulator Dosing] Command Received target: ${target.toFixed(2)}g. Internal Target Margin: ${(target-0.04).toFixed(2)}g`, 'rx');
+            
+            // Calculate bulk target weight limit (85%)
+            let bulkTargetG = simTargetWeight * 0.85;
+            simActiveMicrosteps = 8; // bulk
+            
+            log(`[Simulator Dosing] Transitioned to STATE_BULK_FILL. Aiming for bulk weight: ${bulkTargetG.toFixed(2)}g`, 'rx');
+        }
+
+        function startSimCalibration() {
+            simState = STATE_CALIBRATE_RUN;
+            simStepsRemaining = 10000;
+            log("[Simulator Calibration] Dispensing 10000 microsteps at 1/16 step...", 'rx');
+        }
+
+        function submitSimCalibration(measuredWeight) {
+            let fullStepsTaken = 10000.0 / 16.0;
+            let calculatedSteps = fullStepsTaken / measuredWeight;
+            
+            if (isHighViscosity) {
+                stepsPerGramHigh = calculatedSteps;
+            } else {
+                stepsPerGramLow = calculatedSteps;
+            }
+            
+            log("[Simulator Calibration] Calibration complete!", 'rx');
+            log(`[Simulator Calibration] Measured Output: ${measuredWeight.toFixed(3)}g`, 'rx');
+            log(`[Simulator Calibration] New profile steps/g multiplier: ${calculatedSteps.toFixed(2)}`, 'rx');
+            
+            simState = STATE_IDLE;
+            updateTelemetryUI(simCurrentWeight, simState, isHighViscosity ? 1 : 0);
+            updateStepsPerGramUI();
+        }
+
+        // --- Permanent 10Hz Background Simulator Loop ---
+        setInterval(() => {
+            if (!isDemoMode) return; // Only execute when in simulator mode
+
+            // Generate an active micro-jitter to prove the scale is alive (e.g. ±0.002g)
+            let jitter = (Math.random() - 0.5) * 0.004;
+            let displayWeight = Math.max(0.00, simCurrentWeight + jitter);
+
+            let activeStepsPerGram = isHighViscosity ? stepsPerGramHigh : stepsPerGramLow;
+            let delivered = simCurrentWeight - simStartWeight;
+            if (delivered < 0) delivered = 0;
+            let remaining = simTargetWeight - delivered;
+
+            if (simState !== STATE_IDLE) {
+                switch (simState) {
+                    case STATE_CALIBRATE_RUN:
+                        simStepsRemaining -= 160; // Simulate step progress faster to match larger count
+                        if (simStepsRemaining <= 0) {
+                            simStepsRemaining = 0;
+                            // Add target calibrated weight onto scale
+                            let expectedWeight = (10000.0 / 16.0) / activeStepsPerGram;
+                            simCurrentWeight += expectedWeight;
+                            simState = STATE_CALIBRATE_WAIT_INPUT;
+                            log("[Simulator Calibration] Stepper run complete. Please submit weight coefficient.", 'rx');
+                        }
+                        break;
+                        
+                    case STATE_CALIBRATE_WAIT_INPUT:
+                        // Sitting waiting for user weight submission
+                        break;
+                        
+                    case STATE_BULK_FILL:
+                        // High-speed bulk pumping (approx. 1.25g per second, so 0.125g per 100ms)
+                        let addedThisTick = 0.125 + (Math.random() - 0.5) * 0.02;
+                        simCurrentWeight += addedThisTick;
+                        
+                        let bulkTargetG = simTargetWeight * 0.85;
+                        if ((simCurrentWeight - simStartWeight) >= bulkTargetG) {
+                            simStopTime = Date.now();
+                            simState = STATE_SETTLE_BULK;
+                            simSettleTimer = Date.now();
+                            simLastSettleWeight = simCurrentWeight;
+                            log("[Simulator Dosing] Bulk limit reached. Halted stepper motor. Scale settling active...", 'rx');
+                        }
+                        break;
+                        
+                    case STATE_SETTLE_BULK:
+                        let settleGuard = isHighViscosity ? 1500 : 1200;
+                        if (Date.now() - simStopTime >= settleGuard) {
+                            log(`[Simulator Dosing] Scale settled. Delivered: ${delivered.toFixed(3)}g, Remaining: ${remaining.toFixed(3)}g`, 'rx');
+                            
+                            if (remaining <= 0.04) {
+                                log("[Simulator Dosing] Remaining weight under target tolerance (0.04g). Retracting needle...", 'rx');
+                                simState = STATE_SUCK_BACK;
+                            } else {
+                                simState = STATE_TRIM_PULSE;
+                                simActiveMicrosteps = isHighViscosity ? 16 : 64;
+                                let pulseG = Math.max(0.04, remaining * 0.5);
+                                pulseG = Math.min(pulseG, remaining);
+                                simStepsRemaining = pulseG * activeStepsPerGram * simActiveMicrosteps;
+                                log(`[Simulator Dosing] Initiating Micro-Pulse: adding +${pulseG.toFixed(3)}g...`, 'rx');
+                            }
+                        }
+                        break;
+                        
+                    case STATE_TRIM_PULSE:
+                        // Trickle pulse (approx. 0.08g per second, so 0.008g per 100ms)
+                        let trimAdded = (isHighViscosity ? 0.012 : 0.008) + (Math.random() - 0.5) * 0.002;
+                        simCurrentWeight += trimAdded;
+                        simStepsRemaining -= (trimAdded * activeStepsPerGram * simActiveMicrosteps);
+                        
+                        if (simStepsRemaining <= 0) {
+                            simStopTime = Date.now();
+                            simState = STATE_SETTLE_TRIM;
+                            simSettleTimer = Date.now();
+                            simLastSettleWeight = simCurrentWeight;
+                            log("[Simulator Dosing] Micro-Pulse complete. Scale settling active...", 'rx');
+                        }
+                        break;
+                        
+                    case STATE_SETTLE_TRIM:
+                        let settleGuardTrim = isHighViscosity ? 1500 : 1200;
+                        if (Date.now() - simStopTime >= settleGuardTrim) {
+                            log(`[Simulator Dosing] Scale settled. Delivered: ${delivered.toFixed(3)}g, Remaining: ${remaining.toFixed(3)}g`, 'rx');
+                            
+                            if (remaining <= 0.04) {
+                                log("[Simulator Dosing] Remaining weight within tolerance target. Finalizing dispense.", 'rx');
+                                simState = STATE_SUCK_BACK;
+                            } else {
+                                simState = STATE_TRIM_PULSE;
+                                simActiveMicrosteps = isHighViscosity ? 16 : 64;
+                                let pulseG = Math.max(0.04, remaining * 0.5);
+                                pulseG = Math.min(pulseG, remaining);
+                                simStepsRemaining = pulseG * activeStepsPerGram * simActiveMicrosteps;
+                                log(`[Simulator Dosing] Initiating follow-up Micro-Pulse: +${pulseG.toFixed(3)}g...`, 'rx');
+                            }
+                        }
+                        break;
+                        
+                    case STATE_SUCK_BACK:
+                        log(isHighViscosity ? 
+                            "[Simulator Retract] High Viscosity: Performing active pressure relief (1 full reverse rot)..." : 
+                            "[Simulator Retract] Water Mode: Quick reverse retract active.", 'rx');
+                        simState = STATE_RETRACTING;
+                        simStepsRemaining = isHighViscosity ? 3200 : 150;
+                        break;
+                        
+                    case STATE_RETRACTING:
+                        simStepsRemaining -= 150;
+                        if (simStepsRemaining <= 0) {
+                            simState = STATE_COMPLETE;
+                            log(`[Simulator Success] Dispensing successful! Total scale payload added: ${delivered.toFixed(2)}g`, 'rx');
+                        }
+                        break;
+                        
+                    case STATE_COMPLETE:
+                        simState = STATE_IDLE;
+                        log("[Simulator Dosing] Dispense complete. System returned to STATE_IDLE.", 'rx');
+                        break;
+                }
+            }
+
+            // Print telemetry UI update
+            let viscVal = isHighViscosity ? 1 : 0;
+            handleIncomingTelemetryLine(`TELEMETRY:${displayWeight.toFixed(2)},${simState},${viscVal}`);
+        }, 100);
+
+        // --- Web Serial API Connection Handling ---
         btnConnect.onclick = async () => {
             if (isConnected) {
                 disconnectSerial();
@@ -1095,38 +1481,52 @@
             }
 
             try {
-                logConsole("Requesting Serial access...", 'tx');
+                log("Requesting USB Serial port access (9600 Baud)...");
                 serialPort = await navigator.serial.requestPort();
-                await serialPort.open({ baudRate: 115200 });
                 
-                const encoder = new TextEncoderStream();
-                encoder.readable.pipeTo(serialPort.writable);
-                serialWriter = encoder.writable.getWriter();
+                // Open serial port at 9600 matching platformio.ini
+                await serialPort.open({ baudRate: 9600 });
+                
+                // Set up Text encoder Stream
+                const textEncoder = new TextEncoderStream();
+                textEncoder.readable.pipeTo(serialPort.writable);
+                serialWriter = textEncoder.writable.getWriter();
                 
                 isConnected = true;
                 isDemoMode = false;
 
-                btnConnect.textContent = "DISCONNECT USB";
+                // Adjust UI classes
+                btnConnect.textContent = "DISCONNECT";
                 btnConnect.classList.add('active');
-                connStatusText.textContent = "CONNECTED (USB SERIAL)";
+                connStatusText.textContent = "CONNECTED (ARDUINO UNO R4)";
                 connStatusDot.classList.add('connected');
-                demoModeBadge.style.display = 'none';
+                modeBadge.textContent = "ONLINE MODE";
+                modeBadge.style.background = 'rgba(5, 255, 196, 0.1)';
+                modeBadge.style.borderColor = 'var(--success)';
+                modeBadge.style.color = 'var(--success)';
+                refreshRate.textContent = "Rate: USB 9600bps";
 
-                logConsole("Successfully connected to Arduino Giga R1 WiFi over USB!", 'rx');
+                log("Successfully bound hardware Serial USB interface! Standing by for scale telemetry.", 'rx');
                 
-                // Start read loop
+                // Read incoming loop
                 readSerialLoop();
 
             } catch (e) {
-                logConsole(`Serial connection failed: ${e.message}. Entering Simulator Demo mode.`, 'err');
+                log(`Serial connection error: ${e.message}`, 'err');
+                isConnected = false;
                 isDemoMode = true;
-                demoModeBadge.style.display = 'inline-block';
             }
         };
 
         function disconnectSerial() {
-            if (serialWriter) serialWriter.releaseLock();
-            if (serialPort) serialPort.close();
+            if (serialWriter) {
+                serialWriter.releaseLock();
+                serialWriter = null;
+            }
+            if (serialPort) {
+                serialPort.close();
+                serialPort = null;
+            }
             
             isConnected = false;
             isDemoMode = true;
@@ -1135,27 +1535,34 @@
             btnConnect.classList.remove('active');
             connStatusText.textContent = "SYSTEM STANDBY";
             connStatusDot.classList.remove('connected');
-            demoModeBadge.style.display = 'inline-block';
+            
+            modeBadge.textContent = "SIMULATOR MODE";
+            modeBadge.style.background = 'rgba(255, 179, 0, 0.15)';
+            modeBadge.style.borderColor = 'var(--warning)';
+            modeBadge.style.color = 'var(--warning)';
+            refreshRate.textContent = "Rate: Sim 10Hz";
 
-            logConsole("Disconnected from Serial interface. Simulator mode restored.", 'err');
+            log("Serial link terminated. Restoring sandbox Simulation environment.", 'err');
         }
 
-        // --- Read Loop for Incoming scale feedback telemetry ---
+        // Robust Serial Read pipeline using locked readers and decoders
         async function readSerialLoop() {
             while (serialPort && serialPort.readable && isConnected) {
                 try {
-                    const textDecoder = new TextDecoderStream();
-                    serialPort.readable.pipeTo(textDecoder.writable);
-                    const reader = textDecoder.readable.getReader();
-                    
+                    const reader = serialPort.readable.getReader();
+                    const decoder = new TextDecoder();
                     let buffer = "";
-                    while (true) {
+                    
+                    while (isConnected) {
                         const { value, done } = await reader.read();
-                        if (done) break;
+                        if (done) {
+                            reader.releaseLock();
+                            break;
+                        }
                         
-                        buffer += value;
+                        buffer += decoder.decode(value, { stream: true });
                         const lines = buffer.split('\n');
-                        buffer = lines.pop(); // keep remainder
+                        buffer = lines.pop(); // keep trailing remainder
                         
                         for (const line of lines) {
                             if (line.trim()) {
@@ -1164,51 +1571,62 @@
                         }
                     }
                 } catch (e) {
-                    logConsole(`Incoming read error: ${e.message}`, 'err');
+                    log(`USB Port read failure: ${e.message}`, 'err');
+                    disconnectSerial();
                     break;
                 }
             }
         }
 
-        // --- Process Incoming Telemetry packets ---
-        function handleIncomingData(jsonStr) {
-            logConsole(`RX << ${jsonStr}`, 'rx');
-            try {
-                const data = JSON.parse(jsonStr);
+        function handleIncomingData(line) {
+            if (line.startsWith("TELEMETRY:")) {
+                handleIncomingTelemetryLine(line);
+                log(`RX << ${line}`, 'telemetry');
+            } else {
+                // Regular console printouts from Arduino
+                log(`RX << ${line}`, 'rx');
                 
-                // Update Shared Scale reading
-                if(data.scale_weight_g !== undefined) {
-                    globalWeight = data.scale_weight_g;
-                    updateScaleReadout();
-
-                    // Push weight history
-                    scaleHistory.push(globalWeight - scaleBaseline);
-                    scaleHistory.shift();
-                }
-
-                // Update active channels status
-                if(data.telemetry) {
-                    for(const [chKey, val] of Object.entries(data.telemetry)) {
-                        const chId = parseInt(chKey.replace('ch', ''));
-                        const ch = channels[chId - 1];
-                        
-                        ch.currentDispensed = val.current_step_dispensed_g;
-                        ch.active = val.motor_active;
-                        ch.limit = val.limit_triggered;
-
-                        updateChCardUI(chId);
+                // Autotune local variables based on Arduino response messages
+                if (line.includes("Viscosity Mode: HIGH")) {
+                    isHighViscosity = true;
+                    viscLow.classList.remove('active');
+                    viscHigh.classList.add('active');
+                } else if (line.includes("Viscosity Mode: LOW")) {
+                    isHighViscosity = false;
+                    viscLow.classList.add('active');
+                    viscHigh.classList.remove('active');
+                } else if (line.includes("Active steps/g:")) {
+                    let steps = parseFloat(line.split(":")[1]);
+                    if (!isNaN(steps)) {
+                        if (isHighViscosity) stepsPerGramHigh = steps;
+                        else stepsPerGramLow = steps;
+                        updateStepsPerGramUI();
                     }
+                } else if (line.includes("New steps/gram [Water]:")) {
+                    let steps = parseFloat(line.split(":")[1]);
+                    if (!isNaN(steps)) { stepsPerGramLow = steps; updateStepsPerGramUI(); }
+                } else if (line.includes("New steps/gram [Glycerol]:")) {
+                    let steps = parseFloat(line.split(":")[1]);
+                    if (!isNaN(steps)) { stepsPerGramHigh = steps; updateStepsPerGramUI(); }
                 }
-            } catch(e) {
-                // Plain text logs from Arduino
-                logConsole(`TEXT: ${jsonStr}`);
             }
         }
 
-        // --- Initial Load ---
-        initUI();
-        drawTelemetry();
+        function handleIncomingTelemetryLine(cleanLine) {
+            // String format: TELEMETRY:<weight_grams>,<state_integer>,<viscosity_mode_boolean>
+            try {
+                const parts = cleanLine.replace("TELEMETRY:", "").split(",");
+                const weight = parseFloat(parts[0]);
+                const state = parseInt(parts[1]);
+                const viscosityCode = parseInt(parts[2]);
 
+                if (!isNaN(weight) && !isNaN(state) && !isNaN(viscosityCode)) {
+                    updateTelemetryUI(weight, state, viscosityCode);
+                }
+            } catch(e) {
+                // Parsing error
+            }
+        }
     </script>
 </body>
 </html>
