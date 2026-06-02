@@ -150,7 +150,7 @@ void loop() {
         pump.stop();
         digitalWrite(enPin, HIGH); // Disable pump holding current
         
-        Serial.println("\n-> Calibration run complete (1000 steps).");
+        Serial.println("\n-> Calibration run complete (10000 steps).");
         Serial.println("-> Please weigh the dispensed liquid on your scale.");
         Serial.println("-> Enter the measured weight in grams (e.g. 1.29) below:");
         
@@ -339,6 +339,14 @@ void processScaleData(String raw) {
     currentWeight = cleanStr.toFloat();
     lastScaleUpdateTime = millis();
     newScaleData = true; // Signal that new weight data has arrived
+
+    // Print real-time telemetry over USB Serial (9600 Baud)
+    Serial.print("TELEMETRY:");
+    Serial.print(currentWeight, 2);
+    Serial.print(",");
+    Serial.print((int)currentState);
+    Serial.print(",");
+    Serial.println(isHighViscosity ? "1" : "0");
   }
 }
 
@@ -381,8 +389,8 @@ void handleUsbCommands() {
         else if (currentState == STATE_CALIBRATE_WAIT_INPUT) {
           float measuredWeight = usbBuffer.toFloat();
           if (measuredWeight > 0.05) {
-            // 1000 steps were taken at 1/16 microstepping = 62.5 Full Steps
-            float fullStepsTaken = 1000.0 / 16.0;
+            // 10000 steps were taken at 1/16 microstepping = 625 Full Steps
+            float fullStepsTaken = 10000.0 / 16.0;
             float calculatedSteps = fullStepsTaken / measuredWeight;
             
             if (isHighViscosity) {
@@ -416,12 +424,12 @@ void handleUsbCommands() {
             setMicrostepping(activeMicrosteps);
             
             pump.setCurrentPosition(0);
-            pump.moveTo(1000); // Dispense exactly 1000 steps
+            pump.moveTo(10000); // Dispense exactly 10000 steps
             pump.setSpeed(CALIBRATE_SPEED);
             
             currentState = STATE_CALIBRATE_RUN;
             Serial.println("\n-> Starting calibration run.");
-            Serial.println("-> Dispensing exactly 1000 microsteps (62.5 full steps) at 1/16 step...");
+            Serial.println("-> Dispensing exactly 10000 microsteps (625 full steps) at 1/16 step...");
           } else {
             Serial.println("Error: Can only calibrate when pump is in IDLE.");
           }
