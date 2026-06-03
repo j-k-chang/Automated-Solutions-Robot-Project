@@ -8,13 +8,15 @@ const float TRICKLE_SPEED = 12000.0f;
 const float CALIBRATE_SPEED = 2000.0f;
 const long retractStepsWater = 3200;
 const long retractStepsGlycerol = 9600;
-const float TARGET_MARGIN = 0.00f;
+const float TARGET_MARGIN = 0.03f;
 
 // --- Global State ---
 AccelStepper pump1(AccelStepper::DRIVER, PUMP1_STEP, SHARED_DIR);
 AccelStepper pump2(AccelStepper::DRIVER, PUMP2_STEP, SHARED_DIR);
 
 float currentWeight = 0.0f;
+float rawWeight = 0.0f;
+float tareOffset = 0.0f;
 unsigned long lastScaleUpdateTime = 0;
 unsigned long settleTimer = 0;
 unsigned long stopTime = 0;
@@ -157,8 +159,10 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
         Serial.print(delivered, 2); 
         Serial.println("g");
         
-        if (remaining <= 0.00f) {
-          Serial.println("-> Remaining weight <= 0.00g. Halting dispense.");
+        if (remaining <= TARGET_MARGIN) {
+          Serial.print("-> Remaining weight <= ");
+          Serial.print(TARGET_MARGIN, 2);
+          Serial.println("g. Halting dispense.");
           dispenseState = DISPENSE_SUCK_BACK;
         } else if (delivered < targetVal) {
           dispenseState = DISPENSE_TRIM_PULSE;
@@ -205,8 +209,10 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
 
     case DISPENSE_SETTLE_TRIM:
       if (isScaleSettled(isHighVisc)) {
-        if (remaining <= 0.00f) {
-          Serial.println("-> Remaining weight <= 0.00g. Halting dispense.");
+        if (remaining <= TARGET_MARGIN) {
+          Serial.print("-> Remaining weight <= ");
+          Serial.print(TARGET_MARGIN, 2);
+          Serial.println("g. Halting dispense.");
           dispenseState = DISPENSE_SUCK_BACK;
         } else if (delivered < targetVal) {
           dispenseState = DISPENSE_TRIM_PULSE;
@@ -481,7 +487,8 @@ void processScaleData(String raw) {
     if (isDigit(ch) || ch == '.' || ch == '-') cleanStr += ch;
   }
   if (cleanStr.length() > 0) {
-    currentWeight = cleanStr.toFloat();
+    rawWeight = cleanStr.toFloat();
+    currentWeight = rawWeight - tareOffset;
     lastScaleUpdateTime = millis();
     newScaleData = true; // Signal that new weight data has arrived
 
@@ -520,6 +527,13 @@ void handleUsbCommands() {
           promptedPump2 = false;
           Serial.println("!!! EMERGENCY PUMP HALT !!!");
         } 
+        
+        // --- Tare Command ---
+        else if (usbBuffer.equalsIgnoreCase("T")) {
+          tareOffset = rawWeight;
+          currentWeight = 0.0f;
+          Serial.println("Scale Software Tared.");
+        }
         
         // --- Viscosity Mode: Pump 1 ---
         else if (usbBuffer.equalsIgnoreCase("H1")) {
@@ -671,7 +685,10 @@ void handleUsbCommands() {
                 dispenseState = DISPENSE_BULK_FILL;
                 sequenceState = SEQ_DISPENSE_PUMP2;
                 
-                Serial.print("Starting Dispense (Pump 1 Bypassed).\n-> Pump 2 Target: ");
+                Serial.println("Starting Sequential Dispense.");
+                Serial.println("Pump 1 done. Dispensed: 0.00g");
+                Serial.println("-> Scale settled. Preparing Pump 2...");
+                Serial.print("Starting Pump 2 Dispense. Target: ");
                 Serial.print(targetPump2, 2);
                 Serial.print("g (Adjusted target: ");
                 Serial.print(adjustedTarget, 2);
