@@ -52,11 +52,12 @@ int calibratingPump = 1;
 unsigned long settleBetweenTimer = 0;
 bool promptedPump1 = false;
 bool promptedPump2 = false;
+unsigned long bulkStartTime = 0;
 
 /**
  * @brief Parses incoming raw data from the scale and updates the current weight.
  */
-void processScaleData(String raw);
+void processScaleData(const String& raw);
 
 /**
  * @brief Configures the microstepping resolution for TMC2209.
@@ -111,6 +112,51 @@ bool isScaleSettled(bool activePumpIsHighViscosity) {
   return false;
 }
 
+void setupBulkFillHelper(AccelStepper& pump, float targetG, bool isHighVisc, float stepsPerGram) {
+  startWeight = currentWeight;
+  lastScaleUpdateTime = millis();
+  
+  float adjustedTarget = targetG - TARGET_MARGIN;
+  float bulkTargetG = adjustedTarget * 0.85f;
+  
+  activeMicrosteps = 8; // 1/8 microstepping for bulk fill
+  setMicrostepping(activeMicrosteps);
+  
+  bulkEndSteps = (bulkTargetG * stepsPerGram) * activeMicrosteps;
+  pump.setCurrentPosition(0);
+  pump.setSpeed(BULK_SPEED);
+  
+  digitalWrite(SHARED_EN, LOW); // Enable driver
+  bulkStartTime = millis();
+  dispenseState = DISPENSE_BULK_FILL;
+}
+
+void prepareTrimPulseHelper(AccelStepper& pump, float remaining, bool isHighVisc, float stepsPerGram) {
+  dispenseState = DISPENSE_TRIM_PULSE;
+  activeMicrosteps = isHighVisc ? 16 : 64;
+  setMicrostepping(activeMicrosteps);
+  
+  float coefficient;
+  if (remaining > 0.50f) {
+    coefficient = 0.80f;
+  } else if (remaining > 0.15f) {
+    coefficient = isHighVisc ? 0.50f : 0.60f;
+  } else {
+    coefficient = isHighVisc ? 0.30f : 0.40f;
+  }
+  
+  float pulseG = max(0.01f, remaining * coefficient);
+  pulseG = min(pulseG, remaining);
+  
+  trimStepsRemaining = (pulseG * stepsPerGram) * activeMicrosteps;
+  pump.setCurrentPosition(0);
+  pump.setSpeed(TRICKLE_SPEED);
+  
+  Serial.print("-> Micro-Pulse: +");
+  Serial.print(pulseG, 2);
+  Serial.println("g");
+}
+
 /**
  * @brief Core state machine executing the dispensing logic for a single pump.
  */
@@ -149,6 +195,15 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
         lastSettleWeight = currentWeight;
         Serial.println("-> Bulk Fill complete. Settling scale...");
       } else {
+        unsigned long elapsed = millis() - bulkStartTime;
+        float currentTargetSpeed = BULK_SPEED;
+        const unsigned long RAMP_TIME_MS = 400;
+        const float START_SPEED = 1500.0f;
+
+        if (elapsed < RAMP_TIME_MS) {
+          currentTargetSpeed = START_SPEED + ((BULK_SPEED - START_SPEED) * ((float)elapsed / RAMP_TIME_MS));
+        }
+        pump.setSpeed(currentTargetSpeed);
         pump.runSpeed();
       }
       break;
@@ -165,19 +220,7 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
           Serial.println("g. Halting dispense.");
           dispenseState = DISPENSE_SUCK_BACK;
         } else if (delivered < targetVal) {
-          dispenseState = DISPENSE_TRIM_PULSE;
-          activeMicrosteps = isHighVisc ? 16 : 64;
-          setMicrostepping(activeMicrosteps);
-          
-          float pulseG = max(0.01f, remaining * 0.5f);
-          pulseG = min(pulseG, remaining);
-          
-          trimStepsRemaining = (pulseG * stepsPerGram) * activeMicrosteps;
-          pump.setCurrentPosition(0);
-          pump.setSpeed(TRICKLE_SPEED);
-          Serial.print("-> Micro-Pulse: +");
-          Serial.print(pulseG, 2);
-          Serial.println("g");
+          prepareTrimPulseHelper(pump, remaining, isHighVisc, stepsPerGram);
         } else {
           dispenseState = DISPENSE_SUCK_BACK;
         }
@@ -215,19 +258,7 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
           Serial.println("g. Halting dispense.");
           dispenseState = DISPENSE_SUCK_BACK;
         } else if (delivered < targetVal) {
-          dispenseState = DISPENSE_TRIM_PULSE;
-          activeMicrosteps = isHighVisc ? 16 : 64;
-          setMicrostepping(activeMicrosteps);
-          
-          float pulseG = max(0.01f, remaining * 0.5f);
-          pulseG = min(pulseG, remaining);
-          
-          trimStepsRemaining = (pulseG * stepsPerGram) * activeMicrosteps;
-          pump.setCurrentPosition(0);
-          pump.setSpeed(TRICKLE_SPEED);
-          Serial.print("-> Micro-Pulse: +");
-          Serial.print(pulseG, 2);
-          Serial.println("g");
+          prepareTrimPulseHelper(pump, remaining, isHighVisc, stepsPerGram);
         } else {
           dispenseState = DISPENSE_SUCK_BACK;
         }
@@ -384,34 +415,18 @@ void multipumpLoop() {
           Serial.println("-> Scale settled. Preparing Pump 2...");
           
           // Prepare Pump 2 dispense using new settled weight
-          startWeight = currentWeight;
-          lastScaleUpdateTime = millis();
-          
           bool isHighVisc = isHighViscosityPump2;
           float stepsPerGram = isHighVisc ? stepsPerGramHighPump2 : stepsPerGramLowPump2;
-          float adjustedTarget = targetPump2 - TARGET_MARGIN;
-          float bulkTargetG = adjustedTarget * 0.85f;
-          
-          activeMicrosteps = 8; // 1/8 for bulk
-          setMicrostepping(activeMicrosteps);
-          
-          bulkEndSteps = (bulkTargetG * stepsPerGram) * activeMicrosteps;
-          pump2.setCurrentPosition(0);
-          pump2.setSpeed(BULK_SPEED);
-          
-          // Re-enable drivers
-          digitalWrite(SHARED_EN, LOW);
-          
-          dispenseState = DISPENSE_BULK_FILL;
+          setupBulkFillHelper(pump2, targetPump2, isHighVisc, stepsPerGram);
           sequenceState = SEQ_DISPENSE_PUMP2;
           
           Serial.print("\nStarting Pump 2 Dispense. Target: ");
           Serial.print(targetPump2, 2);
           Serial.print("g (Adjusted target: ");
-          Serial.print(adjustedTarget, 2);
+          Serial.print(targetPump2 - TARGET_MARGIN, 2);
           Serial.println("g)");
           Serial.print("-> Aiming for ");
-          Serial.print(bulkTargetG, 2);
+          Serial.print((targetPump2 - TARGET_MARGIN) * 0.85f, 2);
           Serial.print("g bulk fill (");
           Serial.print(bulkEndSteps);
           Serial.println(" steps at 1/8 microstep)");
@@ -480,7 +495,7 @@ void multipumpLoop() {
   }
 }
 
-void processScaleData(String raw) {
+void processScaleData(const String& raw) {
   String cleanStr = "";
   for (unsigned int i = 0; i < raw.length(); i++) {
     char ch = raw.charAt(i);
@@ -664,25 +679,8 @@ void handleUsbCommands() {
               }
               else if (targetPump1 <= 0.0f) {
                 // Pump 1 skipped, go straight to preparing Pump 2
-                startWeight = currentWeight;
-                lastScaleUpdateTime = millis();
-                
-                bool isHighVisc = isHighViscosityPump2;
-                float stepsPerGram = isHighVisc ? stepsPerGramHighPump2 : stepsPerGramLowPump2;
-                float adjustedTarget = targetPump2 - TARGET_MARGIN;
-                float bulkTargetG = adjustedTarget * 0.85f;
-                
-                activeMicrosteps = 8; // 1/8 microstepping for bulk fill
-                setMicrostepping(activeMicrosteps);
-                
-                bulkEndSteps = (bulkTargetG * stepsPerGram) * activeMicrosteps;
-                pump2.setCurrentPosition(0);
-                pump2.setSpeed(BULK_SPEED);
-                
-                // Enable drivers
-                digitalWrite(SHARED_EN, LOW);
-                
-                dispenseState = DISPENSE_BULK_FILL;
+                float stepsPerGram = isHighViscosityPump2 ? stepsPerGramHighPump2 : stepsPerGramLowPump2;
+                setupBulkFillHelper(pump2, targetPump2, isHighViscosityPump2, stepsPerGram);
                 sequenceState = SEQ_DISPENSE_PUMP2;
                 
                 Serial.println("Starting Sequential Dispense.");
@@ -691,42 +689,27 @@ void handleUsbCommands() {
                 Serial.print("Starting Pump 2 Dispense. Target: ");
                 Serial.print(targetPump2, 2);
                 Serial.print("g (Adjusted target: ");
-                Serial.print(adjustedTarget, 2);
+                Serial.print(targetPump2 - TARGET_MARGIN, 2);
                 Serial.println("g)");
                 Serial.print("-> Aiming for ");
-                Serial.print(bulkTargetG, 2);
+                Serial.print((targetPump2 - TARGET_MARGIN) * 0.85f, 2);
                 Serial.print("g bulk fill (");
                 Serial.print(bulkEndSteps);
                 Serial.println(" steps at 1/8 microstep)");
               }
               else {
                 // Standard setup: start Pump 1 dispensing
-                digitalWrite(SHARED_EN, LOW);
-                startWeight = currentWeight;
-                lastScaleUpdateTime = millis();
-                
-                bool isHighVisc = isHighViscosityPump1;
-                float stepsPerGram = isHighVisc ? stepsPerGramHighPump1 : stepsPerGramLowPump1;
-                float adjustedTarget = targetPump1 - TARGET_MARGIN;
-                float bulkTargetG = adjustedTarget * 0.85f;
-                
-                activeMicrosteps = 8; // 1/8 microstepping for bulk fill
-                setMicrostepping(activeMicrosteps);
-                
-                bulkEndSteps = (bulkTargetG * stepsPerGram) * activeMicrosteps;
-                pump1.setCurrentPosition(0);
-                pump1.setSpeed(BULK_SPEED);
-                
-                dispenseState = DISPENSE_BULK_FILL;
+                float stepsPerGram = isHighViscosityPump1 ? stepsPerGramHighPump1 : stepsPerGramLowPump1;
+                setupBulkFillHelper(pump1, targetPump1, isHighViscosityPump1, stepsPerGram);
                 sequenceState = SEQ_DISPENSE_PUMP1;
                 
                 Serial.print("Starting Sequential Dispense.\n-> Pump 1 Target: ");
                 Serial.print(targetPump1, 2);
                 Serial.print("g (Adjusted target: ");
-                Serial.print(adjustedTarget, 2);
+                Serial.print(targetPump1 - TARGET_MARGIN, 2);
                 Serial.println("g)");
                 Serial.print("-> Aiming for ");
-                Serial.print(bulkTargetG, 2);
+                Serial.print((targetPump1 - TARGET_MARGIN) * 0.85f, 2);
                 Serial.print("g bulk fill (");
                 Serial.print(bulkEndSteps);
                 Serial.println(" steps at 1/8 microstep)");
