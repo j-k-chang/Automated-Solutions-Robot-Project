@@ -6,7 +6,7 @@ import re
 
 # Sweep targets from 10g to 100g for accuracy check
 TEST_TARGETS = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
-DUMMY_PUMP2_TARGET = 0.0  # Set to 0.0g to bypass Pump 2 dispensing
+DUMMY_TARGETS = [0.0, 0.0, 0.0]  # Pump 2-4 targets, 0.0g skips each pump
 
 def find_serial_ports():
     import serial.tools.list_ports
@@ -72,20 +72,19 @@ def run_test():
             if "Pump 1 Target set to:" in line:
                 break
                 
-        time.sleep(0.5) # Brief pause before sending Pump 2 target
-        
-        # Step 2: Send Target for Pump 2
-        print(f"Sending Pump 2 dummy target weight: {DUMMY_PUMP2_TARGET}g")
-        ser.write(f"{DUMMY_PUMP2_TARGET}\n".encode())
-        
-        # Wait for Pump 2 target confirmation
-        print("Waiting for Pump 2 target confirmation...")
-        while True:
-            line = ser.readline().decode('utf-8', errors='ignore').strip()
-            if line:
-                print(f"[Serial] {line}")
-            if "Pump 2 Target set to:" in line:
-                break
+        # Step 2: Send Target for Pumps 2-4
+        for offset, dummy_target in enumerate(DUMMY_TARGETS, start=2):
+            time.sleep(0.5)
+            print(f"Sending Pump {offset} dummy target weight: {dummy_target}g")
+            ser.write(f"{dummy_target}\n".encode())
+
+            print(f"Waiting for Pump {offset} target confirmation...")
+            while True:
+                line = ser.readline().decode('utf-8', errors='ignore').strip()
+                if line:
+                    print(f"[Serial] {line}")
+                if f"Pump {offset} Target set to:" in line:
+                    break
 
         # Step 3: Monitor Pump 1 dispense and parse final delivered amount
         actual_dispensed = None
@@ -104,7 +103,7 @@ def run_test():
                 ser.close()
                 sys.exit(1)
                 
-        # Step 4: Wait for Pump 2 done and the whole sequence to finish
+        # Step 4: Wait for the whole sequence to finish
         print("Waiting for sequence completion...")
         while True:
             line = ser.readline().decode('utf-8', errors='ignore').strip()

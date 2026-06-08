@@ -1,61 +1,69 @@
-# TMC2209 Stepper Motor Controller with AccelStepper
+# Four-Pump Gravimetric Dispensing Controller
 
-This project provides an interactive, non-blocking serial interface to control a stepper motor using a TMC2209 driver and the `AccelStepper` Arduino library.
+This project controls a four-pump liquid dispensing system on an Arduino Giga R1 WiFi. Each pump uses a TMC2209 stepper driver with a dedicated step pin and shared direction, enable, and microstepping pins.
 
-## Features
+The firmware dispenses by mass using live scale feedback over `Serial1`. It runs each pump sequentially, waits for the scale to settle between pumps, and supports calibration plus low/high viscosity profiles.
 
-*   **Smooth Motion Profile:** Utilizes the `AccelStepper` library for smooth acceleration and deceleration curves.
-*   **Dynamic Command Interface:** Control speed, acceleration, and movement distances on-the-fly via the Arduino Serial Monitor.
-*   **Hardware Microstepping Configuration:** Automatically configures the `MS1` and `MS2` pins for the TMC2209 standalone mode based on a user-defined setting.
-*   **Graceful Stop:** Includes a command to immediately decelerate and stop the motor during a move.
+## Hardware
 
-## Hardware Setup
+| Arduino Giga Pin | Function |
+| :--- | :--- |
+| `2` | Pump 1 `STEP` |
+| `7` | Pump 2 `STEP` |
+| `8` | Pump 3 `STEP` |
+| `9` | Pump 4 `STEP` |
+| `3` | Shared `DIR` |
+| `4` | Shared `EN`, active low |
+| `5` | Shared `MS1` |
+| `6` | Shared `MS2` |
+| `Serial1` | Scale serial input at 9600 baud |
+| USB `Serial` | Host/dashboard command interface at 9600 baud |
 
-This code expects the following pin connections between the Arduino and the TMC2209 driver:
+The Arduino Giga uses 3.3 V logic. Keep TMC2209 logic power on 3.3 V, not 5 V.
 
-| Arduino Pin | TMC2209 Pin | Function |
-| :--- | :--- | :--- |
-| `2` | `STEP` | Step pulse input |
-| `3` | `DIR` | Direction input |
-| `4` | `EN` | Enable input (Active LOW) |
-| `5` | `MS1` | Microstepping configuration 1 |
-| `6` | `MS2` | Microstepping configuration 2 |
+## Build And Upload
 
-*Note: Ensure your stepper motor power supply is properly connected to the driver (VMOT/GND) and the logic power (VDD/GND) is connected to the Arduino's 5V or 3.3V (depending on your logic level).*
+The root `platformio.ini` targets the Arduino Giga R1 WiFi M7 core:
 
-## Code Configuration
-
-At the top of `src/main.cpp`, you will find a user configuration block:
-
-```cpp
-// ==========================================
-// USER CONFIGURATION
-// ==========================================
-const int MICROSTEPS = 8; 
-float currentMaxSpeed = 1000.0;
-float currentAcceleration = 500.0;
-// ==========================================
+```ini
+[env:giga_r1_m7]
+platform = ststm32
+board = giga_r1_m7
+framework = arduino
+monitor_speed = 9600
 ```
 
-*   `MICROSTEPS`: Sets the hardware microstepping resolution. Valid options for the TMC2209 in standalone mode are `8`, `16`, `32`, or `64`.
-*   `currentMaxSpeed`: The default maximum speed in steps per second.
-*   `currentAcceleration`: The default acceleration in steps per second squared.
+Useful commands:
 
-## Usage (Serial Commands)
+```powershell
+C:\Users\littl\.platformio\penv\Scripts\platformio.exe run
+C:\Users\littl\.platformio\penv\Scripts\platformio.exe run --target upload
+C:\Users\littl\.platformio\penv\Scripts\platformio.exe device monitor
+```
 
-1.  Upload the code to your Arduino.
-2.  Open the Arduino Serial Monitor.
-3.  Set the baud rate to **9600**.
-4.  Ensure the line ending is set to "Newline" or "Both NL & CR".
+## Serial Commands
 
-You will see a startup menu. You can control the motor by sending the following commands:
+Targets are entered in pump order. Send one numeric value for each pump:
 
-*   **`M<number>` (Move):** Moves the motor a relative number of steps. 
-    *   *Example:* `M800` moves 800 steps forward.
-    *   *Example:* `M-800` moves 800 steps backward.
-*   **`V<number>` (Velocity/Speed):** Sets the new maximum speed in steps per second.
-    *   *Example:* `V1500`
-*   **`A<number>` (Acceleration):** Sets the new acceleration in steps per second squared.
-    *   *Example:* `A500`
-*   **`S` (Stop):** Immediately stops the motor. It calculates the necessary target position to stop with the current deceleration curve.
-*   **`?` (Help):** Prints the command menu and displays the currently configured speed and acceleration values.
+```text
+10.00
+5.00
+0.00
+2.50
+```
+
+Values greater than `1.50` g run that pump. `0.00` skips that pump.
+
+Other commands:
+
+| Command | Action |
+| :--- | :--- |
+| `H1` through `H4` | Set pump viscosity profile to high, for glycerol |
+| `L1` through `L4` | Set pump viscosity profile to low, for water |
+| `C1` through `C4` | Calibrate the selected pump profile |
+| `T` | Software tare the scale |
+| `S` | Emergency stop |
+
+## Dashboard
+
+Open `dashboard/index.html` in a browser that supports Web Serial, such as Chrome or Edge. The dashboard can run in simulator mode or connect to the Arduino Giga over USB at 9600 baud.

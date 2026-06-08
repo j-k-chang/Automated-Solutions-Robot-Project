@@ -20,6 +20,10 @@ const int SHARED_MS2 = 6;   ///< Shared Microstepping configuration pin 2
 // --- Pump Specific STEP Pins ---
 const int PUMP1_STEP = 2;   ///< Separate Step pin for Pump 1 stepper motor driver
 const int PUMP2_STEP = 7;   ///< Separate Step pin for Pump 2 stepper motor driver
+const int PUMP3_STEP = 8;   ///< Separate Step pin for Pump 3 stepper motor driver
+const int PUMP4_STEP = 9;   ///< Separate Step pin for Pump 4 stepper motor driver
+
+const int PUMP_COUNT = 4;   ///< Total number of pumps on the shared bus
 
 // --- Communication Settings ---
 const long SCALE_BAUD = 9600; ///< Baud rate for serial communication with the digital scale (Serial1)
@@ -55,11 +59,9 @@ enum DispenseState {
  * @brief Overarching state machine for sequential multi-pump dispensing and calibration.
  */
 enum SequenceState {
-  SEQ_PROMPT_PUMP1,
-  SEQ_DISPENSE_PUMP1,
+  SEQ_PROMPT_TARGET,
+  SEQ_DISPENSE_ACTIVE,
   SEQ_SETTLE_BETWEEN,   ///< Wait for scale to settle between pump cycles
-  SEQ_PROMPT_PUMP2,
-  SEQ_DISPENSE_PUMP2,
   SEQ_DONE,
   SEQ_CALIBRATE_RUN,
   SEQ_CALIBRATE_WAIT_INPUT

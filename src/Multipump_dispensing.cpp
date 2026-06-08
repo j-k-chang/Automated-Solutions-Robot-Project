@@ -8,15 +8,30 @@ const float TRICKLE_SPEED = 12000.0f;
 const float CALIBRATE_SPEED = 2000.0f;
 const long retractStepsWater = 3200;
 const long retractStepsGlycerol = 9600;
-const float TARGET_MARGIN = 0.03f;
+const float TARGET_MARGIN = 0.01f;
 
-// --- Global State ---
+// --- Pump Hardware ---
 AccelStepper pump1(AccelStepper::DRIVER, PUMP1_STEP, SHARED_DIR);
 AccelStepper pump2(AccelStepper::DRIVER, PUMP2_STEP, SHARED_DIR);
+AccelStepper pump3(AccelStepper::DRIVER, PUMP3_STEP, SHARED_DIR);
+AccelStepper pump4(AccelStepper::DRIVER, PUMP4_STEP, SHARED_DIR);
 
+AccelStepper* const pumps[PUMP_COUNT] = {
+  &pump1, &pump2, &pump3, &pump4
+};
+
+const int pumpStepPins[PUMP_COUNT] = {
+  PUMP1_STEP, PUMP2_STEP, PUMP3_STEP, PUMP4_STEP
+};
+
+void processScaleData(const String& raw);
+void handleUsbCommands();
+
+// --- Global State ---
 float currentWeight = 0.0f;
 float rawWeight = 0.0f;
 float tareOffset = 0.0f;
+float startWeight = 0.0f;
 unsigned long lastScaleUpdateTime = 0;
 unsigned long settleTimer = 0;
 unsigned long stopTime = 0;
@@ -27,41 +42,81 @@ String scaleBuffer = "";
 String usbBuffer = "";
 const unsigned int MAX_BUF = 50;
 
-// Sequence & Dispense State
-SequenceState sequenceState = SEQ_PROMPT_PUMP1;
+SequenceState sequenceState = SEQ_PROMPT_TARGET;
 DispenseState dispenseState = DISPENSE_IDLE;
 
-float targetPump1 = 0.0f;
-float targetPump2 = 0.0f;
-float startWeight = 0.0f;
+int targetEntryPumpIndex = 0;
+int activePumpIndex = -1;
+int calibratingPumpIndex = 0;
+int nextPumpIndex = -1;
+bool promptedTarget = false;
+bool completionAnnounced = false;
 
-// Calibration parameters per pump
-float stepsPerGramLowPump1 = 700.0f;
-float stepsPerGramHighPump1 = 1400.0f;
-float stepsPerGramLowPump2 = 700.0f;
-float stepsPerGramHighPump2 = 1400.0f;
+float targetWeights[PUMP_COUNT] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-// Viscosity settings per pump
-bool isHighViscosityPump1 = false;
-bool isHighViscosityPump2 = false;
+float stepsPerGramLow[PUMP_COUNT] = {700.0f, 700.0f, 700.0f, 700.0f};
+float stepsPerGramHigh[PUMP_COUNT] = {1400.0f, 1400.0f, 1400.0f, 1400.0f};
+
+bool highViscosity[PUMP_COUNT] = {false, false, false, false};
 
 int activeMicrosteps = 64;
 long bulkEndSteps = 0;
 long trimStepsRemaining = 0;
-int calibratingPump = 1;
 unsigned long settleBetweenTimer = 0;
-bool promptedPump1 = false;
-bool promptedPump2 = false;
 unsigned long bulkStartTime = 0;
 
-/**
- * @brief Parses incoming raw data from the scale and updates the current weight.
- */
-void processScaleData(const String& raw);
+AccelStepper& getPump(int pumpIndex) {
+  return *pumps[pumpIndex];
+}
 
-/**
- * @brief Configures the microstepping resolution for TMC2209.
- */
+bool isValidPumpIndex(int pumpIndex) {
+  return pumpIndex >= 0 && pumpIndex < PUMP_COUNT;
+}
+
+float getStepsPerGram(int pumpIndex) {
+  return highViscosity[pumpIndex] ? stepsPerGramHigh[pumpIndex] : stepsPerGramLow[pumpIndex];
+}
+
+long getRetractSteps(int pumpIndex) {
+  return highViscosity[pumpIndex] ? retractStepsGlycerol : retractStepsWater;
+}
+
+float getRetractSpeed(int pumpIndex) {
+  return highViscosity[pumpIndex] ? -16000.0f : -1200.0f;
+}
+
+int findNextActivePump(int startIndex) {
+  for (int index = startIndex; index < PUMP_COUNT; ++index) {
+    if (targetWeights[index] > 0.0f) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+void resetRunState() {
+  for (int index = 0; index < PUMP_COUNT; ++index) {
+    targetWeights[index] = 0.0f;
+  }
+
+  targetEntryPumpIndex = 0;
+  activePumpIndex = -1;
+  calibratingPumpIndex = 0;
+  nextPumpIndex = -1;
+  promptedTarget = false;
+  completionAnnounced = false;
+  sequenceState = SEQ_PROMPT_TARGET;
+  dispenseState = DISPENSE_IDLE;
+  bulkEndSteps = 0;
+  trimStepsRemaining = 0;
+  newScaleData = false;
+  lastScaleUpdateTime = 0;
+  settleTimer = 0;
+  stopTime = 0;
+  lastSettleWeight = 0.0f;
+  bulkStartTime = 0;
+}
+
 void setMicrostepping(int resolution) {
   if (resolution == 8) {
     digitalWrite(SHARED_MS1, LOW);
@@ -73,37 +128,38 @@ void setMicrostepping(int resolution) {
     digitalWrite(SHARED_MS1, LOW);
     digitalWrite(SHARED_MS2, HIGH);
   } else {
-    // Fallback to 1/16
     digitalWrite(SHARED_MS1, HIGH);
     digitalWrite(SHARED_MS2, LOW);
   }
 }
 
-/**
- * @brief Reads and processes commands sent from the host PC via USB Serial.
- */
-void handleUsbCommands();
+void printPumpLabel(int pumpIndex) {
+  Serial.print("Pump ");
+  Serial.print(pumpIndex + 1);
+}
 
-/**
- * @brief Adaptive variance-based settling slope detector.
- */
+void printTargetPrompt(int pumpIndex) {
+  printPumpLabel(pumpIndex);
+  Serial.print(" Viscosity: ");
+  Serial.println(highViscosity[pumpIndex] ? "HIGH (Glycerol)" : "LOW (Water)");
+  printPumpLabel(pumpIndex);
+  Serial.println(" Enter weight (g):");
+}
+
 bool isScaleSettled(bool activePumpIsHighViscosity) {
   unsigned long settleGuardTime = activePumpIsHighViscosity ? 1500 : 1200;
 
-  // 1. Enforce guard window
   if (millis() - stopTime < settleGuardTime) {
-    return false; 
+    return false;
   }
 
-  // 2. Only process when a new scale reading is available
   if (!newScaleData) {
     return false;
   }
-  newScaleData = false; // Reset the flag
+  newScaleData = false;
 
-  // 3. Check for stabilization (no variance registered over 500ms)
-  if (millis() - settleTimer > 500) { 
-    if (abs(currentWeight - lastSettleWeight) < 0.005f) { 
+  if (millis() - settleTimer > 500) {
+    if (abs(currentWeight - lastSettleWeight) < 0.005f) {
       return true;
     }
     lastSettleWeight = currentWeight;
@@ -112,30 +168,37 @@ bool isScaleSettled(bool activePumpIsHighViscosity) {
   return false;
 }
 
-void setupBulkFillHelper(AccelStepper& pump, float targetG, bool isHighVisc, float stepsPerGram) {
+void setupBulkFillHelper(int pumpIndex, float targetG) {
+  AccelStepper& pump = getPump(pumpIndex);
+
   startWeight = currentWeight;
   lastScaleUpdateTime = millis();
-  
+
   float adjustedTarget = targetG - TARGET_MARGIN;
   float bulkTargetG = adjustedTarget * 0.85f;
-  
-  activeMicrosteps = 8; // 1/8 microstepping for bulk fill
+  float stepsPerGram = getStepsPerGram(pumpIndex);
+
+  activeMicrosteps = 8;
   setMicrostepping(activeMicrosteps);
-  
+
   bulkEndSteps = (bulkTargetG * stepsPerGram) * activeMicrosteps;
   pump.setCurrentPosition(0);
   pump.setSpeed(BULK_SPEED);
-  
-  digitalWrite(SHARED_EN, LOW); // Enable driver
+
+  digitalWrite(SHARED_EN, LOW);
   bulkStartTime = millis();
   dispenseState = DISPENSE_BULK_FILL;
 }
 
-void prepareTrimPulseHelper(AccelStepper& pump, float remaining, bool isHighVisc, float stepsPerGram) {
+void prepareTrimPulseHelper(int pumpIndex, float remaining) {
+  AccelStepper& pump = getPump(pumpIndex);
+  bool isHighVisc = highViscosity[pumpIndex];
+  float stepsPerGram = getStepsPerGram(pumpIndex);
+
   dispenseState = DISPENSE_TRIM_PULSE;
   activeMicrosteps = isHighVisc ? 16 : 64;
   setMicrostepping(activeMicrosteps);
-  
+
   float coefficient;
   if (remaining > 0.50f) {
     coefficient = 0.80f;
@@ -144,23 +207,64 @@ void prepareTrimPulseHelper(AccelStepper& pump, float remaining, bool isHighVisc
   } else {
     coefficient = isHighVisc ? 0.30f : 0.40f;
   }
-  
+
   float pulseG = max(0.01f, remaining * coefficient);
   pulseG = min(pulseG, remaining);
-  
+
   trimStepsRemaining = (pulseG * stepsPerGram) * activeMicrosteps;
   pump.setCurrentPosition(0);
   pump.setSpeed(TRICKLE_SPEED);
-  
+
   Serial.print("-> Micro-Pulse: +");
   Serial.print(pulseG, 2);
   Serial.println("g");
 }
 
-/**
- * @brief Core state machine executing the dispensing logic for a single pump.
- */
-bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float stepsPerGram, long retractSteps, float retractSpeed) {
+void startPumpDispense(int pumpIndex) {
+  float targetG = targetWeights[pumpIndex];
+  float adjustedTarget = targetG - TARGET_MARGIN;
+
+  setupBulkFillHelper(pumpIndex, targetG);
+
+  Serial.print("Starting Pump ");
+  Serial.print(pumpIndex + 1);
+  Serial.println(" Dispense.");
+  Serial.print("-> Target: ");
+  Serial.print(targetG, 2);
+  Serial.print("g (Adjusted target: ");
+  Serial.print(adjustedTarget, 2);
+  Serial.println("g)");
+  Serial.print("-> Aiming for ");
+  Serial.print(adjustedTarget * 0.85f, 2);
+  Serial.print("g bulk fill (");
+  Serial.print(bulkEndSteps);
+  Serial.println(" steps at 1/8 microstep)");
+}
+
+void startFirstActivePump() {
+  int firstActivePump = findNextActivePump(0);
+  if (firstActivePump < 0) {
+    Serial.println("All targets set to 0.00g. Dispensing skipped.");
+    resetRunState();
+    return;
+  }
+
+  Serial.println("Starting Sequential Dispense.");
+  activePumpIndex = firstActivePump;
+  sequenceState = SEQ_DISPENSE_ACTIVE;
+  startPumpDispense(activePumpIndex);
+}
+
+void completeRun() {
+  Serial.println("\nEntire multi-pump dispensing sequence completed successfully!");
+  Serial.println("========================================\n");
+  resetRunState();
+}
+
+bool dispensePump(int pumpIndex, float targetVal, long retractSteps, float retractSpeed) {
+  AccelStepper& pump = getPump(pumpIndex);
+  bool isHighVisc = highViscosity[pumpIndex];
+
   float delivered = currentWeight - startWeight;
   float remaining = targetVal - delivered;
 
@@ -172,24 +276,24 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
       if (delivered >= targetVal) {
         pump.stop();
         stopTime = millis();
-        
+
         activeMicrosteps = isHighVisc ? 16 : 64;
         setMicrostepping(activeMicrosteps);
-        
+
         Serial.print("-> Target reached during Bulk Fill (Delivered: ");
         Serial.print(delivered, 2);
         Serial.println("g). Halting to Settle...");
-        
+
         dispenseState = DISPENSE_SETTLE_BULK;
         settleTimer = millis();
         lastSettleWeight = currentWeight;
       } else if (pump.currentPosition() >= bulkEndSteps) {
         pump.stop();
         stopTime = millis();
-        
+
         activeMicrosteps = isHighVisc ? 16 : 64;
         setMicrostepping(activeMicrosteps);
-        
+
         dispenseState = DISPENSE_SETTLE_BULK;
         settleTimer = millis();
         lastSettleWeight = currentWeight;
@@ -210,17 +314,17 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
 
     case DISPENSE_SETTLE_BULK:
       if (isScaleSettled(isHighVisc)) {
-        Serial.print("-> Bulk Settled at: "); 
-        Serial.print(delivered, 2); 
+        Serial.print("-> Bulk Settled at: ");
+        Serial.print(delivered, 2);
         Serial.println("g");
-        
+
         if (remaining <= TARGET_MARGIN) {
           Serial.print("-> Remaining weight <= ");
           Serial.print(TARGET_MARGIN, 2);
           Serial.println("g. Halting dispense.");
           dispenseState = DISPENSE_SUCK_BACK;
         } else if (delivered < targetVal) {
-          prepareTrimPulseHelper(pump, remaining, isHighVisc, stepsPerGram);
+          prepareTrimPulseHelper(pumpIndex, remaining);
         } else {
           dispenseState = DISPENSE_SUCK_BACK;
         }
@@ -231,11 +335,11 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
       if (delivered >= targetVal) {
         pump.stop();
         stopTime = millis();
-        
+
         Serial.print("-> Target reached during Trim Pulse (Delivered: ");
         Serial.print(delivered, 2);
         Serial.println("g). Halting to Settle...");
-        
+
         dispenseState = DISPENSE_SETTLE_TRIM;
         settleTimer = millis();
         lastSettleWeight = currentWeight;
@@ -258,7 +362,7 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
           Serial.println("g. Halting dispense.");
           dispenseState = DISPENSE_SUCK_BACK;
         } else if (delivered < targetVal) {
-          prepareTrimPulseHelper(pump, remaining, isHighVisc, stepsPerGram);
+          prepareTrimPulseHelper(pumpIndex, remaining);
         } else {
           dispenseState = DISPENSE_SUCK_BACK;
         }
@@ -279,7 +383,7 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
     case DISPENSE_RETRACTING:
       if (abs(pump.currentPosition()) >= retractSteps) {
         pump.stop();
-        digitalWrite(SHARED_EN, HIGH); // Disable motors to prevent heating
+        digitalWrite(SHARED_EN, HIGH);
         dispenseState = DISPENSE_COMPLETE;
         Serial.print("Dispense Finished successfully at: ");
         Serial.print(delivered, 2);
@@ -304,215 +408,170 @@ bool dispensePump(AccelStepper& pump, float targetVal, bool isHighVisc, float st
 }
 
 void multipumpSetup() {
-  delay(2000); 
+  delay(2000);
 
-  Serial.begin(USB_BAUD);   
-  Serial1.begin(SCALE_BAUD); 
+  Serial.begin(USB_BAUD);
+  Serial1.begin(SCALE_BAUD);
 
-  // Initialize shared control pins
   pinMode(SHARED_DIR, OUTPUT);
   pinMode(SHARED_EN, OUTPUT);
   pinMode(SHARED_MS1, OUTPUT);
   pinMode(SHARED_MS2, OUTPUT);
 
-  // Initialize pump step pins
-  pinMode(PUMP1_STEP, OUTPUT);
-  pinMode(PUMP2_STEP, OUTPUT);
+  for (int index = 0; index < PUMP_COUNT; ++index) {
+    pinMode(pumpStepPins[index], OUTPUT);
+    pumps[index]->setMaxSpeed(16000);
+    pumps[index]->setAcceleration(8000);
+  }
 
-  // Disable both stepper drivers at startup
   digitalWrite(SHARED_EN, HIGH);
-  
-  // Set default microstepping
   setMicrostepping(16);
-
-  // Configure kinematics limits
-  pump1.setMaxSpeed(16000);
-  pump1.setAcceleration(8000);
-  pump2.setMaxSpeed(16000);
-  pump2.setAcceleration(8000);
 
   Serial.println("\n========================================");
   Serial.println("Multi-Pump Gravimetric Dispensing System");
   Serial.println("Parallel Wiring: Shared EN, DIR, MS1/MS2");
-  Serial.println("Pump 1 Step: pin 2 | Pump 2 Step: pin 7");
+  Serial.println("Pump 1 Step: pin 2 | Pump 2 Step: pin 7 | Pump 3 Step: pin 8 | Pump 4 Step: pin 9");
   Serial.println("========================================");
-  Serial.println("Send 'H1'/'L1' to toggle Pump 1 Glycerol/Water");
-  Serial.println("Send 'H2'/'L2' to toggle Pump 2 Glycerol/Water");
-  Serial.println("Send 'C1' or 'C2' to calibrate active profile.");
-  Serial.println("Enter target weight > 1.50 to start.");
+  Serial.println("Send 'H1'/'L1' through 'H4'/'L4' to toggle Pump 1-4 Glycerol/Water");
+  Serial.println("Send 'C1' through 'C4' to calibrate an active profile.");
+  Serial.println("Enter target weight > 1.50 for each pump, or 0.0 to skip.");
   Serial.println("========================================");
+
+  resetRunState();
 }
 
 void multipumpLoop() {
-  // Always read incoming scale data
   while (Serial1.available() > 0) {
     char c = Serial1.read();
     if (c == '+' || c == '-') {
-      if (scaleBuffer.length() > 0) processScaleData(scaleBuffer);
+      if (scaleBuffer.length() > 0) {
+        processScaleData(scaleBuffer);
+      }
       scaleBuffer = String(c);
     } else if (scaleBuffer.length() < MAX_BUF) {
       scaleBuffer += c;
     }
   }
 
-  // Handle USB commands
   handleUsbCommands();
 
-  // Watchdog Timer: Stop pump if scale drops offline
-  if (sequenceState == SEQ_DISPENSE_PUMP1 || sequenceState == SEQ_DISPENSE_PUMP2) {
+  if (sequenceState == SEQ_DISPENSE_ACTIVE) {
     if (dispenseState == DISPENSE_BULK_FILL || dispenseState == DISPENSE_TRIM_PULSE || dispenseState == DISPENSE_RETRACTING) {
       if (millis() - lastScaleUpdateTime > 1000) {
-        pump1.stop();
-        pump2.stop();
-        digitalWrite(SHARED_EN, HIGH); // Disable both drivers
+        for (int index = 0; index < PUMP_COUNT; ++index) {
+          pumps[index]->stop();
+        }
+        digitalWrite(SHARED_EN, HIGH);
         dispenseState = DISPENSE_ERROR;
-        sequenceState = SEQ_PROMPT_PUMP1;
-        promptedPump1 = false;
-        promptedPump2 = false;
-        targetPump1 = 0.0f;
-        targetPump2 = 0.0f;
         Serial.println("\n!!! ERROR: SCALE TIMEOUT WATCHDOG !!!");
+        resetRunState();
       }
     }
   }
 
-  // Manage sequence
   switch (sequenceState) {
-    case SEQ_PROMPT_PUMP1: {
-      if (!promptedPump1) {
-        Serial.print("Pump 1 Viscosity: ");
-        Serial.println(isHighViscosityPump1 ? "HIGH (Glycerol)" : "LOW (Water)");
-        Serial.println("Enter weight (g) for Pump 1:");
-        promptedPump1 = true;
+    case SEQ_PROMPT_TARGET:
+      if (!promptedTarget && targetEntryPumpIndex < PUMP_COUNT) {
+        printTargetPrompt(targetEntryPumpIndex);
+        promptedTarget = true;
       }
       break;
-    }
 
-    case SEQ_DISPENSE_PUMP1: {
-      bool isHighVisc = isHighViscosityPump1;
-      float stepsPerGram = isHighVisc ? stepsPerGramHighPump1 : stepsPerGramLowPump1;
-      long retractSteps = isHighVisc ? retractStepsGlycerol : retractStepsWater;
-      float retractSpeed = isHighVisc ? -16000.0f : -1200.0f;
-      float adjustedTarget = targetPump1 - TARGET_MARGIN;
+    case SEQ_DISPENSE_ACTIVE: {
+      if (activePumpIndex >= 0 && activePumpIndex < PUMP_COUNT) {
+        float adjustedTarget = targetWeights[activePumpIndex] - TARGET_MARGIN;
+        long retractSteps = getRetractSteps(activePumpIndex);
+        float retractSpeed = getRetractSpeed(activePumpIndex);
 
-      if (dispensePump(pump1, adjustedTarget, isHighVisc, stepsPerGram, retractSteps, retractSpeed)) {
-        Serial.print("Pump 1 done. Dispensed: ");
-        Serial.println(currentWeight - startWeight, 2);
-        dispenseState = DISPENSE_IDLE;
-        sequenceState = SEQ_SETTLE_BETWEEN;
-        settleBetweenTimer = millis();
-        Serial.println("\n-> Waiting 5 seconds for scale to settle...");
-      }
-      break;
-    }
+        if (dispensePump(activePumpIndex, adjustedTarget, retractSteps, retractSpeed)) {
+          Serial.print("Pump ");
+          Serial.print(activePumpIndex + 1);
+          Serial.print(" done. Dispensed: ");
+          Serial.println(currentWeight - startWeight, 2);
 
-    case SEQ_SETTLE_BETWEEN: {
-      if (millis() - settleBetweenTimer >= 5000) {
-        if (targetPump2 <= 0.0f) {
-          Serial.println("-> Scale settled. Pump 2 is set to 0.00g (Skip). Dispensing complete.");
-          sequenceState = SEQ_DONE;
-        } else {
-          Serial.println("-> Scale settled. Preparing Pump 2...");
-          
-          // Prepare Pump 2 dispense using new settled weight
-          bool isHighVisc = isHighViscosityPump2;
-          float stepsPerGram = isHighVisc ? stepsPerGramHighPump2 : stepsPerGramLowPump2;
-          setupBulkFillHelper(pump2, targetPump2, isHighVisc, stepsPerGram);
-          sequenceState = SEQ_DISPENSE_PUMP2;
-          
-          Serial.print("\nStarting Pump 2 Dispense. Target: ");
-          Serial.print(targetPump2, 2);
-          Serial.print("g (Adjusted target: ");
-          Serial.print(targetPump2 - TARGET_MARGIN, 2);
-          Serial.println("g)");
-          Serial.print("-> Aiming for ");
-          Serial.print((targetPump2 - TARGET_MARGIN) * 0.85f, 2);
-          Serial.print("g bulk fill (");
-          Serial.print(bulkEndSteps);
-          Serial.println(" steps at 1/8 microstep)");
+          dispenseState = DISPENSE_IDLE;
+          nextPumpIndex = findNextActivePump(activePumpIndex + 1);
+
+          if (nextPumpIndex < 0) {
+            sequenceState = SEQ_DONE;
+          } else {
+            sequenceState = SEQ_SETTLE_BETWEEN;
+            settleBetweenTimer = millis();
+            Serial.println("\n-> Waiting 5 seconds for scale to settle before the next pump...");
+          }
         }
       }
       break;
     }
 
-    case SEQ_PROMPT_PUMP2: {
-      if (!promptedPump2) {
-        Serial.print("Pump 2 Viscosity: ");
-        Serial.println(isHighViscosityPump2 ? "HIGH (Glycerol)" : "LOW (Water)");
-        Serial.println("Enter weight (g) for Pump 2:");
-        promptedPump2 = true;
+    case SEQ_SETTLE_BETWEEN:
+      if (millis() - settleBetweenTimer >= 5000) {
+        if (nextPumpIndex < 0) {
+          sequenceState = SEQ_DONE;
+        } else {
+          activePumpIndex = nextPumpIndex;
+          sequenceState = SEQ_DISPENSE_ACTIVE;
+          Serial.print("-> Scale settled. Preparing Pump ");
+          Serial.print(activePumpIndex + 1);
+          Serial.println("...");
+          startPumpDispense(activePumpIndex);
+        }
       }
       break;
-    }
-
-    case SEQ_DISPENSE_PUMP2: {
-      bool isHighVisc = isHighViscosityPump2;
-      float stepsPerGram = isHighVisc ? stepsPerGramHighPump2 : stepsPerGramLowPump2;
-      long retractSteps = isHighVisc ? retractStepsGlycerol : retractStepsWater;
-      float retractSpeed = isHighVisc ? -16000.0f : -1200.0f;
-      float adjustedTarget = targetPump2 - TARGET_MARGIN;
-
-      if (dispensePump(pump2, adjustedTarget, isHighVisc, stepsPerGram, retractSteps, retractSpeed)) {
-        Serial.print("Pump 2 done. Dispensed: ");
-        Serial.println(currentWeight - startWeight, 2);
-        dispenseState = DISPENSE_IDLE;
-        sequenceState = SEQ_DONE;
-      }
-      break;
-    }
 
     case SEQ_DONE:
-      Serial.println("\nEntire multi-pump dispensing sequence completed successfully!");
-      Serial.println("========================================\n");
-      targetPump1 = 0.0f;
-      targetPump2 = 0.0f;
-      sequenceState = SEQ_PROMPT_PUMP1;
-      promptedPump1 = false;
-      promptedPump2 = false;
+      if (!completionAnnounced) {
+        completionAnnounced = true;
+        completeRun();
+      }
       break;
 
     case SEQ_CALIBRATE_RUN: {
-      AccelStepper& activePump = (calibratingPump == 1) ? pump1 : pump2;
-      if (activePump.distanceToGo() == 0) {
-        activePump.stop();
-        digitalWrite(SHARED_EN, HIGH); // Disable motor driver holding current
-        
-        Serial.println("\n-> Calibration run complete (10000 steps).");
-        Serial.println("-> Please weigh the dispensed liquid on your scale.");
-        Serial.println("-> Enter the measured weight in grams (e.g. 1.29) below:");
-        
-        sequenceState = SEQ_CALIBRATE_WAIT_INPUT;
-        usbBuffer = "";
-      } else {
-        activePump.runSpeedToPosition();
+      if (calibratingPumpIndex >= 0 && calibratingPumpIndex < PUMP_COUNT) {
+        AccelStepper& activePump = getPump(calibratingPumpIndex);
+        if (activePump.distanceToGo() == 0) {
+          activePump.stop();
+          digitalWrite(SHARED_EN, HIGH);
+
+          Serial.println("\n-> Calibration run complete (10000 steps).");
+          Serial.println("-> Please weigh the dispensed liquid on your scale.");
+          Serial.println("-> Enter the measured weight in grams (e.g. 1.29) below:");
+
+          sequenceState = SEQ_CALIBRATE_WAIT_INPUT;
+          usbBuffer = "";
+        } else {
+          activePump.runSpeedToPosition();
+        }
       }
       break;
     }
 
     case SEQ_CALIBRATE_WAIT_INPUT:
-      // Handled inside handleUsbCommands
       break;
   }
 }
 
 void processScaleData(const String& raw) {
   String cleanStr = "";
-  for (unsigned int i = 0; i < raw.length(); i++) {
-    char ch = raw.charAt(i);
-    if (isDigit(ch) || ch == '.' || ch == '-') cleanStr += ch;
+  for (unsigned int index = 0; index < raw.length(); index++) {
+    char ch = raw.charAt(index);
+    if (isDigit(ch) || ch == '.' || ch == '-') {
+      cleanStr += ch;
+    }
   }
+
   if (cleanStr.length() > 0) {
     rawWeight = cleanStr.toFloat();
     currentWeight = rawWeight - tareOffset;
     lastScaleUpdateTime = millis();
-    newScaleData = true; // Signal that new weight data has arrived
+    newScaleData = true;
 
-    // Print real-time telemetry over USB Serial (9600 Baud)
-    bool activeIsHighViscosity = false;
-    if (sequenceState == SEQ_DISPENSE_PUMP1 || sequenceState == SEQ_PROMPT_PUMP1) {
-      activeIsHighViscosity = isHighViscosityPump1;
-    } else if (sequenceState == SEQ_DISPENSE_PUMP2 || sequenceState == SEQ_PROMPT_PUMP2) {
-      activeIsHighViscosity = isHighViscosityPump2;
+    int telemetryPumpIndex = activePumpIndex;
+    if (!isValidPumpIndex(telemetryPumpIndex)) {
+      telemetryPumpIndex = targetEntryPumpIndex;
+    }
+    if (!isValidPumpIndex(telemetryPumpIndex)) {
+      telemetryPumpIndex = 0;
     }
 
     Serial.print("TELEMETRY:");
@@ -520,7 +579,7 @@ void processScaleData(const String& raw) {
     Serial.print(",");
     Serial.print((int)dispenseState);
     Serial.print(",");
-    Serial.println(activeIsHighViscosity ? "1" : "0");
+    Serial.println(highViscosity[telemetryPumpIndex] ? "1" : "0");
   }
 }
 
@@ -530,195 +589,130 @@ void handleUsbCommands() {
     if (c == '\n' || c == '\r') {
       if (usbBuffer.length() > 0) {
         usbBuffer.trim();
-        
-        // --- Emergency Stop Command ---
+
         if (usbBuffer.equalsIgnoreCase("S")) {
-          pump1.stop();
-          pump2.stop();
-          digitalWrite(SHARED_EN, HIGH); 
-          dispenseState = DISPENSE_IDLE;
-          sequenceState = SEQ_PROMPT_PUMP1;
-          promptedPump1 = false;
-          promptedPump2 = false;
+          for (int index = 0; index < PUMP_COUNT; ++index) {
+            pumps[index]->stop();
+          }
+          digitalWrite(SHARED_EN, HIGH);
           Serial.println("!!! EMERGENCY PUMP HALT !!!");
-        } 
-        
-        // --- Tare Command ---
+          resetRunState();
+        }
         else if (usbBuffer.equalsIgnoreCase("T")) {
           tareOffset = rawWeight;
           currentWeight = 0.0f;
           Serial.println("Scale Software Tared.");
         }
-        
-        // --- Viscosity Mode: Pump 1 ---
-        else if (usbBuffer.equalsIgnoreCase("H1")) {
-          isHighViscosityPump1 = true;
-          Serial.println("Pump 1 Viscosity Mode: HIGH (Glycerol)");
-        }
-        else if (usbBuffer.equalsIgnoreCase("L1")) {
-          isHighViscosityPump1 = false;
-          Serial.println("Pump 1 Viscosity Mode: LOW (Water)");
-        }
-        
-        // --- Viscosity Mode: Pump 2 ---
-        else if (usbBuffer.equalsIgnoreCase("H2")) {
-          isHighViscosityPump2 = true;
-          Serial.println("Pump 2 Viscosity Mode: HIGH (Glycerol)");
-        }
-        else if (usbBuffer.equalsIgnoreCase("L2")) {
-          isHighViscosityPump2 = false;
-          Serial.println("Pump 2 Viscosity Mode: LOW (Water)");
-        }
-        
-        // --- Calibration Mode Activation ---
-        else if (usbBuffer.equalsIgnoreCase("C1") || usbBuffer.equalsIgnoreCase("C2") || 
-                 (usbBuffer.equalsIgnoreCase("C") && (sequenceState == SEQ_PROMPT_PUMP1 || sequenceState == SEQ_PROMPT_PUMP2))) {
-          if (sequenceState == SEQ_PROMPT_PUMP1 || sequenceState == SEQ_PROMPT_PUMP2) {
-            if (usbBuffer.equalsIgnoreCase("C2") || (usbBuffer.equalsIgnoreCase("C") && sequenceState == SEQ_PROMPT_PUMP2)) {
-              calibratingPump = 2;
-            } else {
-              calibratingPump = 1;
-            }
-
-            digitalWrite(SHARED_EN, LOW); // Enable motor driver
-            activeMicrosteps = 16;        // 1/16 microstepping for calibration
-            setMicrostepping(activeMicrosteps);
-            
-            AccelStepper& activePump = (calibratingPump == 1) ? pump1 : pump2;
-            activePump.setCurrentPosition(0);
-            activePump.moveTo(10000);     // Dispense exactly 10000 microsteps
-            activePump.setSpeed(CALIBRATE_SPEED);
-            
-            sequenceState = SEQ_CALIBRATE_RUN;
-            Serial.print("\n-> Starting calibration run for Pump ");
-            Serial.println(calibratingPump);
-            Serial.println("-> Dispensing exactly 10000 microsteps (625 full steps) at 1/16 step...");
+        else if (usbBuffer.length() == 2 &&
+                 (usbBuffer.charAt(0) == 'H' || usbBuffer.charAt(0) == 'h' ||
+                  usbBuffer.charAt(0) == 'L' || usbBuffer.charAt(0) == 'l') &&
+                 isDigit(usbBuffer.charAt(1))) {
+          int pumpNumber = usbBuffer.charAt(1) - '0';
+          int pumpIndex = pumpNumber - 1;
+          if (isValidPumpIndex(pumpIndex)) {
+            highViscosity[pumpIndex] = (usbBuffer.charAt(0) == 'H' || usbBuffer.charAt(0) == 'h');
+            Serial.print("Pump ");
+            Serial.print(pumpNumber);
+            Serial.print(" Viscosity Mode: ");
+            Serial.println(highViscosity[pumpIndex] ? "HIGH (Glycerol)" : "LOW (Water)");
           } else {
-            Serial.println("Error: Can only calibrate when pump is in IDLE/PROMPT state.");
+            Serial.println("Error: Pump index must be 1 through 4.");
           }
         }
-        
-        // --- Calibration Input State ---
+        else if (sequenceState == SEQ_PROMPT_TARGET &&
+                 (usbBuffer.length() == 1 || usbBuffer.length() == 2) &&
+                 (usbBuffer.charAt(0) == 'C' || usbBuffer.charAt(0) == 'c')) {
+          if (usbBuffer.length() == 2 && isDigit(usbBuffer.charAt(1))) {
+            int pumpNumber = usbBuffer.charAt(1) - '0';
+            int pumpIndex = pumpNumber - 1;
+            if (isValidPumpIndex(pumpIndex)) {
+              calibratingPumpIndex = pumpIndex;
+            } else {
+              Serial.println("Error: Pump index must be 1 through 4.");
+              usbBuffer = "";
+              return;
+            }
+          } else {
+            calibratingPumpIndex = targetEntryPumpIndex;
+          }
+
+          digitalWrite(SHARED_EN, LOW);
+          activeMicrosteps = 16;
+          setMicrostepping(activeMicrosteps);
+
+          AccelStepper& activePump = getPump(calibratingPumpIndex);
+          activePump.setCurrentPosition(0);
+          activePump.moveTo(10000);
+          activePump.setSpeed(CALIBRATE_SPEED);
+
+          sequenceState = SEQ_CALIBRATE_RUN;
+          Serial.print("\n-> Starting calibration run for Pump ");
+          Serial.println(calibratingPumpIndex + 1);
+          Serial.println("-> Dispensing exactly 10000 microsteps (625 full steps) at 1/16 step...");
+        }
         else if (sequenceState == SEQ_CALIBRATE_WAIT_INPUT) {
           float measuredWeight = usbBuffer.toFloat();
           if (measuredWeight > 0.02f) {
-            // 10000 steps were taken at 1/16 microstepping = 625 Full Steps
             float fullStepsTaken = 10000.0f / 16.0f;
             float calculatedSteps = fullStepsTaken / measuredWeight;
-            
-            if (calibratingPump == 1) {
-              if (isHighViscosityPump1) {
-                stepsPerGramHighPump1 = calculatedSteps;
-              } else {
-                stepsPerGramLowPump1 = calculatedSteps;
-              }
+
+            if (highViscosity[calibratingPumpIndex]) {
+              stepsPerGramHigh[calibratingPumpIndex] = calculatedSteps;
             } else {
-              if (isHighViscosityPump2) {
-                stepsPerGramHighPump2 = calculatedSteps;
-              } else {
-                stepsPerGramLowPump2 = calculatedSteps;
-              }
+              stepsPerGramLow[calibratingPumpIndex] = calculatedSteps;
             }
-            
+
             Serial.println("\n========================================");
             Serial.println("Calibration Successful!");
-            Serial.print("Pump "); Serial.print(calibratingPump);
-            Serial.print(" Measured weight: "); Serial.print(measuredWeight, 2); Serial.println("g");
+            Serial.print("Pump ");
+            Serial.print(calibratingPumpIndex + 1);
+            Serial.print(" Measured weight: ");
+            Serial.print(measuredWeight, 2);
+            Serial.println("g");
             Serial.print("New steps/gram [");
-            if (calibratingPump == 1) {
-              Serial.print(isHighViscosityPump1 ? "Glycerol" : "Water");
-            } else {
-              Serial.print(isHighViscosityPump2 ? "Glycerol" : "Water");
-            }
+            Serial.print(highViscosity[calibratingPumpIndex] ? "Glycerol" : "Water");
             Serial.print("]: ");
             Serial.println(calculatedSteps, 2);
             Serial.println("========================================");
-            
-            sequenceState = (calibratingPump == 1) ? SEQ_PROMPT_PUMP1 : SEQ_PROMPT_PUMP2;
+
+            sequenceState = SEQ_PROMPT_TARGET;
+            promptedTarget = false;
           } else {
             Serial.println("Error: Invalid weight entered. Please enter a valid weight > 0.02g:");
           }
         }
-        
-        // --- Start standard Dispense Target ---
         else {
           float target = usbBuffer.toFloat();
-          // Also check if the buffer is exactly "0" or "0.0"
           bool isZero = usbBuffer.equals("0") || usbBuffer.equals("0.0") || usbBuffer.equals("0.00");
-          
-          if (isZero || target > 1.5f) {
+
+          if (sequenceState == SEQ_PROMPT_TARGET && (isZero || target > 1.5f)) {
             float finalTarget = isZero ? 0.0f : target;
-            
-            if (sequenceState == SEQ_PROMPT_PUMP1) {
-              targetPump1 = finalTarget;
-              if (targetPump1 <= 0.0f) {
-                Serial.println("Pump 1 Target set to: 0.00g (Skip)");
-              } else {
-                Serial.print("Pump 1 Target set to: ");
-                Serial.print(targetPump1, 2);
-                Serial.println("g");
-              }
-              
-              sequenceState = SEQ_PROMPT_PUMP2;
-              promptedPump2 = false; // Trigger prompt for Pump 2
-            } 
-            else if (sequenceState == SEQ_PROMPT_PUMP2) {
-              targetPump2 = finalTarget;
-              if (targetPump2 <= 0.0f) {
-                Serial.println("Pump 2 Target set to: 0.00g (Skip)\n");
-              } else {
-                Serial.print("Pump 2 Target set to: ");
-                Serial.print(targetPump2, 2);
-                Serial.println("g\n");
-              }
-              
-              // Direct sequence routing based on target combinations
-              if (targetPump1 <= 0.0f && targetPump2 <= 0.0f) {
-                Serial.println("Both targets set to 0.00g. Dispensing skipped.");
-                sequenceState = SEQ_DONE;
-              }
-              else if (targetPump1 <= 0.0f) {
-                // Pump 1 skipped, go straight to preparing Pump 2
-                float stepsPerGram = isHighViscosityPump2 ? stepsPerGramHighPump2 : stepsPerGramLowPump2;
-                setupBulkFillHelper(pump2, targetPump2, isHighViscosityPump2, stepsPerGram);
-                sequenceState = SEQ_DISPENSE_PUMP2;
-                
-                Serial.println("Starting Sequential Dispense.");
-                Serial.println("Pump 1 done. Dispensed: 0.00g");
-                Serial.println("-> Scale settled. Preparing Pump 2...");
-                Serial.print("Starting Pump 2 Dispense. Target: ");
-                Serial.print(targetPump2, 2);
-                Serial.print("g (Adjusted target: ");
-                Serial.print(targetPump2 - TARGET_MARGIN, 2);
-                Serial.println("g)");
-                Serial.print("-> Aiming for ");
-                Serial.print((targetPump2 - TARGET_MARGIN) * 0.85f, 2);
-                Serial.print("g bulk fill (");
-                Serial.print(bulkEndSteps);
-                Serial.println(" steps at 1/8 microstep)");
-              }
-              else {
-                // Standard setup: start Pump 1 dispensing
-                float stepsPerGram = isHighViscosityPump1 ? stepsPerGramHighPump1 : stepsPerGramLowPump1;
-                setupBulkFillHelper(pump1, targetPump1, isHighViscosityPump1, stepsPerGram);
-                sequenceState = SEQ_DISPENSE_PUMP1;
-                
-                Serial.print("Starting Sequential Dispense.\n-> Pump 1 Target: ");
-                Serial.print(targetPump1, 2);
-                Serial.print("g (Adjusted target: ");
-                Serial.print(targetPump1 - TARGET_MARGIN, 2);
-                Serial.println("g)");
-                Serial.print("-> Aiming for ");
-                Serial.print((targetPump1 - TARGET_MARGIN) * 0.85f, 2);
-                Serial.print("g bulk fill (");
-                Serial.print(bulkEndSteps);
-                Serial.println(" steps at 1/8 microstep)");
-              }
+            int pumpIndex = targetEntryPumpIndex;
+            targetWeights[pumpIndex] = finalTarget;
+
+            if (finalTarget <= 0.0f) {
+              Serial.print("Pump ");
+              Serial.print(pumpIndex + 1);
+              Serial.println(" Target set to: 0.00g (Skip)");
+            } else {
+              Serial.print("Pump ");
+              Serial.print(pumpIndex + 1);
+              Serial.print(" Target set to: ");
+              Serial.print(finalTarget, 2);
+              Serial.println("g");
             }
-          } else {
-            Serial.println("Error: Enter target weight > 1.50g (or 0.0g to skip), 'H1'/'L1' for Pump 1, 'H2'/'L2' for Pump 2, or 'C1'/'C2' to calibrate.");
+
+            if (targetEntryPumpIndex < PUMP_COUNT - 1) {
+              targetEntryPumpIndex++;
+              promptedTarget = false;
+            } else {
+              startFirstActivePump();
+            }
+          } else if (sequenceState == SEQ_PROMPT_TARGET) {
+            Serial.println("Error: Enter target weight > 1.50g (or 0.0g to skip), 'H1' through 'H4'/'L1' through 'L4', or 'C1' through 'C4' to calibrate.");
           }
         }
+
         usbBuffer = "";
       }
     } else if (usbBuffer.length() < MAX_BUF) {
