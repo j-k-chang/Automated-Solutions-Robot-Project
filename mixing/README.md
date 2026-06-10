@@ -30,10 +30,10 @@ Connect your components according to the table below. Make sure all power is off
 
 ### 2. Hardware Microstepping Setup (MS1 and MS2 Pins)
 
-Since the mixing process runs at a single, highly reliable speed, we set the microstepping hardware-level resolution to **1/16 microstepping** (which provides the optimal balance of quiet operation and high torque).
+Since the mixing process runs at a high speed, we set the microstepping hardware-level resolution to **1/8 microstepping** (which provides high torque at high RPMs).
 
-* **Wiring**: Wire/bridge both **MS1** and **MS2** pins on the TMC2209 driver physically to the **VIO (3.3V)** rail.
-* This locks the driver into **1/16 microstepping mode** permanently without using any extra microcontroller pins.
+* **Wiring**: Wire/bridge both **MS1** and **MS2** pins on the TMC2209 driver physically to the **GND** rail.
+* This locks the driver into **1/8 microstepping mode** permanently without using any extra microcontroller pins. The TMC2209's microPlyer interpolator will automatically interpolate this to 256 microsteps internally for silent operation.
 
 ### 3. Stepper Motor & High Voltage Connections
 
@@ -53,8 +53,8 @@ You will be greeted with the command interface. Send any of the following comman
 
 | Command | Action | Description |
 | :--- | :--- | :--- |
-| **`START`** | Start Continuous Mixing | Motor smoothly accelerates over 4 seconds to the standard liquid-mixing speed (300 RPM) and spins continuously. |
-| **`STOP`** | Decelerate & Stop | Gracefully ramps speed down to zero over 4 seconds. Once stopped, it **disables the stepper driver coils** to prevent heat build-up. |
+| **`START`** | Start Continuous Mixing | Motor smoothly accelerates over 6 seconds to the standard liquid-mixing speed (400 RPM) and spins continuously. |
+| **`STOP`** | Decelerate & Stop | Gracefully ramps speed down to zero over 6 seconds. Once stopped, it **disables the stepper driver coils** to prevent heat build-up. |
 
 ---
 

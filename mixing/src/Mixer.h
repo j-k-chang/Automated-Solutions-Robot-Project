@@ -42,10 +42,10 @@ private:
     MixerState _currentState;
 
     // Standard Speed & Acceleration configuration
-    // Based on 1/16 microstepping (3200 steps/rev for standard 1.8 degree motor)
-    // 300 RPM = 5 rev/sec = 1600 steps/sec (standard liquid mixing speed)
-    static constexpr float STANDARD_SPEED_STEPS_SEC = 1600.0f;
-    static constexpr float STANDARD_ACCEL_STEPS_SEC2 = 400.0f;
+    // Based on 1/8 microstepping (1600 steps/rev for standard 1.8 degree motor)
+    // 400 RPM = 6.667 rev/sec = 10666.67 steps/sec (standard liquid mixing speed)
+    static constexpr float STANDARD_SPEED_STEPS_SEC = 10666.67f;
+    static constexpr float STANDARD_ACCEL_STEPS_SEC2 = 1777.78f;
 };
 
 #endif // MIXER_H
