@@ -458,6 +458,8 @@ void multipumpSetup() {
   pinMode(SHARED_EN, OUTPUT);
   pinMode(SHARED_MS1, OUTPUT);
   pinMode(SHARED_MS2, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  digitalWrite(FAN_PIN, LOW); // Start with fan off
 
   for (int index = 0; index < PUMP_COUNT; ++index) {
     pinMode(pumpStepPins[index], OUTPUT);
@@ -475,6 +477,7 @@ void multipumpSetup() {
   Serial.println("========================================");
   Serial.println("Send 'H1'/'L1' through 'H4'/'L4' to toggle Pump 1-4 Glycerol/Water");
   Serial.println("Send 'C1' through 'C4' to calibrate an active profile.");
+  Serial.println("Send 'FAN ON' or 'FAN OFF' to turn the DC fan (Pin 22) on/off.");
   Serial.println("Enter target weight > 1.50 for each pump, or 0.0 to skip.");
   Serial.println("========================================");
 
@@ -647,6 +650,14 @@ void handleUsbCommands() {
           tareOffset = rawWeight;
           currentWeight = 0.0f;
           Serial.println("Scale Software Tared.");
+        }
+        else if (usbBuffer.equalsIgnoreCase("FAN ON") || usbBuffer.equalsIgnoreCase("FAN_ON") || usbBuffer.equalsIgnoreCase("FON")) {
+          digitalWrite(FAN_PIN, HIGH);
+          Serial.println("DC Fan: ON");
+        }
+        else if (usbBuffer.equalsIgnoreCase("FAN OFF") || usbBuffer.equalsIgnoreCase("FAN_OFF") || usbBuffer.equalsIgnoreCase("FOFF")) {
+          digitalWrite(FAN_PIN, LOW);
+          Serial.println("DC Fan: OFF");
         }
         else if (usbBuffer.length() == 2 &&
                  (usbBuffer.charAt(0) == 'H' || usbBuffer.charAt(0) == 'h' ||
