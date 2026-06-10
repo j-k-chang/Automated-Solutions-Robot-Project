@@ -192,8 +192,8 @@
 </div>
 <script>
   const PUMP_COUNT=4;
-  const D={IDLE:0,BULK:1,SETTLE_BULK:2,TRIM:3,SETTLE_TRIM:4,SUCK:5,RETRACT:6,COMPLETE:7,ERROR:8};
-  const phaseMap={0:['READY','System waiting'],1:['BULK DOSING','Fast fill phase'],2:['SETTLING','Waiting for stable scale'],3:['TRIM DOSING','Fine pulse dosing'],4:['SETTLING','Verifying final mass'],5:['PREVENTING DRIPS','Suck-back starting'],6:['RETRACTING','Reversing pump'],7:['COMPLETE','Component finished'],8:['ERROR','Scale or pump fault']};
+  const D={IDLE:0,BULK:1,SETTLE_BULK:2,TRIM:3,SETTLE_TRIM:4,SUCK:5,RELIEF_FAST:6,RELIEF_FINISH:7,RETRACT:8,COMPLETE:9,ERROR:10};
+  const phaseMap={0:['READY','System waiting'],1:['BULK DOSING','Fast fill phase'],2:['SETTLING','Waiting for stable scale'],3:['TRIM DOSING','Fine pulse dosing'],4:['SETTLING','Verifying final mass'],5:['PREVENTING DRIPS','Suck-back starting'],6:['PRESSURE RELIEF','Fast reverse relief'],7:['PRESSURE RELIEF','Controlled relief finish'],8:['RETRACTING','Reversing pump'],9:['COMPLETE','Component finished'],10:['ERROR','Scale or pump fault']};
   let port=null,writer=null,connected=false,demo=true;
   let currentWeight=0,dispenseState=0,activePump=0,sequence='ready';
   let calPump=1,fault=false,simTimer=null,simPhaseTimer=0,simWaitStart=0,nextSimPump=1;

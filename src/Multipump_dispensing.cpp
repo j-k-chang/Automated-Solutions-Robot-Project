@@ -8,7 +8,15 @@ const float TRICKLE_SPEED = 12000.0f;
 const float CALIBRATE_SPEED = 2000.0f;
 const long retractStepsWater = 3200;
 const long retractStepsGlycerol = 9600;
-const float TARGET_MARGIN = 0.01f;
+const float DISPENSE_TOLERANCE_G = 0.01f;
+const float LOW_VISC_STOP_LEAD_G = 0.01f;
+const float HIGH_VISC_STOP_LEAD_G = 0.10f;
+const unsigned long LOW_VISC_SETTLE_GUARD_MS = 1200;
+const unsigned long HIGH_VISC_SETTLE_GUARD_MS = 3000;
+const long HIGH_VISC_RELIEF_FAST_STEPS = 2400;
+const long HIGH_VISC_RELIEF_FINISH_STEPS = 7200;
+const float HIGH_VISC_RELIEF_FAST_SPEED = -16000.0f;
+const float HIGH_VISC_RELIEF_FINISH_SPEED = -8000.0f;
 
 // --- Pump Hardware ---
 AccelStepper pump1(AccelStepper::DRIVER, PUMP1_STEP, SHARED_DIR);
@@ -85,6 +93,10 @@ float getRetractSpeed(int pumpIndex) {
   return highViscosity[pumpIndex] ? -16000.0f : -1200.0f;
 }
 
+float getStopLeadG(int pumpIndex) {
+  return highViscosity[pumpIndex] ? HIGH_VISC_STOP_LEAD_G : LOW_VISC_STOP_LEAD_G;
+}
+
 int findNextActivePump(int startIndex) {
   for (int index = startIndex; index < PUMP_COUNT; ++index) {
     if (targetWeights[index] > 0.0f) {
@@ -147,7 +159,7 @@ void printTargetPrompt(int pumpIndex) {
 }
 
 bool isScaleSettled(bool activePumpIsHighViscosity) {
-  unsigned long settleGuardTime = activePumpIsHighViscosity ? 1500 : 1200;
+  unsigned long settleGuardTime = activePumpIsHighViscosity ? HIGH_VISC_SETTLE_GUARD_MS : LOW_VISC_SETTLE_GUARD_MS;
 
   if (millis() - stopTime < settleGuardTime) {
     return false;
@@ -174,7 +186,7 @@ void setupBulkFillHelper(int pumpIndex, float targetG) {
   startWeight = currentWeight;
   lastScaleUpdateTime = millis();
 
-  float adjustedTarget = targetG - TARGET_MARGIN;
+  float adjustedTarget = targetG - getStopLeadG(pumpIndex);
   float bulkTargetG = adjustedTarget * 0.85f;
   float stepsPerGram = getStepsPerGram(pumpIndex);
 
@@ -205,10 +217,11 @@ void prepareTrimPulseHelper(int pumpIndex, float remaining) {
   } else if (remaining > 0.15f) {
     coefficient = isHighVisc ? 0.50f : 0.60f;
   } else {
-    coefficient = isHighVisc ? 0.30f : 0.40f;
+    coefficient = isHighVisc ? 0.15f : 0.40f;
   }
 
-  float pulseG = max(0.01f, remaining * coefficient);
+  float minPulseG = isHighVisc ? 0.005f : 0.01f;
+  float pulseG = max(minPulseG, remaining * coefficient);
   pulseG = min(pulseG, remaining);
 
   trimStepsRemaining = (pulseG * stepsPerGram) * activeMicrosteps;
@@ -222,7 +235,7 @@ void prepareTrimPulseHelper(int pumpIndex, float remaining) {
 
 void startPumpDispense(int pumpIndex) {
   float targetG = targetWeights[pumpIndex];
-  float adjustedTarget = targetG - TARGET_MARGIN;
+  float adjustedTarget = targetG - getStopLeadG(pumpIndex);
 
   setupBulkFillHelper(pumpIndex, targetG);
 
@@ -231,7 +244,7 @@ void startPumpDispense(int pumpIndex) {
   Serial.println(" Dispense.");
   Serial.print("-> Target: ");
   Serial.print(targetG, 2);
-  Serial.print("g (Adjusted target: ");
+  Serial.print("g (Motor stop target: ");
   Serial.print(adjustedTarget, 2);
   Serial.println("g)");
   Serial.print("-> Aiming for ");
@@ -267,13 +280,14 @@ bool dispensePump(int pumpIndex, float targetVal, long retractSteps, float retra
 
   float delivered = currentWeight - startWeight;
   float remaining = targetVal - delivered;
+  float motorStopTarget = targetVal - getStopLeadG(pumpIndex);
 
   switch (dispenseState) {
     case DISPENSE_IDLE:
       break;
 
     case DISPENSE_BULK_FILL:
-      if (delivered >= targetVal) {
+      if (delivered >= motorStopTarget) {
         pump.stop();
         stopTime = millis();
 
@@ -318,9 +332,9 @@ bool dispensePump(int pumpIndex, float targetVal, long retractSteps, float retra
         Serial.print(delivered, 2);
         Serial.println("g");
 
-        if (remaining <= TARGET_MARGIN) {
+        if (remaining <= DISPENSE_TOLERANCE_G) {
           Serial.print("-> Remaining weight <= ");
-          Serial.print(TARGET_MARGIN, 2);
+          Serial.print(DISPENSE_TOLERANCE_G, 2);
           Serial.println("g. Halting dispense.");
           dispenseState = DISPENSE_SUCK_BACK;
         } else if (delivered < targetVal) {
@@ -332,7 +346,7 @@ bool dispensePump(int pumpIndex, float targetVal, long retractSteps, float retra
       break;
 
     case DISPENSE_TRIM_PULSE:
-      if (delivered >= targetVal) {
+      if (delivered >= motorStopTarget) {
         pump.stop();
         stopTime = millis();
 
@@ -356,9 +370,9 @@ bool dispensePump(int pumpIndex, float targetVal, long retractSteps, float retra
 
     case DISPENSE_SETTLE_TRIM:
       if (isScaleSettled(isHighVisc)) {
-        if (remaining <= TARGET_MARGIN) {
+        if (remaining <= DISPENSE_TOLERANCE_G) {
           Serial.print("-> Remaining weight <= ");
-          Serial.print(TARGET_MARGIN, 2);
+          Serial.print(DISPENSE_TOLERANCE_G, 2);
           Serial.println("g. Halting dispense.");
           dispenseState = DISPENSE_SUCK_BACK;
         } else if (delivered < targetVal) {
@@ -371,12 +385,39 @@ bool dispensePump(int pumpIndex, float targetVal, long retractSteps, float retra
 
     case DISPENSE_SUCK_BACK:
       pump.setCurrentPosition(0);
-      pump.setSpeed(retractSpeed);
-      dispenseState = DISPENSE_RETRACTING;
       if (isHighVisc) {
-        Serial.println("-> High Viscosity: Performing rapid pressure relief...");
+        pump.setSpeed(HIGH_VISC_RELIEF_FAST_SPEED);
+        dispenseState = DISPENSE_PRESSURE_RELIEF_FAST;
+        Serial.println("-> High Viscosity: Fast pressure relief...");
       } else {
+        pump.setSpeed(retractSpeed);
+        dispenseState = DISPENSE_RETRACTING;
         Serial.println("-> Standard Retraction...");
+      }
+      break;
+
+    case DISPENSE_PRESSURE_RELIEF_FAST:
+      if (abs(pump.currentPosition()) >= HIGH_VISC_RELIEF_FAST_STEPS) {
+        pump.stop();
+        pump.setCurrentPosition(0);
+        pump.setSpeed(HIGH_VISC_RELIEF_FINISH_SPEED);
+        dispenseState = DISPENSE_PRESSURE_RELIEF_FINISH;
+        Serial.println("-> High Viscosity: Controlled relief finish...");
+      } else {
+        pump.runSpeed();
+      }
+      break;
+
+    case DISPENSE_PRESSURE_RELIEF_FINISH:
+      if (abs(pump.currentPosition()) >= HIGH_VISC_RELIEF_FINISH_STEPS) {
+        pump.stop();
+        digitalWrite(SHARED_EN, HIGH);
+        dispenseState = DISPENSE_COMPLETE;
+        Serial.print("Dispense Finished successfully at: ");
+        Serial.print(delivered, 2);
+        Serial.println("g!");
+      } else {
+        pump.runSpeed();
       }
       break;
 
@@ -456,7 +497,11 @@ void multipumpLoop() {
   handleUsbCommands();
 
   if (sequenceState == SEQ_DISPENSE_ACTIVE) {
-    if (dispenseState == DISPENSE_BULK_FILL || dispenseState == DISPENSE_TRIM_PULSE || dispenseState == DISPENSE_RETRACTING) {
+    if (dispenseState == DISPENSE_BULK_FILL ||
+        dispenseState == DISPENSE_TRIM_PULSE ||
+        dispenseState == DISPENSE_PRESSURE_RELIEF_FAST ||
+        dispenseState == DISPENSE_PRESSURE_RELIEF_FINISH ||
+        dispenseState == DISPENSE_RETRACTING) {
       if (millis() - lastScaleUpdateTime > 1000) {
         for (int index = 0; index < PUMP_COUNT; ++index) {
           pumps[index]->stop();
@@ -479,11 +524,11 @@ void multipumpLoop() {
 
     case SEQ_DISPENSE_ACTIVE: {
       if (activePumpIndex >= 0 && activePumpIndex < PUMP_COUNT) {
-        float adjustedTarget = targetWeights[activePumpIndex] - TARGET_MARGIN;
+        float target = targetWeights[activePumpIndex];
         long retractSteps = getRetractSteps(activePumpIndex);
         float retractSpeed = getRetractSpeed(activePumpIndex);
 
-        if (dispensePump(activePumpIndex, adjustedTarget, retractSteps, retractSpeed)) {
+        if (dispensePump(activePumpIndex, target, retractSteps, retractSpeed)) {
           Serial.print("Pump ");
           Serial.print(activePumpIndex + 1);
           Serial.print(" done. Dispensed: ");
