@@ -22,9 +22,12 @@ const int PUMP1_STEP = 2;   ///< Separate Step pin for Pump 1 stepper motor driv
 const int PUMP2_STEP = 7;   ///< Separate Step pin for Pump 2 stepper motor driver
 const int PUMP3_STEP = 8;   ///< Separate Step pin for Pump 3 stepper motor driver
 const int PUMP4_STEP = 9;   ///< Separate Step pin for Pump 4 stepper motor driver
+const int PUMP5_STEP = 24;  ///< Separate Step pin for Pump 5 stepper motor driver
+const int PUMP6_STEP = 26;  ///< Separate Step pin for Pump 6 stepper motor driver
+const int PUMP7_STEP = 28;  ///< Separate Step pin for Pump 7 stepper motor driver
 const int FAN_PIN    = 22;  ///< Relay control pin for the DC fan
 
-const int PUMP_COUNT = 4;   ///< Total number of pumps on the shared bus
+const int PUMP_COUNT = 7;   ///< Total number of pumps on the shared bus
 
 // --- Communication Settings ---
 const long SCALE_BAUD = 9600; ///< Baud rate for serial communication with the digital scale (Serial1)

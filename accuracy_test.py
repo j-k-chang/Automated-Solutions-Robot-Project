@@ -6,7 +6,7 @@ import re
 
 # Sweep targets from 10g to 100g for accuracy check
 TEST_TARGETS = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
-DUMMY_TARGETS = [0.0, 0.0, 0.0]  # Pump 2-4 targets, 0.0g skips each pump
+DUMMY_TARGETS = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]  # Pump 2-7 targets, 0.0g skips each pump
 
 def find_serial_ports():
     import serial.tools.list_ports
@@ -72,7 +72,7 @@ def run_test():
             if "Pump 1 Target set to:" in line:
                 break
                 
-        # Step 2: Send Target for Pumps 2-4
+        # Step 2: Send Target for Pumps 2-7
         for offset, dummy_target in enumerate(DUMMY_TARGETS, start=2):
             time.sleep(0.5)
             print(f"Sending Pump {offset} dummy target weight: {dummy_target}g")
@@ -183,7 +183,7 @@ def generate_plot(results):
         print(f"Plot successfully saved to: {plot_file}")
     except ImportError:
         print("\nNote: matplotlib is not installed. To automatically generate plots from this data, run:")
-        print("      C:\\Users\\littl\\AppData\\Roaming\\uv\\python\cpython-3.14.3-windows-x86_64-none\\python.exe -m pip install matplotlib")
+        print("      C:\\Users\\littl\\AppData\\Roaming\\uv\\python\\cpython-3.14.3-windows-x86_64-none\\python.exe -m pip install matplotlib")
 
 if __name__ == "__main__":
     run_test()

@@ -23,13 +23,16 @@ AccelStepper pump1(AccelStepper::DRIVER, PUMP1_STEP, SHARED_DIR);
 AccelStepper pump2(AccelStepper::DRIVER, PUMP2_STEP, SHARED_DIR);
 AccelStepper pump3(AccelStepper::DRIVER, PUMP3_STEP, SHARED_DIR);
 AccelStepper pump4(AccelStepper::DRIVER, PUMP4_STEP, SHARED_DIR);
+AccelStepper pump5(AccelStepper::DRIVER, PUMP5_STEP, SHARED_DIR);
+AccelStepper pump6(AccelStepper::DRIVER, PUMP6_STEP, SHARED_DIR);
+AccelStepper pump7(AccelStepper::DRIVER, PUMP7_STEP, SHARED_DIR);
 
 AccelStepper* const pumps[PUMP_COUNT] = {
-  &pump1, &pump2, &pump3, &pump4
+  &pump1, &pump2, &pump3, &pump4, &pump5, &pump6, &pump7
 };
 
 const int pumpStepPins[PUMP_COUNT] = {
-  PUMP1_STEP, PUMP2_STEP, PUMP3_STEP, PUMP4_STEP
+  PUMP1_STEP, PUMP2_STEP, PUMP3_STEP, PUMP4_STEP, PUMP5_STEP, PUMP6_STEP, PUMP7_STEP
 };
 
 void processScaleData(const String& raw);
@@ -60,12 +63,12 @@ int nextPumpIndex = -1;
 bool promptedTarget = false;
 bool completionAnnounced = false;
 
-float targetWeights[PUMP_COUNT] = {0.0f, 0.0f, 0.0f, 0.0f};
+float targetWeights[PUMP_COUNT] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
-float stepsPerGramLow[PUMP_COUNT] = {700.0f, 700.0f, 700.0f, 700.0f};
-float stepsPerGramHigh[PUMP_COUNT] = {1400.0f, 1400.0f, 1400.0f, 1400.0f};
+float stepsPerGramLow[PUMP_COUNT] = {700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f};
+float stepsPerGramHigh[PUMP_COUNT] = {1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f};
 
-bool highViscosity[PUMP_COUNT] = {false, false, false, false};
+bool highViscosity[PUMP_COUNT] = {false, false, false, false, false, false, false};
 
 int activeMicrosteps = 64;
 long bulkEndSteps = 0;
@@ -463,6 +466,7 @@ void multipumpSetup() {
 
   for (int index = 0; index < PUMP_COUNT; ++index) {
     pinMode(pumpStepPins[index], OUTPUT);
+    pumps[index]->setPinsInverted(true, false, false);
     pumps[index]->setMaxSpeed(16000);
     pumps[index]->setAcceleration(8000);
   }
@@ -474,9 +478,10 @@ void multipumpSetup() {
   Serial.println("Multi-Pump Gravimetric Dispensing System");
   Serial.println("Parallel Wiring: Shared EN, DIR, MS1/MS2");
   Serial.println("Pump 1 Step: pin 2 | Pump 2 Step: pin 7 | Pump 3 Step: pin 8 | Pump 4 Step: pin 9");
+  Serial.println("Pump 5 Step: pin 24 | Pump 6 Step: pin 26 | Pump 7 Step: pin 28");
   Serial.println("========================================");
-  Serial.println("Send 'H1'/'L1' through 'H4'/'L4' to toggle Pump 1-4 Glycerol/Water");
-  Serial.println("Send 'C1' through 'C4' to calibrate an active profile.");
+  Serial.println("Send 'H1'/'L1' through 'H7'/'L7' to toggle Pump 1-7 Glycerol/Water");
+  Serial.println("Send 'C1' through 'C7' to calibrate an active profile.");
   Serial.println("Send 'FAN ON' or 'FAN OFF' to turn the DC fan (Pin 22) on/off.");
   Serial.println("Enter target weight > 1.50 for each pump, or 0.0 to skip.");
   Serial.println("========================================");
@@ -672,7 +677,9 @@ void handleUsbCommands() {
             Serial.print(" Viscosity Mode: ");
             Serial.println(highViscosity[pumpIndex] ? "HIGH (Glycerol)" : "LOW (Water)");
           } else {
-            Serial.println("Error: Pump index must be 1 through 4.");
+            Serial.print("Error: Pump index must be 1 through ");
+            Serial.print(PUMP_COUNT);
+            Serial.println(".");
           }
         }
         else if (sequenceState == SEQ_PROMPT_TARGET &&
@@ -684,7 +691,9 @@ void handleUsbCommands() {
             if (isValidPumpIndex(pumpIndex)) {
               calibratingPumpIndex = pumpIndex;
             } else {
-              Serial.println("Error: Pump index must be 1 through 4.");
+              Serial.print("Error: Pump index must be 1 through ");
+              Serial.print(PUMP_COUNT);
+              Serial.println(".");
               usbBuffer = "";
               return;
             }
@@ -765,7 +774,13 @@ void handleUsbCommands() {
               startFirstActivePump();
             }
           } else if (sequenceState == SEQ_PROMPT_TARGET) {
-            Serial.println("Error: Enter target weight > 1.50g (or 0.0g to skip), 'H1' through 'H4'/'L1' through 'L4', or 'C1' through 'C4' to calibrate.");
+            Serial.print("Error: Enter target weight > 1.50g (or 0.0g to skip), 'H1' through 'H");
+            Serial.print(PUMP_COUNT);
+            Serial.print("'/'L1' through 'L");
+            Serial.print(PUMP_COUNT);
+            Serial.print("', or 'C1' through 'C");
+            Serial.print(PUMP_COUNT);
+            Serial.println("' to calibrate.");
           }
         }
 

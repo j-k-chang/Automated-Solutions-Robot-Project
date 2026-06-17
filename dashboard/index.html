@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Four-Pump Solution Dosing</title>
+  <title>Seven-Pump Solution Dosing</title>
   <style>
     :root{
       --bg:#07111f;--panel:#0d1b2f;--panel2:#11233b;--line:#223a59;
@@ -33,7 +33,7 @@
 <body>
 <div class="app" id="app">
   <div class="topbar">
-    <div class="brand"><h1>Four-Pump Solution Dosing</h1><small>Sequential gravimetric dispensing interface</small></div>
+    <div class="brand"><h1>Seven-Pump Solution Dosing</h1><small>Sequential gravimetric dispensing interface</small></div>
     <div class="row">
       <button class="btn-small btn-ghost" id="btnFan" onclick="toggleFan()">FAN: OFF</button>
       <div class="pill"><span class="dot" id="connDot"></span><span id="connText">SIMULATOR</span></div>
@@ -52,12 +52,12 @@
             <div class="metric"><label>Run State</label><strong id="homeState">Ready</strong></div>
             <div class="metric"><label>Active Pump</label><strong id="homePump">None</strong></div>
           </div>
-          <div class="component-list" id="homePumpList"></div>
+          <div class="component-list scroll" id="homePumpList" style="flex: 1;"></div>
         </div>
         <div class="panel stack">
           <h2>Operator Actions</h2>
           <button class="btn-primary btn-wide" onclick="go('Setup')">START SETUP</button>
-          <button class="btn-amber btn-wide" onclick="go('Recipe')">EDIT FOUR-PUMP RECIPE</button>
+          <button class="btn-amber btn-wide" onclick="go('Recipe')">EDIT SEVEN-PUMP RECIPE</button>
           <button class="btn-ghost btn-wide" onclick="go('Calibration')">CALIBRATE PUMPS</button>
           <button class="btn-ghost btn-wide" onclick="go('Diagnostics')">ADVANCED DIAGNOSTICS</button>
           <p class="sub">Targets are sent to the controller in pump order. Enter 0.00 g to skip any pump.</p>
@@ -69,13 +69,9 @@
       <div class="two-col">
         <div class="panel">
           <h2>Pre-Run Checklist</h2>
-          <div class="checklist">
+          <div class="checklist" id="preRunChecklist">
             <div class="check"><span class="box">✓</span><span>Beaker on scale</span></div>
             <div class="check"><span class="box">✓</span><span>Scale tared</span></div>
-            <div class="check"><span class="box">✓</span><span>Pump 1 line primed</span></div>
-            <div class="check"><span class="box">✓</span><span>Pump 2 line primed</span></div>
-            <div class="check"><span class="box">✓</span><span>Pump 3 line primed</span></div>
-            <div class="check"><span class="box">✓</span><span>Pump 4 line primed</span></div>
           </div>
         </div>
         <div class="panel stack">
@@ -98,12 +94,12 @@
           <h2>Recipe Summary</h2>
           <div class="metric-grid">
             <div class="metric"><label>Total Target</label><strong id="recipeTotal">0.00</strong><small> g</small></div>
-            <div class="metric"><label>Command</label><strong>4-Step</strong></div>
+            <div class="metric"><label>Command</label><strong>7-Step</strong></div>
             <div class="metric"><label>Active Pumps</label><strong id="activeCount">0</strong></div>
             <div class="metric"><label>Tolerance</label><strong id="recipeTol">0.01</strong><small> g min</small></div>
           </div>
           <button class="btn-green btn-wide" id="btnStartRun">START SEQUENTIAL RUN</button>
-          <p class="sub">The controller prompts for four targets. This dashboard sends all four values in sequence.</p>
+          <p class="sub">The controller prompts for targets. This dashboard sends all target values in sequence.</p>
         </div>
       </div>
     </section>
@@ -132,7 +128,7 @@
         <div class="panel stack">
           <h2>Run Complete</h2>
           <div class="big-readout"><span class="num" id="finalTotal">0.00</span><span class="unit">g</span></div>
-          <div class="metric-grid" id="finalPumpGrid"></div>
+          <div class="metric-grid" id="finalPumpGrid" style="max-height: 220px; overflow-y: auto;"></div>
         </div>
         <div class="panel stack">
           <h2>Next Step</h2>
@@ -144,13 +140,13 @@
 
     <section class="screen" id="screenCalibration">
       <div class="two-col">
-        <div class="panel stack">
+        <div class="panel stack scroll">
           <h2>Calibration Setup</h2>
           <div class="seg" id="calPumpButtons"></div>
           <button class="btn-amber btn-wide" id="btnRunCal">RUN CALIBRATION DISPENSE</button>
           <p class="sub">Selected command: <b id="calCmdLabel">C1</b></p>
         </div>
-        <div class="panel stack">
+        <div class="panel stack scroll">
           <h2>Submit Measured Mass</h2>
           <div class="input-wrap"><input id="calMass" type="number" min="0.02" step="0.001" placeholder="1.290"><span>g</span></div>
           <button class="btn-green btn-wide" id="btnSubmitCal">SUBMIT CALIBRATION</button>
@@ -164,9 +160,9 @@
         <div class="panel stack">
           <h2>Command Map</h2>
           <div class="component-list">
-            <div class="component-row"><div class="component-row-top"><span>Profiles</span><span>H1-H4 / L1-L4</span></div><div class="component-row-bottom"><span>Glycerol / Water</span></div></div>
-            <div class="component-row"><div class="component-row-top"><span>Calibration</span><span>C1-C4</span></div><div class="component-row-bottom"><span>Selected pump calibration</span></div></div>
-            <div class="component-row"><div class="component-row-top"><span>Targets</span><span>4 serial values</span></div><div class="component-row-bottom"><span>Pump order, 0.00 skips</span></div></div>
+            <div class="component-row"><div class="component-row-top"><span>Profiles</span><span>H1-H7 / L1-L7</span></div><div class="component-row-bottom"><span>Glycerol / Water</span></div></div>
+            <div class="component-row"><div class="component-row-top"><span>Calibration</span><span>C1-C7</span></div><div class="component-row-bottom"><span>Selected pump calibration</span></div></div>
+            <div class="component-row"><div class="component-row-top"><span>Targets</span><span>7 serial values</span></div><div class="component-row-bottom"><span>Pump order, 0.00 skips</span></div></div>
             <div class="component-row"><div class="component-row-top"><span>Telemetry</span><span>w,state,visc</span></div><div class="component-row-bottom"><span>Active pump inferred from serial text</span></div></div>
             <div class="component-row"><div class="component-row-top"><span>DC Fan Control</span><span>FAN ON / FAN OFF</span></div><div class="component-row-bottom"><span>Toggle Pin 22 DC Fan Relay</span></div></div>
           </div>
@@ -180,7 +176,7 @@
   <div class="bottombar">
     <button class="btn-ghost" onclick="go('Home')">HOME</button>
     <button class="btn-ghost" onclick="go('Setup')">SETUP</button>
-    <div class="footer-info" id="footerInfo">Ready for four-pump sequence</div>
+    <div class="footer-info" id="footerInfo">Ready for seven-pump sequence</div>
     <button class="btn-red" id="btnEstop">E-STOP</button>
   </div>
 
@@ -193,13 +189,13 @@
   </div>
 </div>
 <script>
-  const PUMP_COUNT=4;
+  const PUMP_COUNT=7;
   const D={IDLE:0,BULK:1,SETTLE_BULK:2,TRIM:3,SETTLE_TRIM:4,SUCK:5,RELIEF_FAST:6,RELIEF_FINISH:7,RETRACT:8,COMPLETE:9,ERROR:10};
   const phaseMap={0:['READY','System waiting'],1:['BULK DOSING','Fast fill phase'],2:['SETTLING','Waiting for stable scale'],3:['TRIM DOSING','Fine pulse dosing'],4:['SETTLING','Verifying final mass'],5:['PREVENTING DRIPS','Suck-back starting'],6:['PRESSURE RELIEF','Fast reverse relief'],7:['PRESSURE RELIEF','Controlled relief finish'],8:['RETRACTING','Reversing pump'],9:['COMPLETE','Component finished'],10:['ERROR','Scale or pump fault']};
   let port=null,writer=null,connected=false,demo=true;
   let currentWeight=0,dispenseState=0,activePump=0,sequence='ready';
   let calPump=1,fault=false,simTimer=null,simPhaseTimer=0,simWaitStart=0,nextSimPump=1;
-  const defaultTargets=[10,5,0,0];
+  const defaultTargets=[10,5,0,0,0,0,0];
   const pumps=Array.from({length:PUMP_COUNT},(_,i)=>({id:i+1,target:defaultTargets[i],high:false,status:'waiting',start:0,delivered:0,final:0,calLow:700,calHigh:1400}));
   const $=id=>document.getElementById(id);
 
@@ -221,6 +217,10 @@
     $('finalPumpGrid').innerHTML=pumps.map(p=>`<div class="metric"><label>Pump ${p.id} Added</label><strong id="finalP${p.id}">0.00</strong><small> g</small></div>`).join('');
     $('calPumpButtons').innerHTML=pumps.map(p=>`<button id="calPump${p.id}" onclick="selectCalPump(${p.id})">Pump ${p.id}</button>`).join('');
     $('calGrid').innerHTML=pumps.map(p=>`<div class="metric"><label>Pump ${p.id}</label><strong id="p${p.id}CalText">700</strong><small> steps/g</small></div>`).join('');
+    $('preRunChecklist').innerHTML = `
+      <div class="check"><span class="box">✓</span><span>Beaker on scale</span></div>
+      <div class="check"><span class="box">✓</span><span>Scale tared</span></div>
+    ` + pumps.map(p => `<div class="check"><span class="box">✓</span><span>Pump ${p.id} line primed</span></div>`).join('');
     pumps.forEach(p=>{$('target'+p.id).addEventListener('input',readTargets)});
   }
 
@@ -265,7 +265,7 @@
     resetRun(false);go('Run');
     if(demo){startSim();return}
     for(let i=0;i<pumps.length;i++){setTimeout(()=>send(fmt(pumps[i].target)),i*350)}
-    log('Sequential target commands queued for pumps 1 through 4.','tx');
+    log('Sequential target commands queued for pumps 1 through ' + PUMP_COUNT + '.','tx');
   }
   function resetRun(full=true){stopSim();dispenseState=0;activePump=0;sequence='ready';nextSimPump=1;pumps.forEach(p=>{p.status='waiting';p.delivered=0;p.final=0;p.start=0});if(full)currentWeight=0;updateUI()}
   function tare(){currentWeight=0;log('Scale tare requested.','tx');if(demo)updateTelemetry(0,0);else send('T')}
@@ -279,7 +279,7 @@
   function startSim(){stopSim();currentWeight=0;pumps.forEach(p=>{p.start=0;p.delivered=0;p.final=0;p.status=p.target>0?'waiting':'complete'});nextSimPump=nextRunnablePump(1);if(!nextSimPump){sequence='done';go('Complete');return}simStartPump(nextSimPump);simTimer=setInterval(simTick,100)}
   function stopSim(){if(simTimer){clearInterval(simTimer);simTimer=null}}
   function simStartPump(id){const p=pumps[id-1];activePump=id;sequence='pump'+id;p.start=currentWeight;p.status='running';dispenseState=D.BULK;simPhaseTimer=Date.now();log('Simulator: Pump '+id+' started.','sys')}
-  function simTick(){if(fault)return;const p=pumps[activePump-1];if(!p)return;simulatePump(p,()=>{p.final=p.delivered;p.status='complete';const next=nextRunnablePump(activePump+1);if(next){activePump=0;sequence='between';dispenseState=D.IDLE;simWaitStart=Date.now();nextSimPump=next;log('Simulator: waiting before Pump '+next+'.','sys')}else{activePump=0;sequence='done';dispenseState=D.COMPLETE;log('Simulator: four-pump sequence complete.','sys');stopSim();go('Complete')}});if(sequence==='between'&&Date.now()-simWaitStart>=1200)simStartPump(nextSimPump);updateTelemetry(currentWeight+(Math.random()-.5)*0.003,dispenseState)}
+  function simTick(){if(fault)return;const p=pumps[activePump-1];if(!p)return;simulatePump(p,()=>{p.final=p.delivered;p.status='complete';const next=nextRunnablePump(activePump+1);if(next){activePump=0;sequence='between';dispenseState=D.IDLE;simWaitStart=Date.now();nextSimPump=next;log('Simulator: waiting before Pump '+next+'.','sys')}else{activePump=0;sequence='done';dispenseState=D.COMPLETE;log('Simulator: ' + PUMP_COUNT + '-pump sequence complete.','sys');stopSim();go('Complete')}});if(sequence==='between'&&Date.now()-simWaitStart>=1200)simStartPump(nextSimPump);updateTelemetry(currentWeight+(Math.random()-.5)*0.003,dispenseState)}
   function simulatePump(p,done){const elapsed=Date.now()-simPhaseTimer;if(dispenseState===D.BULK){currentWeight+=0.11+(Math.random()-.5)*0.01;if((currentWeight-p.start)>=p.target*.85){dispenseState=D.SETTLE_BULK;simPhaseTimer=Date.now()}}else if(dispenseState===D.SETTLE_BULK){if(elapsed>700){dispenseState=D.TRIM;simPhaseTimer=Date.now()}}else if(dispenseState===D.TRIM){const remaining=p.target-(currentWeight-p.start);currentWeight+=Math.min(Math.max(remaining*.35,0.012),0.08);if((p.target-(currentWeight-p.start))<=0.04||elapsed>500){dispenseState=D.SETTLE_TRIM;simPhaseTimer=Date.now()}}else if(dispenseState===D.SETTLE_TRIM){const remaining=p.target-(currentWeight-p.start);if(elapsed>600){if(remaining<=0.04){dispenseState=D.SUCK;simPhaseTimer=Date.now()}else{dispenseState=D.TRIM;simPhaseTimer=Date.now()}}}else if(dispenseState===D.SUCK){if(elapsed>300){dispenseState=D.RETRACT;simPhaseTimer=Date.now()}}else if(dispenseState===D.RETRACT){if(elapsed>500){dispenseState=D.COMPLETE;p.delivered=currentWeight-p.start;done()}}}
 
   function updateUI(){
@@ -288,7 +288,7 @@
     $('homeWeight').textContent=fmt(currentWeight);$('setupWeight').textContent=fmt(currentWeight);$('runWeight').textContent=fmt(currentWeight);$('homeTotal').textContent=fmt(total);$('recipeTotal').textContent=fmt(total);$('activeCount').textContent=activeCount();$('recipeTol').textContent=fmt(Math.max(0.01,total*0.001));$('homeState').textContent=sequence==='ready'?'Ready':sequence==='done'?'Done':sequence==='between'?'Settling':sequence==='fault'?'Fault':'Running';$('homePump').textContent=activePump?('Pump '+activePump):'None';
     $('runPhase').firstChild.nodeValue=phase[0];$('runPhaseSub').textContent=phase[1];$('runPump').textContent=activePump?('Pump '+activePump):'None';$('runOverallPct').textContent=fmt(overallPct,0)+'%';$('overallBar').style.width=overallPct+'%';$('finalTotal').textContent=fmt(totalFinal()||delivered);
     pumps.forEach(p=>{$('homeP'+p.id+'Target').textContent=fmt(p.target)+' g';$('homeP'+p.id+'Profile').textContent=profileText(p);$('homeP'+p.id+'Status').textContent=p.status;const rs=$('recipeP'+p.id+'Status');if(rs)rs.textContent=p.status;const meta=$('p'+p.id+'RunMeta');if(meta)meta.textContent=fmt(p.delivered)+' / '+fmt(p.target)+' g';const bar=$('p'+p.id+'Bar');if(bar)bar.style.width=pct(p.delivered,p.target)+'%';const card=$('pump'+p.id+'Card');if(card)card.classList.toggle('active',activePump===p.id);const tag=$('p'+p.id+'Tag');if(tag)setTag(tag,p.status);const final=$('finalP'+p.id);if(final)final.textContent=fmt(p.final||p.delivered);const cal=$('p'+p.id+'CalText');if(cal)cal.textContent=fmt(p.high?p.calHigh:p.calLow,0)});
-    $('footerInfo').textContent=(demo?'Simulator':'Online')+' • '+(activePump?('Pump '+activePump+' • '+phase[0]):(sequence==='between'?'Settling before next pump':sequence==='done'?'Sequence complete':'Ready for four-pump sequence'));
+    $('footerInfo').textContent=(demo?'Simulator':'Online')+' • '+(activePump?('Pump '+activePump+' • '+phase[0]):(sequence==='between'?'Settling before next pump':sequence==='done'?'Sequence complete':'Ready for ' + PUMP_COUNT + '-pump sequence'));
   }
 
   buildStaticUi();syncProfileButtons();selectCalPump(1);
