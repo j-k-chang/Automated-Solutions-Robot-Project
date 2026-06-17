@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <AccelStepper.h>
+#include <TMCStepper.h>
 
 class Mixer {
 public:
@@ -24,10 +25,24 @@ public:
     // --- Control Commands ---
     void startContinuous();
     void stop();
+    void startAutoRampTest(float startRPM = 100.0f, float targetRPM = 450.0f, float stepRPM = 25.0f, unsigned long intervalMs = 2000);
 
     // --- Settings & Status ---
     MixerState getState() const { return _currentState; }
     const char* getStateString() const;
+    
+    void setTargetRPM(float rpm);
+    float getTargetRPM() const { return _targetRPM; }
+    
+    void setAcceleration(float accel);
+    float getAcceleration() const { return _acceleration; }
+    bool isAutoRamping() const { return _isAutoRamping; }
+    
+    bool checkUARTConnection();
+    uint16_t getDriverMicrosteps();
+    uint16_t getDriverCurrent();
+    uint32_t getGCONF();
+    uint32_t getIOIN();
 
 private:
     // Pins
@@ -38,14 +53,26 @@ private:
     // AccelStepper instance
     AccelStepper _stepper;
 
+    // TMC2209 Driver UART interface
+    TMC2209Stepper _driver;
+
     // State
     MixerState _currentState;
+    float _targetRPM;
+    float _acceleration;
 
-    // Standard Speed & Acceleration configuration
-    // Based on 1/8 microstepping (1600 steps/rev for standard 1.8 degree motor)
-    // 400 RPM = 6.667 rev/sec = 10666.67 steps/sec (standard liquid mixing speed)
-    static constexpr float STANDARD_SPEED_STEPS_SEC = 10666.67f;
-    static constexpr float STANDARD_ACCEL_STEPS_SEC2 = 1777.78f;
+    // Auto-ramping test settings
+    bool _isAutoRamping;
+    float _autoRampTargetRPM;
+    float _autoRampStepRPM;
+    unsigned long _autoRampIntervalMs;
+    unsigned long _lastRampTimeMs;
+
+    // Constants
+    static constexpr float STEPS_PER_REV = 1600.0f; // 1/8 microstepping on 1.8 deg motor
+    static constexpr float STANDARD_SPEED_STEPS_SEC = 10666.67f; // 400 RPM (at 1600 steps/rev)
+    static constexpr float STANDARD_ACCEL_STEPS_SEC2 = 300.00f;  // Gentle acceleration to prevent stalling
 };
 
 #endif // MIXER_H
+
