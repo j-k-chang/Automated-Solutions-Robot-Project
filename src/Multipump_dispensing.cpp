@@ -1,6 +1,9 @@
 #include "Multipump_dispensing.h"
+#include "Mixer.h"
 
 namespace MultiPump {
+
+Mixer mixer(10, 11, 12);
 
 // --- Dispensing Configuration ---
 const float BULK_SPEED = 10000.0f;
@@ -457,6 +460,8 @@ void multipumpSetup() {
   Serial.begin(USB_BAUD);
   Serial1.begin(SCALE_BAUD);
 
+  mixer.begin();
+
   pinMode(SHARED_DIR, OUTPUT);
   pinMode(SHARED_EN, OUTPUT);
   pinMode(SHARED_MS1, OUTPUT);
@@ -483,6 +488,9 @@ void multipumpSetup() {
   Serial.println("Send 'H1'/'L1' through 'H7'/'L7' to toggle Pump 1-7 Glycerol/Water");
   Serial.println("Send 'C1' through 'C7' to calibrate an active profile.");
   Serial.println("Send 'FAN ON' or 'FAN OFF' to turn the DC fan (Pin 22) on/off.");
+  Serial.println("Send 'MIX START' / 'MIX STOP' to control the mixer (Pins 10,11,12).");
+  Serial.println("Send 'MIX RPM <val>' / 'MIX ACCEL <val>' to configure mixer.");
+  Serial.println("Send 'MIX STATUS' to show mixer settings and driver diagnostics.");
   Serial.println("Enter target weight > 1.50 for each pump, or 0.0 to skip.");
   Serial.println("========================================");
 
@@ -490,6 +498,8 @@ void multipumpSetup() {
 }
 
 void multipumpLoop() {
+  mixer.update();
+
   while (Serial1.available() > 0) {
     char c = Serial1.read();
     if (c == '+' || c == '-') {
@@ -648,8 +658,63 @@ void handleUsbCommands() {
             pumps[index]->stop();
           }
           digitalWrite(SHARED_EN, HIGH);
-          Serial.println("!!! EMERGENCY PUMP HALT !!!");
+          mixer.stop();
+          Serial.println("!!! EMERGENCY PUMP & MIXER HALT !!!");
           resetRunState();
+        }
+        else if (usbBuffer.equalsIgnoreCase("MIX START") || usbBuffer.equalsIgnoreCase("MIXER START") || usbBuffer.equalsIgnoreCase("MIX ON")) {
+          mixer.startContinuous();
+        }
+        else if (usbBuffer.equalsIgnoreCase("MIX STOP") || usbBuffer.equalsIgnoreCase("MIXER STOP") || usbBuffer.equalsIgnoreCase("MIX OFF")) {
+          mixer.stop();
+        }
+        else if (usbBuffer.startsWith("MIX RPM ") || usbBuffer.startsWith("MIXER RPM ")) {
+          int offset = usbBuffer.startsWith("MIXER RPM ") ? 10 : 8;
+          float rpm = usbBuffer.substring(offset).toFloat();
+          mixer.setTargetRPM(rpm);
+          Serial.print("Mixer Target RPM set to: ");
+          Serial.println(mixer.getTargetRPM());
+        }
+        else if (usbBuffer.startsWith("MIX ACCEL ") || usbBuffer.startsWith("MIXER ACCEL ")) {
+          int offset = usbBuffer.startsWith("MIXER ACCEL ") ? 12 : 10;
+          float accel = usbBuffer.substring(offset).toFloat();
+          mixer.setAcceleration(accel);
+          Serial.print("Mixer Acceleration set to: ");
+          Serial.print(mixer.getAcceleration());
+          Serial.println(" steps/sec^2");
+        }
+        else if (usbBuffer.equalsIgnoreCase("MIX STATUS") || usbBuffer.equalsIgnoreCase("MIXER STATUS")) {
+          Serial.println("\n--- INTEGRATED MIXER STATUS ---");
+          Serial.print("State:        ");
+          Serial.println(mixer.getStateString());
+          Serial.print("Target Speed: ");
+          Serial.print(mixer.getTargetRPM());
+          Serial.println(" RPM");
+          Serial.print("Acceleration: ");
+          Serial.print(mixer.getAcceleration());
+          Serial.println(" steps/sec^2");
+          Serial.print("Auto-Ramping: ");
+          Serial.println(mixer.isAutoRamping() ? "Active" : "Inactive");
+          
+          bool uartConnected = mixer.checkUARTConnection();
+          Serial.print("Driver UART:  ");
+          if (uartConnected) {
+              Serial.println("ONLINE (SpreadCycle Active)");
+          } else {
+              Serial.println("OFFLINE (StealthChop Standalone Mode)");
+          }
+          Serial.print("Raw GCONF:    0x");
+          Serial.println(mixer.getGCONF(), HEX);
+          Serial.print("Raw IOIN:     0x");
+          Serial.println(mixer.getIOIN(), HEX);
+          if (uartConnected) {
+              Serial.print("Driver Current: ");
+              Serial.print(mixer.getDriverCurrent());
+              Serial.println(" mA RMS");
+              Serial.print("Driver Microsteps: ");
+              Serial.println(mixer.getDriverMicrosteps());
+          }
+          Serial.println("--------------------------------");
         }
         else if (usbBuffer.equalsIgnoreCase("T")) {
           tareOffset = rawWeight;

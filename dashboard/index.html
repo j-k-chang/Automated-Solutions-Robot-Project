@@ -18,7 +18,7 @@
     .topbar{height:var(--top);display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--line);background:rgba(8,18,34,.94)}
     .brand h1{font-size:17px;line-height:1;margin:0}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.row{display:flex;gap:8px;align-items:center}.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#0b1a2e;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700;color:var(--muted)}.dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}.dot.ok{background:var(--green);box-shadow:0 0 8px var(--green)}
     .main{height:calc(100% - var(--top) - var(--bottom));padding:8px;overflow:hidden}.screen{display:none;height:100%;gap:8px}.screen.active{display:flex}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;height:100%}.panel{background:rgba(13,27,47,.95);border:1px solid var(--line);border-radius:14px;padding:10px;box-shadow:0 6px 18px var(--shadow);overflow:hidden}.panel h2{font-size:15px;line-height:1;margin:0 0 8px;color:var(--cyan)}.sub{font-size:11px;color:var(--muted);line-height:1.25}.stack{display:flex;flex-direction:column;gap:8px}.scroll{overflow-y:auto;padding-right:2px}
-    button{border:0;border-radius:12px;color:var(--txt);background:var(--panel2);font-weight:800;font-size:14px;min-height:44px;padding:9px 12px;cursor:pointer}.btn-primary{background:linear-gradient(135deg,#18d7ff,#337cff);color:#06101e}.btn-green{background:linear-gradient(135deg,#2cffbb,#12a87a);color:#041815}.btn-amber{background:linear-gradient(135deg,#ffc54a,#c47b02);color:#1d1100}.btn-red{background:linear-gradient(135deg,#ff4066,#b50029)}.btn-ghost{background:#0b1a2e;border:1px solid var(--line);color:var(--muted)}#btnFan.on{background:linear-gradient(135deg,var(--green),#12a87a);color:#041815;box-shadow:0 0 10px rgba(61,255,180,.4)}.btn-small{min-height:36px;font-size:12px;padding:7px 10px}.btn-wide{width:100%}
+    button{border:0;border-radius:12px;color:var(--txt);background:var(--panel2);font-weight:800;font-size:14px;min-height:44px;padding:9px 12px;cursor:pointer}.btn-primary{background:linear-gradient(135deg,#18d7ff,#337cff);color:#06101e}.btn-green{background:linear-gradient(135deg,#2cffbb,#12a87a);color:#041815}.btn-amber{background:linear-gradient(135deg,#ffc54a,#c47b02);color:#1d1100}.btn-red{background:linear-gradient(135deg,#ff4066,#b50029)}.btn-ghost{background:#0b1a2e;border:1px solid var(--line);color:var(--muted)}#btnFan.on, #btnMixer.on{background:linear-gradient(135deg,var(--green),#12a87a);color:#041815;box-shadow:0 0 10px rgba(61,255,180,.4)}.btn-small{min-height:36px;font-size:12px;padding:7px 10px}.btn-wide{width:100%}
     .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.metric{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px;min-height:54px}.metric label{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:4px}.metric strong{font-size:20px;line-height:1}.metric small{font-size:11px;color:var(--muted)}
     .component-list,.pump-list{display:flex;flex-direction:column;gap:7px}.component-row{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px}.component-row-top{display:flex;justify-content:space-between;gap:6px;font-size:13px;font-weight:900}.component-row-bottom{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px}
     .pump-edit{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px;display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center}.pump-edit h3{font-size:14px;margin:0 0 5px}.input-wrap{display:flex;align-items:center;background:#081421;border:1px solid #274662;border-radius:10px;padding:0 8px}.input-wrap input{width:100%;height:34px;background:transparent;border:0;outline:0;color:var(--txt);font-size:18px;font-weight:900}.input-wrap span{font-size:12px;color:var(--muted);font-weight:800}.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}.seg button{min-height:32px;font-size:11px;background:#0a1728;border:1px solid #1d3450}.seg button.on{background:#123c52;border-color:var(--cyan);color:var(--cyan)}
@@ -35,6 +35,7 @@
   <div class="topbar">
     <div class="brand"><h1>Seven-Pump Solution Dosing</h1><small>Sequential gravimetric dispensing interface</small></div>
     <div class="row">
+      <button class="btn-small btn-ghost" id="btnMixer" onclick="toggleMixer()">MIXER: OFF</button>
       <button class="btn-small btn-ghost" id="btnFan" onclick="toggleFan()">FAN: OFF</button>
       <div class="pill"><span class="dot" id="connDot"></span><span id="connText">SIMULATOR</span></div>
       <button class="btn-small btn-primary" id="btnConnect">CONNECT</button>
@@ -232,6 +233,10 @@
   function setFanState(on){fanActive=on;const btn=$('btnFan');if(btn){btn.classList.toggle('on',on);btn.textContent='FAN: '+(on?'ON':'OFF')}}
   async function toggleFan(){if(demo){setFanState(!fanActive);log('Simulator: DC Fan toggled to '+(fanActive?'ON':'OFF'),'sys')}else{await send(fanActive?'FAN OFF':'FAN ON')}}
 
+  let mixerActive=false;
+  function setMixerState(on){mixerActive=on;const btn=$('btnMixer');if(btn){btn.classList.toggle('on',on);btn.textContent='MIXER: '+(on?'ON':'OFF')}}
+  async function toggleMixer(){if(demo){setMixerState(!mixerActive);log('Simulator: Mixer toggled to '+(mixerActive?'ON':'OFF'),'sys')}else{await send(mixerActive?'MIX STOP':'MIX START')}}
+
   async function send(cmd){if(demo)return;if(writer&&connected){try{await writer.write(cmd+'\n');log('TX >> '+cmd,'tx')}catch(e){log('TX failed: '+e.message,'err')}}}
   async function connect(){if(connected){disconnect();return}try{log('Requesting USB serial access at 9600 baud...');port=await navigator.serial.requestPort();await port.open({baudRate:9600});const enc=new TextEncoderStream();enc.readable.pipeTo(port.writable);writer=enc.writable.getWriter();connected=true;demo=false;$('btnConnect').textContent='DISCONNECT';$('connText').textContent='ONLINE';$('connDot').classList.add('ok');log('Connected to controller.','sys');readLoop()}catch(e){log('Serial connection unavailable: '+e.message,'err');connected=false;demo=true}}
   function disconnect(){try{if(writer){writer.releaseLock();writer=null}if(port){port.close();port=null}}catch(e){}connected=false;demo=true;$('btnConnect').textContent='CONNECT';$('connText').textContent='SIMULATOR';$('connDot').classList.remove('ok');log('Disconnected. Simulator mode restored.','sys')}
@@ -242,6 +247,8 @@
     log('RX << '+line,'sys');
     if(line.includes('DC Fan: ON')){setFanState(true)}
     if(line.includes('DC Fan: OFF')){setFanState(false)}
+    if(line.includes('Mixer: Starting continuous')){setMixerState(true)}
+    if(line.includes('Mixer: Fully stopped') || line.includes('Mixer: Decelerating to stop')){setMixerState(false)}
     const start=line.match(/Starting Pump\s+(\d)\s+Dispense/i);
     const done=line.match(/Pump\s+(\d)\s+done/i);
     const mode=line.match(/Pump\s+(\d)\s+Viscosity Mode:\s+(HIGH|LOW)/i);
@@ -273,7 +280,7 @@
   async function submitCalibration(){const v=parseFloat($('calMass').value);if(!v||v<=0.02){alert('Enter measured mass greater than 0.02 g.');return}const p=pumps[calPump-1];const steps=(10000/16)/v;if(p.high)p.calHigh=steps;else p.calLow=steps;log('Submitting calibration mass '+fmt(v,3)+' g for Pump '+calPump+'.','tx');if(demo){log('Simulator calculated '+fmt(steps,2)+' steps/g.','sys');dispenseState=D.IDLE;activePump=0}else await send(fmt(v,3));updateUI()}
   function triggerFault(text){fault=true;$('faultText').textContent=text||'Pump motion has been halted. Confirm the system is safe before clearing.';$('faultOverlay').classList.add('active');sequence='fault';pumps.forEach(p=>{if(p.status==='running')p.status='error'});log('FAULT: '+$('faultText').textContent,'err');updateUI()}
   function clearFault(){fault=false;$('faultOverlay').classList.remove('active');dispenseState=D.IDLE;activePump=0;sequence='ready';pumps.forEach(p=>{if(p.status==='error')p.status='waiting'});updateUI()}
-  async function estop(){if(demo){triggerFault('Emergency stop pressed. Simulator pump motion halted.');stopSim()}else{await send('S');triggerFault('Emergency stop command sent. Pump motion halted.')}}
+  async function estop(){if(demo){triggerFault('Emergency stop pressed. Simulator pump motion halted.');setMixerState(false);stopSim()}else{await send('S');triggerFault('Emergency stop command sent. Pump motion halted.')}}
 
   function nextRunnablePump(startId){for(let id=startId;id<=PUMP_COUNT;id++){if(pumps[id-1].target>0)return id}return 0}
   function startSim(){stopSim();currentWeight=0;pumps.forEach(p=>{p.start=0;p.delivered=0;p.final=0;p.status=p.target>0?'waiting':'complete'});nextSimPump=nextRunnablePump(1);if(!nextSimPump){sequence='done';go('Complete');return}simStartPump(nextSimPump);simTimer=setInterval(simTick,100)}
