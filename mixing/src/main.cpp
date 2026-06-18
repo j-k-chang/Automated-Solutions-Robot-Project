@@ -46,8 +46,8 @@ void printMenu() {
     Serial.println("  START       - Start mixing (ramps up to target RPM)");
     Serial.println("  STOP        - Stop mixing (graceful ramp down)");
     Serial.println("  TEST        - Start auto-ramping test (50 -> 450 RPM)");
-    Serial.println("  RPM <val>   - Set target RPM (e.g. RPM 300, max 450)");
-    Serial.println("  ACCEL <val> - Set acceleration (steps/s^2, default 1777.78)");
+    Serial.println("  RPM <val>   - Set target RPM (e.g. RPM 300, max 400)");
+    Serial.println("  ACCEL <val> - Set acceleration (steps/s^2, default 1523.81)");
     Serial.println("  STATUS      - Show current mixer settings and state");
     Serial.println("==================================================");
     Serial.print("mixer> ");
@@ -72,8 +72,8 @@ void handleCommands() {
                     mixer.stop();
                 }
                 else if (upperInput.equals("TEST")) {
-                    // Starts from 50 RPM to 500 RPM in 50 RPM steps, waiting 3 seconds per step
-                    mixer.startAutoRampTest(50.0f, 500.0f, 50.0f, 3000);
+                    // Starts from 50 RPM to 400 RPM in 50 RPM steps, waiting 3 seconds per step
+                    mixer.startAutoRampTest(50.0f, 400.0f, 50.0f, 3000);
                 }
                 else if (upperInput.startsWith("RPM ")) {
                     float rpm = inputBuffer.substring(4).toFloat();

@@ -28,7 +28,7 @@ void Mixer::begin() {
     
     _driver.begin();
     _driver.toff(5);                 // Enable driver
-    _driver.rms_current(800);        // Set motor current to 800mA RMS
+    _driver.rms_current(1000);       // Set motor current to 1000mA RMS (increased from 800mA)
     _driver.microsteps(8);           // Set 1/8 microstepping (matches hardware pins)
     _driver.en_spreadCycle(true);    // Enable SpreadCycle (high-torque mode, disables StealthChop)
     _driver.pwm_autoscale(true);
@@ -95,6 +95,11 @@ void Mixer::stop() {
     Serial.println("Mixer: Decelerating to stop...");
     _currentState = STATE_STOPPING;
     _isAutoRamping = false; // Cancel any active auto ramp
+
+    // Calculate deceleration rate for a 1-second stop from target speed
+    float targetSpeedSteps = (_targetRPM / 60.0f) * STEPS_PER_REV;
+    _stepper.setAcceleration(targetSpeedSteps); // Deceleration rate (steps/sec^2) = target speed (steps/sec) / 1.0 second
+
     _stepper.stop(); // Calculates target position based on current deceleration ramp
 }
 
@@ -145,7 +150,7 @@ void Mixer::update() {
 
 void Mixer::setTargetRPM(float rpm) {
     if (rpm < 50.0f) rpm = 50.0f;
-    if (rpm > 450.0f) rpm = 450.0f; // Capped at 450 RPM max
+    if (rpm > 400.0f) rpm = 400.0f; // Capped at 400 RPM max
     _targetRPM = rpm;
     if (_currentState == STATE_RUNNING_CONTINUOUS) {
         float targetSpeedSteps = (_targetRPM / 60.0f) * STEPS_PER_REV;
