@@ -54,8 +54,10 @@ private:
     // AccelStepper instance
     AccelStepper _stepper;
 
-    // Hardware-timed STEP output for continuous mixer rotation.
-    mbed::PwmOut* _stepPwm;
+    // Timer-driven STEP output for continuous mixer rotation.
+    mbed::Ticker* _stepTicker;
+    mbed::DigitalOut* _stepOut;
+    volatile bool _stepLevel;
 
     // TMC2209 Driver UART interface
     TMC2209Stepper _driver;
@@ -73,7 +75,9 @@ private:
     unsigned long _lastRampTimeMs;
 
     void applyStepFrequency();
+    void applyStepFrequency(float rpm);
     void stopStepOutput();
+    void toggleStep();
 
     // Constants
     static constexpr float STEPS_PER_REV = 1600.0f; // 1/8 microstepping on 1.8 deg motor

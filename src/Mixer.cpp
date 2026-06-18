@@ -5,7 +5,9 @@ Mixer::Mixer(int stepPin, int dirPin, int enPin)
       _dirPin(dirPin),
       _enPin(enPin),
       _stepper(AccelStepper::DRIVER, stepPin, dirPin),
-      _stepPwm(nullptr),
+      _stepTicker(nullptr),
+      _stepOut(nullptr),
+      _stepLevel(false),
       _driver(&Serial4, 0.11f, 0b00), // Hardware Serial4 (Pins 14/15), R_sense = 0.11 Ohm, Address = 0
       _currentState(STATE_IDLE),
       _targetRPM(400.0f),
@@ -25,7 +27,8 @@ void Mixer::begin() {
     // Disable the driver by default to keep it cool and save power
     digitalWrite(_enPin, HIGH);
 
-    _stepPwm = new mbed::PwmOut(digitalPinToPinName(_stepPin));
+    _stepOut = new mbed::DigitalOut(digitalPinToPinName(_stepPin), 0);
+    _stepTicker = new mbed::Ticker();
     stopStepOutput();
 
     // Initialize TMC2209 driver UART connection
@@ -35,7 +38,8 @@ void Mixer::begin() {
     _driver.begin();
     _driver.toff(5);                 // Enable driver
     _driver.rms_current(1000);       // Set motor current to 1000mA RMS (increased from 800mA)
-    _driver.microsteps(8);           // Set 1/8 microstepping (matches hardware pins)
+    _driver.microsteps(8);           // Set 1/8 microstepping; interpolation smooths the motor internally
+    _driver.intpol(true);            // Interpolate toward 256 microsteps internally
     _driver.en_spreadCycle(true);    // Enable SpreadCycle (high-torque mode, disables StealthChop)
     _driver.pwm_autoscale(true);
 
@@ -50,23 +54,41 @@ void Mixer::begin() {
 }
 
 void Mixer::applyStepFrequency() {
-    if (!_stepPwm) {
+    applyStepFrequency(_targetRPM);
+}
+
+void Mixer::applyStepFrequency(float rpm) {
+    if (!_stepTicker || !_stepOut) {
         return;
     }
 
-    float targetSpeedSteps = (_targetRPM / 60.0f) * STEPS_PER_REV;
+    float targetSpeedSteps = (rpm / 60.0f) * STEPS_PER_REV;
     if (targetSpeedSteps < 1.0f) {
         targetSpeedSteps = 1.0f;
     }
 
-    _stepPwm->period(1.0f / targetSpeedSteps);
-    _stepPwm->write(0.5f);
+    unsigned long halfPeriodUs = (unsigned long)(500000.0f / targetSpeedSteps);
+    if (halfPeriodUs < 2) {
+        halfPeriodUs = 2;
+    }
+
+    _stepTicker->detach();
+    _stepTicker->attach(mbed::callback(this, &Mixer::toggleStep), std::chrono::microseconds(halfPeriodUs));
 }
 
 void Mixer::stopStepOutput() {
-    if (_stepPwm) {
-        _stepPwm->write(0.0f);
+    if (_stepTicker) {
+        _stepTicker->detach();
     }
+    _stepLevel = false;
+    if (_stepOut) {
+        *_stepOut = 0;
+    }
+}
+
+void Mixer::toggleStep() {
+    _stepLevel = !_stepLevel;
+    *_stepOut = _stepLevel ? 1 : 0;
 }
 
 void Mixer::startContinuous() {
