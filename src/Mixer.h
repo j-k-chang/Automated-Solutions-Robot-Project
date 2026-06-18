@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <AccelStepper.h>
 #include <TMCStepper.h>
+#include <mbed.h>
 
 class Mixer {
 public:
@@ -53,6 +54,9 @@ private:
     // AccelStepper instance
     AccelStepper _stepper;
 
+    // Hardware-timed STEP output for continuous mixer rotation.
+    mbed::PwmOut* _stepPwm;
+
     // TMC2209 Driver UART interface
     TMC2209Stepper _driver;
 
@@ -67,6 +71,9 @@ private:
     float _autoRampStepRPM;
     unsigned long _autoRampIntervalMs;
     unsigned long _lastRampTimeMs;
+
+    void applyStepFrequency();
+    void stopStepOutput();
 
     // Constants
     static constexpr float STEPS_PER_REV = 1600.0f; // 1/8 microstepping on 1.8 deg motor
