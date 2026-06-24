@@ -53,8 +53,8 @@ You will be greeted with the command interface. Send any of the following comman
 
 | Command | Action | Description |
 | :--- | :--- | :--- |
-| **`START`** | Start Continuous Mixing | Motor smoothly accelerates over 6 seconds to the standard liquid-mixing speed (400 RPM) and spins continuously. |
-| **`STOP`** | Decelerate & Stop | Gracefully ramps speed down to zero over 6 seconds. Once stopped, it **disables the stepper driver coils** to prevent heat build-up. |
+| **`START`** | Start Continuous Mixing | Motor smoothly accelerates over 7 seconds to the standard liquid-mixing speed (200 RPM) and spins continuously. |
+| **`STOP`** | Decelerate & Stop | Gracefully ramps speed down to zero. Once stopped, it **disables the stepper driver coils** to prevent heat build-up. |
 
 ---
 

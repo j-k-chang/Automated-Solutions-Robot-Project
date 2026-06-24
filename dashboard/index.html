@@ -5,29 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Seven-Pump Solution Dosing</title>
   <style>
-    :root{
-      --bg:#07111f;--panel:#0d1b2f;--panel2:#11233b;--line:#223a59;
-      --txt:#f4f8ff;--muted:#9fb2ca;--cyan:#20d9ff;--green:#3dffb4;
-      --amber:#ffbf42;--red:#ff3b5c;--shadow:rgba(0,0,0,.45);
-      --top:50px;--bottom:54px;
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--txt);font-family:Arial,Helvetica,sans-serif}
-    body{display:flex;align-items:center;justify-content:center}
-    .app{width:100vw;height:100vh;max-width:800px;max-height:480px;min-width:760px;min-height:440px;position:relative;background:linear-gradient(135deg,#07111f,#0a1830);overflow:hidden;border:1px solid #122743}
-    .topbar{height:var(--top);display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--line);background:rgba(8,18,34,.94)}
-    .brand h1{font-size:17px;line-height:1;margin:0}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.row{display:flex;gap:8px;align-items:center}.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#0b1a2e;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700;color:var(--muted)}.dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}.dot.ok{background:var(--green);box-shadow:0 0 8px var(--green)}
-    .main{height:calc(100% - var(--top) - var(--bottom));padding:8px;overflow:hidden}.screen{display:none;height:100%;gap:8px}.screen.active{display:flex}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;height:100%}.panel{background:rgba(13,27,47,.95);border:1px solid var(--line);border-radius:14px;padding:10px;box-shadow:0 6px 18px var(--shadow);overflow:hidden}.panel h2{font-size:15px;line-height:1;margin:0 0 8px;color:var(--cyan)}.sub{font-size:11px;color:var(--muted);line-height:1.25}.stack{display:flex;flex-direction:column;gap:8px}.scroll{overflow-y:auto;padding-right:2px}
-    button{border:0;border-radius:12px;color:var(--txt);background:var(--panel2);font-weight:800;font-size:14px;min-height:44px;padding:9px 12px;cursor:pointer}.btn-primary{background:linear-gradient(135deg,#18d7ff,#337cff);color:#06101e}.btn-green{background:linear-gradient(135deg,#2cffbb,#12a87a);color:#041815}.btn-amber{background:linear-gradient(135deg,#ffc54a,#c47b02);color:#1d1100}.btn-red{background:linear-gradient(135deg,#ff4066,#b50029)}.btn-ghost{background:#0b1a2e;border:1px solid var(--line);color:var(--muted)}#btnFan.on, #btnMixer.on{background:linear-gradient(135deg,var(--green),#12a87a);color:#041815;box-shadow:0 0 10px rgba(61,255,180,.4)}.btn-small{min-height:36px;font-size:12px;padding:7px 10px}.btn-wide{width:100%}
-    .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.metric{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px;min-height:54px}.metric label{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:4px}.metric strong{font-size:20px;line-height:1}.metric small{font-size:11px;color:var(--muted)}
-    .component-list,.pump-list{display:flex;flex-direction:column;gap:7px}.component-row{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px}.component-row-top{display:flex;justify-content:space-between;gap:6px;font-size:13px;font-weight:900}.component-row-bottom{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px}
-    .pump-edit{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px;display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center}.pump-edit h3{font-size:14px;margin:0 0 5px}.input-wrap{display:flex;align-items:center;background:#081421;border:1px solid #274662;border-radius:10px;padding:0 8px}.input-wrap input{width:100%;height:34px;background:transparent;border:0;outline:0;color:var(--txt);font-size:18px;font-weight:900}.input-wrap span{font-size:12px;color:var(--muted);font-weight:800}.target-controls{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.target-controls button{flex:1 1 calc(50% - 3px);min-height:36px;font-size:13px;background:#0a1728;border:1px solid #1d3450}.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}.seg button{min-height:32px;font-size:11px;background:#0a1728;border:1px solid #1d3450}.seg button.on{background:#123c52;border-color:var(--cyan);color:var(--cyan)}
-    .pump-card{border:1px solid #274662;background:#0a1728;border-radius:12px;padding:8px;display:grid;grid-template-columns:54px 1fr;gap:8px;align-items:center;min-height:62px}.pump-card.active{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(32,217,255,.25) inset}.pump-card.active .pump-meta{color:var(--cyan)}.pump-badge{height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#10243b;border:1px solid #26425f;font-size:24px;font-weight:900}.pump-card-header{display:flex;justify-content:space-between;align-items:baseline;gap:6px}.pump-title{font-size:13px;font-weight:900;margin:0}.pump-meta{font-size:15px;color:var(--txt);font-weight:800;line-height:1.2}.status-tag{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid var(--line);font-size:10px;font-weight:900;margin-top:5px;color:var(--muted)}.status-tag.run{color:var(--cyan);border-color:rgba(32,217,255,.5)}.status-tag.done{color:var(--green);border-color:rgba(61,255,180,.5)}.status-tag.err{color:var(--red);border-color:rgba(255,59,92,.5)}
-    .progress{width:100%;height:10px;background:#081421;border:1px solid #203954;border-radius:999px;overflow:hidden}.bar{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .25s}.big-readout{text-align:center;padding:4px 0}.big-readout .num{font-size:50px;font-weight:900;line-height:1}.big-readout .unit{font-size:18px;color:var(--muted);margin-left:4px}.phase{font-size:22px;font-weight:900;text-align:center;color:var(--cyan);line-height:1.05}.phase small{display:block;color:var(--muted);font-size:12px;font-weight:700;margin-top:5px}
-    .checklist{display:grid;grid-template-columns:1fr 1fr;gap:7px}.check{display:flex;align-items:center;gap:8px;background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:9px;min-height:42px;font-size:13px;font-weight:800}.box{width:23px;height:23px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#041815;flex:none}
-    .bottombar{position:absolute;bottom:0;left:0;right:0;height:var(--bottom);display:grid;grid-template-columns:96px 96px 1fr 150px;gap:8px;padding:6px 8px;border-top:1px solid var(--line);background:rgba(8,18,34,.96)}.bottombar button{min-height:42px}.footer-info{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:12px;font-weight:800;border:1px solid var(--line);border-radius:12px;background:#081421;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .console{height:100%;background:#030914;border:1px solid #1d3450;border-radius:12px;padding:8px;font-family:Consolas,monospace;font-size:10px;line-height:1.25;color:#38ff9c;overflow-y:auto}.console .tx{color:#20d9ff}.console .err{color:#ff6680}.console .sys{color:#ffcf66}.overlay{position:absolute;inset:0;background:rgba(5,8,14,.96);z-index:50;display:none;align-items:center;justify-content:center;padding:24px}.overlay.active{display:flex}.fault-card{width:92%;max-width:620px;background:#170711;border:2px solid var(--red);box-shadow:0 0 30px rgba(255,59,92,.28);border-radius:18px;padding:22px;text-align:center}.fault-card h2{font-size:34px;margin:0 0 8px;color:var(--red)}.fault-card p{font-size:16px;color:#ffd1da;margin:0 0 18px}.fault-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media (max-height:460px){:root{--top:46px;--bottom:50px}.topbar{padding:5px 8px}.brand h1{font-size:15px}.main{padding:6px}.panel{padding:8px;border-radius:12px}.panel h2{font-size:14px;margin-bottom:6px}button{min-height:40px;font-size:13px}.btn-small{min-height:34px}.metric{min-height:48px;padding:7px}.metric strong{font-size:18px}.big-readout .num{font-size:42px}.phase{font-size:19px}.pump-card{min-height:58px}.pump-edit{padding:7px}.bottombar{padding:5px 6px;gap:6px}.footer-info{font-size:11px}}
+:root{
+  --bg:#07111f;--panel:#0d1b2f;--panel2:#11233b;--line:#223a59;
+  --txt:#f4f8ff;--muted:#9fb2ca;--cyan:#20d9ff;--green:#3dffb4;
+  --amber:#ffbf42;--red:#ff3b5c;--shadow:rgba(0,0,0,.45);
+  --top:50px;--bottom:54px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.scroll, .console, .pump-grid-body, [style*="overflow-y:auto"], [style*="overflow-y: auto"] {
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--txt);font-family:Arial,Helvetica,sans-serif}
+body{display:flex;align-items:center;justify-content:center}
+.app{width:100vw;height:100vh;max-width:800px;max-height:480px;min-width:760px;min-height:440px;position:relative;background:linear-gradient(135deg,#07111f,#0a1830);overflow:hidden;border:1px solid #122743}
+.topbar{height:var(--top);display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--line);background:rgba(8,18,34,.94)}
+.brand h1{font-size:17px;line-height:1;margin:0}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.row{display:flex;gap:8px;align-items:center}.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#0b1a2e;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700;color:var(--muted)}.dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}.dot.ok{background:var(--green);box-shadow:0 0 8px var(--green)}
+.main{height:calc(100% - var(--top) - var(--bottom));padding:8px;overflow:hidden}.screen{display:none;height:100%;gap:8px}.screen.active{display:flex}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;height:100%}.panel{background:rgba(13,27,47,.95);border:1px solid var(--line);border-radius:14px;padding:10px;box-shadow:0 6px 18px var(--shadow);overflow:hidden}.panel h2{font-size:15px;line-height:1;margin:0 0 8px;color:var(--cyan)}.sub{font-size:11px;color:var(--muted);line-height:1.25}.stack{display:flex;flex-direction:column;gap:8px}.scroll{overflow-y:auto;padding-right:2px}
+button{border:0;border-radius:12px;color:var(--txt);background:var(--panel2);font-weight:800;font-size:14px;min-height:44px;padding:9px 12px;cursor:pointer}.btn-primary{background:linear-gradient(135deg,#18d7ff,#337cff);color:#06101e}.btn-green{background:linear-gradient(135deg,#2cffbb,#12a87a);color:#041815}.btn-amber{background:linear-gradient(135deg,#ffc54a,#c47b02);color:#1d1100}.btn-red{background:linear-gradient(135deg,#ff4066,#b50029)}.btn-ghost{background:#0b1a2e;border:1px solid var(--line);color:var(--muted)}#btnFan.on, #btnMixer.on{background:linear-gradient(135deg,var(--green),#12a87a);color:#041815;box-shadow:0 0 10px rgba(61,255,180,.4)}.btn-small{min-height:36px;font-size:12px;padding:7px 10px}.btn-wide{width:100%}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.metric{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px;min-height:54px}.metric label{display:block;font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:4px}.metric strong{font-size:20px;line-height:1}.metric small{font-size:11px;color:var(--muted)}
+.component-list,.pump-list{display:flex;flex-direction:column;gap:7px}.component-row{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px}.component-row-top{display:flex;justify-content:space-between;gap:6px;font-size:13px;font-weight:900}.component-row-bottom{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px}
+.pump-edit{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px;display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center}.pump-edit h3{font-size:14px;margin:0 0 5px}.input-wrap{display:flex;align-items:center;background:#081421;border:1px solid #274662;border-radius:10px;padding:0 8px;height:44px}.input-wrap input{width:100%;height:100%;background:transparent;border:0;outline:0;color:var(--txt);font-size:18px;font-weight:900}.input-wrap span{font-size:12px;color:var(--muted);font-weight:800}.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}.seg button{min-height:44px;font-size:13px;background:#0a1728;border:1px solid #1d3450}.seg button.on{background:#123c52;border-color:var(--cyan);color:var(--cyan)}
+.pump-card{border:1px solid #274662;background:#0a1728;border-radius:12px;padding:8px;display:grid;grid-template-columns:54px 1fr;gap:8px;align-items:center;min-height:62px}.pump-card.active{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(32,217,255,.25) inset}.pump-card.active .pump-meta{color:var(--cyan)}.pump-badge{height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#10243b;border:1px solid #26425f;font-size:24px;font-weight:900}.pump-card-header{display:flex;justify-content:space-between;align-items:baseline;gap:6px}.pump-title{font-size:13px;font-weight:900;margin:0}.pump-meta{font-size:15px;color:var(--txt);font-weight:800;line-height:1.2}.status-tag{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid var(--line);font-size:10px;font-weight:900;margin-top:5px;color:var(--muted)}.status-tag.run{color:var(--cyan);border-color:rgba(32,217,255,.5)}.status-tag.done{color:var(--green);border-color:rgba(61,255,180,.5)}.status-tag.err{color:var(--red);border-color:rgba(255,59,92,.5)}
+.progress{width:100%;height:10px;background:#081421;border:1px solid #203954;border-radius:999px;overflow:hidden}.bar{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .25s}.big-readout{text-align:center;padding:4px 0}.big-readout .num{font-size:50px;font-weight:900;line-height:1}.big-readout .unit{font-size:18px;color:var(--muted);margin-left:4px}.phase{font-size:22px;font-weight:900;text-align:center;color:var(--cyan);line-height:1.05}.phase small{display:block;color:var(--muted);font-size:12px;font-weight:700;margin-top:5px}
+.checklist{display:grid;grid-template-columns:1fr 1fr;gap:7px}.check{display:flex;align-items:center;gap:8px;background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:9px;min-height:42px;font-size:13px;font-weight:800}.box{width:23px;height:23px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#041815;flex:none}
+.bottombar{position:absolute;bottom:0;left:0;right:0;height:var(--bottom);display:grid;grid-template-columns:96px 96px 1fr 150px;gap:8px;padding:6px 8px;border-top:1px solid var(--line);background:rgba(8,18,34,.96)}.bottombar button{min-height:42px}.footer-info{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:12px;font-weight:800;border:1px solid var(--line);border-radius:12px;background:#081421;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.console{height:100%;background:#030914;border:1px solid #1d3450;border-radius:12px;padding:8px;font-family:Consolas,monospace;font-size:10px;line-height:1.25;color:#38ff9c;overflow-y:auto}.console .tx{color:#20d9ff}.console .err{color:#ff6680}.console .sys{color:#ffcf66}.overlay{position:absolute;inset:0;background:rgba(5,8,14,.96);z-index:50;display:none;align-items:center;justify-content:center;padding:24px}.overlay.active{display:flex}.fault-card{width:92%;max-width:620px;background:#170711;border:2px solid var(--red);box-shadow:0 0 30px rgba(255,59,92,.28);border-radius:18px;padding:22px;text-align:center}.fault-card h2{font-size:34px;margin:0 0 8px;color:var(--red)}.fault-card p{font-size:16px;color:#ffd1da;margin:0 0 18px}.fault-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.recipe-tabs-container{display:flex;flex-direction:column;width:100%;height:100%;gap:6px;overflow:hidden}
+.recipe-tabs{display:flex;gap:6px;flex:none}
+.recipe-tabs button{min-height:44px;font-size:13px;padding:6px 16px;flex:none;border:1px solid var(--line);border-radius:12px;}
+.recipe-tabs button.on{background:#123c52;border-color:var(--cyan);color:var(--cyan)}
+.recipe-tab-content{display:none;flex:1;min-height:0}
+.recipe-tab-content.active{display:flex;flex-direction:column;height:100%;min-height:0;gap:8px}
+.recipe-header-row{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-bottom:4px;flex:none}
+.recipe-header-row input{height:44px;background:#081421;border:1px solid #274662;border-radius:8px;color:var(--txt);padding:0 10px;font-size:13px;font-weight:700;outline:none;width:100%}
+.recipe-header-row input:focus{border-color:var(--cyan)}
+.recipe-editor-two-col{display:grid;grid-template-columns:1.85fr 1fr;gap:8px;flex:1;min-height:0}
+.recipe-tab-two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-height:0}
+.pump-grid-header{display:grid;grid-template-columns:46px 120px 104px 1fr;gap:6px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;padding:4px 6px;border-bottom:1px solid var(--line);flex:none}
+.pump-grid-header div{display:flex;align-items:center}
+.pump-grid-row{display:grid;grid-template-columns:46px 120px 104px 1fr;gap:6px;align-items:center;background:rgba(10, 23, 40, 0.4);border:1px solid #1d3450;border-radius:8px;padding:0 6px;height:44px;flex:none}
+.pump-grid-row:hover{border-color:var(--cyan)}
+.pump-grid-row .pump-label{font-size:13px;font-weight:900;color:var(--txt);text-align:center}
+.pump-grid-row .target-adjuster{display:flex;align-items:center;background:#081421;border:1px solid #274662;border-radius:6px;height:34px;overflow:hidden;width:100%}
+.pump-grid-row .target-adjuster .adj-btn{width:32px;height:100%;background:#11233b;border:0;border-radius:0;color:var(--cyan);font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;min-height:0}
+.pump-grid-row .target-adjuster .adj-btn:hover{background:#163052;color:var(--txt)}
+.pump-grid-row .target-adjuster input{flex:1;height:100%;background:transparent;border:0;outline:0;color:var(--txt);font-size:13px;font-weight:700;text-align:center;width:100%;min-width:0;-moz-appearance:textfield}
+.pump-grid-row .target-adjuster input::-webkit-outer-spin-button,.pump-grid-row .target-adjuster input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.pump-grid-row .visc-btn{height:34px;border:1px solid var(--line);border-radius:6px;font-size:11px;font-weight:800;color:var(--muted);background:#0b1a2e;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;width:100%}
+.pump-grid-row .visc-btn.low{background:rgba(32, 217, 255, 0.12);border-color:var(--cyan);color:var(--cyan)}
+.pump-grid-row .visc-btn.high{background:rgba(255, 191, 66, 0.12);border-color:var(--amber);color:var(--amber)}
+.pump-grid-row .chem-input{height:34px;background:#081421;border:1px solid #274662;border-radius:6px;color:var(--txt);padding:0 8px;font-size:12px;outline:none;width:100%}
+.pump-grid-row .chem-input:focus{border-color:var(--cyan)}
+.recipe-card{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:10px;margin-bottom:6px;transition:border-color 0.2s}
+.recipe-card:hover{border-color:var(--cyan)}
+.recipe-card-header{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:900;color:var(--cyan)}
+.recipe-card-desc{font-size:11px;color:var(--muted);margin:4px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recipe-card-pumps{font-size:10px;color:var(--green);margin-bottom:8px}
+.recipe-card-footer{display:flex;justify-content:space-between;align-items:center}
+.recipe-card-date{font-size:9px;color:var(--muted)}
+.recipe-card-actions{display:flex;gap:6px}
+.recipe-card-actions button{min-height:44px;padding:6px 12px;font-size:12px;border-radius:8px}
+.pump-edit-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;width:100%}
+.pump-edit-meta input{background:#081421;border:1px solid #274662;border-radius:8px;color:var(--txt);padding:4px 8px;font-size:11px;outline:none;transition:border-color 0.2s}
+.pump-edit-meta input:focus{border-color:var(--cyan)}
+.drag-over-highlight{border:2px dashed var(--cyan) !important;background:rgba(32,217,255,0.05) !important}
+.btn-green:hover{box-shadow:0 0 12px rgba(44,255,187,.4)}
+.btn-red:hover{box-shadow:0 0 12px rgba(255,64,102,.4)}
+@media (max-height:460px){:root{--top:46px;--bottom:50px}.topbar{padding:5px 8px}.brand h1{font-size:15px}.main{padding:6px}.panel{padding:8px;border-radius:12px}.panel h2{font-size:14px;margin-bottom:6px}button{min-height:40px;font-size:13px}.btn-small{min-height:34px}.metric{min-height:48px;padding:7px}.metric strong{font-size:18px}.big-readout .num{font-size:42px}.phase{font-size:19px}.pump-card{min-height:58px}.pump-edit{padding:7px}.bottombar{padding:5px 6px;gap:6px}.footer-info{font-size:11px}}
   </style>
 </head>
 <body>
@@ -87,21 +132,66 @@
     </section>
 
     <section class="screen" id="screenRecipe">
-      <div class="two-col">
-        <div class="panel scroll">
-          <h2>Pump Targets</h2>
-          <div class="pump-list" id="recipePumpList"></div>
+      <div class="recipe-tabs-container">
+        <div class="recipe-tabs">
+          <button id="tabRecipeEditor" class="btn-small on" onclick="switchRecipeTab('editor')">RECIPE EDITOR</button>
+          <button id="tabRecipeLibrary" class="btn-small btn-ghost" onclick="switchRecipeTab('library')">RECIPE LIBRARY</button>
         </div>
-        <div class="panel stack">
-          <h2>Recipe Summary</h2>
-          <div class="metric-grid">
-            <div class="metric"><label>Total Target</label><strong id="recipeTotal">0.00</strong><small> g</small></div>
-            <div class="metric"><label>Command</label><strong>7-Step</strong></div>
-            <div class="metric"><label>Active Pumps</label><strong id="activeCount">0</strong></div>
-            <div class="metric"><label>Tolerance</label><strong id="recipeTol">0.01</strong><small> g min</small></div>
+        
+        <!-- Editor Tab -->
+        <div id="recipeEditorTab" class="recipe-tab-content active">
+          <div class="recipe-header-row">
+            <input id="recipeNameInput" type="text" placeholder="Recipe Name (e.g. Standard Water Mix)" value="">
+            <input id="recipeDescInput" type="text" placeholder="Description / Purpose" value="">
           </div>
-          <button class="btn-green btn-wide" id="btnStartRun">START SEQUENTIAL RUN</button>
-          <p class="sub">The controller prompts for targets. This dashboard sends all target values in sequence.</p>
+          <div class="recipe-editor-two-col">
+            <div class="panel stack" style="height:100%; display:flex; flex-direction:column; min-height:0; overflow:hidden; padding:8px;">
+              <div class="pump-grid-header">
+                <div>Pump</div>
+                <div>Target (g)</div>
+                <div>Viscosity</div>
+                <div>Chemical</div>
+              </div>
+              <div class="pump-grid-body" id="recipePumpList" style="flex:1; display:flex; flex-direction:column; gap:4px; overflow-y:auto; padding-right:2px;"></div>
+            </div>
+            <div class="panel stack" style="overflow-y:auto;">
+              <h2>Recipe Summary</h2>
+              <div class="metric-grid">
+                <div class="metric"><label>Total Target</label><strong id="recipeTotal">0.00</strong><small> g</small></div>
+                <div class="metric"><label>Command</label><strong>7-Step</strong></div>
+                <div class="metric"><label>Active Pumps</label><strong id="activeCount">0</strong></div>
+                <div class="metric"><label>Tolerance</label><strong id="recipeTol">0.01</strong><small> g min</small></div>
+              </div>
+              <button class="btn-green btn-wide" id="btnStartRun">START RUN</button>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:4px">
+                <button class="btn-small btn-primary" onclick="saveRecipeToLibrary()">SAVE TO LIBRARY</button>
+                <button class="btn-small btn-ghost" onclick="exportRecipeAsCsv()">EXPORT CSV</button>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:4px">
+                <button class="btn-small btn-ghost" onclick="$('csvFileInput').click()">LOAD CSV FILE</button>
+                <button class="btn-small btn-red" onclick="clearEditor()">CLEAR ALL</button>
+              </div>
+              <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="onCsvFileSelected(event)">
+              <p class="sub">Drag & drop CSV to import immediately.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Library Tab -->
+        <div id="recipeLibraryTab" class="recipe-tab-content">
+          <div class="recipe-tab-two-col">
+            <div class="panel stack scroll" style="height:100%">
+              <h2>Saved Recipes</h2>
+              <div class="pump-list" id="libraryList"></div>
+            </div>
+            <div class="panel stack">
+              <h2>Library Actions</h2>
+              <button class="btn-ghost btn-wide" onclick="switchRecipeTab('editor')">GO TO RECIPE EDITOR</button>
+              <button class="btn-wide btn-primary" onclick="$('csvFileInputLibrary').click()">IMPORT CSV FILE</button>
+              <input type="file" id="csvFileInputLibrary" accept=".csv" style="display:none" onchange="onCsvFileSelected(event)">
+              <p class="sub">Recipes are stored in local storage.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -162,7 +252,7 @@
         <div class="panel stack">
           <h2>Command Map</h2>
           <div class="component-list">
-            <div class="component-row"><div class="component-row-top"><span>Profiles</span><span>H1-H7 / L1-L7</span></div><div class="component-row-bottom"><span>Glycerol / Water</span></div></div>
+            <div class="component-row"><div class="component-row-top"><span>Profiles</span><span>H1-H7 / L1-L7</span></div><div class="component-row-bottom"><span>High / Low Viscosity</span></div></div>
             <div class="component-row"><div class="component-row-top"><span>Calibration</span><span>C1-C7</span></div><div class="component-row-bottom"><span>Selected pump calibration</span></div></div>
             <div class="component-row"><div class="component-row-top"><span>Targets</span><span>7 serial values</span></div><div class="component-row-bottom"><span>Pump order, 0.00 skips</span></div></div>
             <div class="component-row"><div class="component-row-top"><span>Telemetry</span><span>w,state,visc</span></div><div class="component-row-bottom"><span>Active pump inferred from serial text</span></div></div>
@@ -191,125 +281,766 @@
   </div>
 </div>
 <script>
-  const PUMP_COUNT=7;
-  const D={IDLE:0,BULK:1,SETTLE_BULK:2,TRIM:3,SETTLE_TRIM:4,SUCK:5,RELIEF_FAST:6,RELIEF_FINISH:7,RETRACT:8,COMPLETE:9,ERROR:10};
-  const phaseMap={0:['READY','System waiting'],1:['BULK DOSING','Fast fill phase'],2:['SETTLING','Waiting for stable scale'],3:['TRIM DOSING','Fine pulse dosing'],4:['SETTLING','Verifying final mass'],5:['PREVENTING DRIPS','Suck-back starting'],6:['PRESSURE RELIEF','Fast reverse relief'],7:['PRESSURE RELIEF','Controlled relief finish'],8:['RETRACTING','Reversing pump'],9:['COMPLETE','Component finished'],10:['ERROR','Scale or pump fault']};
-  let port=null,writer=null,connected=false,demo=true;
-  let currentWeight=0,dispenseState=0,activePump=0,sequence='ready';
-  let calPump=1,fault=false,simTimer=null,simPhaseTimer=0,simWaitStart=0,nextSimPump=1;
-  const defaultTargets=[10,5,0,0,0,0,0];
-  const pumps=Array.from({length:PUMP_COUNT},(_,i)=>({id:i+1,target:defaultTargets[i],high:false,status:'waiting',start:0,delivered:0,final:0,calLow:700,calHigh:1400}));
-  const $=id=>document.getElementById(id);
+const PUMP_COUNT=7;
+const D={IDLE:0,BULK:1,SETTLE_BULK:2,TRIM:3,SETTLE_TRIM:4,SUCK:5,RELIEF_FAST:6,RELIEF_FINISH:7,RETRACT:8,COMPLETE:9,ERROR:10};
+const phaseMap={0:['READY','System waiting'],1:['BULK DOSING','Fast fill phase'],2:['SETTLING','Waiting for stable scale'],3:['TRIM DOSING','Fine pulse dosing'],4:['SETTLING','Verifying final mass'],5:['PREVENTING DRIPS','Suck-back starting'],6:['PRESSURE RELIEF','Fast reverse relief'],7:['PRESSURE RELIEF','Controlled relief finish'],8:['RETRACTING','Reversing pump'],9:['COMPLETE','Component finished'],10:['ERROR','Scale or pump fault']};
+let port=null,writer=null,connected=false,demo=true;
+let currentWeight=0,dispenseState=0,activePump=0,sequence='ready';
+let calPump=1,fault=false,simTimer=null,simPhaseTimer=0,simWaitStart=0,nextSimPump=1;
+let recipeName='',recipeDesc='';
+const defaultTargets=[10,5,0,0,0,0,0];
+const pumps=Array.from({length:PUMP_COUNT},(_,i)=>({id:i+1,target:defaultTargets[i],high:false,status:'waiting',start:0,delivered:0,final:0,calLow:700,calHigh:1400,chemical:'',notes:''}));
+const $=id=>document.getElementById(id);
 
-  function fmt(n,d=2){return (isFinite(n)?n:0).toFixed(d)}
-  function totalTarget(){return pumps.reduce((sum,p)=>sum+p.target,0)}
-  function totalDelivered(){return pumps.reduce((sum,p)=>sum+p.delivered,0)}
-  function totalFinal(){return pumps.reduce((sum,p)=>sum+(p.final||p.delivered),0)}
-  function activeCount(){return pumps.filter(p=>p.target>0).length}
-  function profileText(p){return p.high?'Glycerol / High':'Water / Low'}
-  function pct(a,b){return b>0?Math.max(0,Math.min(100,(a/b)*100)):0}
-  function go(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('screen'+name).classList.add('active');updateUI()}
-  function log(msg,type='sys'){const line=document.createElement('div');line.className=type;line.textContent='['+new Date().toLocaleTimeString()+'] '+msg;$('consoleLog').appendChild(line);$('consoleLog').scrollTop=$('consoleLog').scrollHeight}
-  function setTag(el,status){el.className='status-tag '+(status==='running'?'run':status==='complete'?'done':status==='error'?'err':'wait');el.textContent=status.toUpperCase()}
+function fmt(n,d=2){return (isFinite(n)?n:0).toFixed(d)}
+function totalTarget(){return pumps.reduce((sum,p)=>sum+p.target,0)}
+function totalDelivered(){return pumps.reduce((sum,p)=>sum+p.delivered,0)}
+function totalFinal(){return pumps.reduce((sum,p)=>sum+(p.final||p.delivered),0)}
+function activeCount(){return pumps.filter(p=>p.target>0).length}
+function profileText(p){return p.high?'High':'Low'}
+function pct(a,b){return b>0?Math.max(0,Math.min(100,(a/b)*100)):0}
+function go(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('screen'+name).classList.add('active');updateUI()}
+function log(msg,type='sys'){const line=document.createElement('div');line.className=type;line.textContent='['+new Date().toLocaleTimeString()+'] '+msg;$('consoleLog').appendChild(line);$('consoleLog').scrollTop=$('consoleLog').scrollHeight}
+function setTag(el,status){el.className='status-tag '+(status==='running'?'run':status==='complete'?'done':status==='error'?'err':'wait');el.textContent=status.toUpperCase()}
 
-  function buildStaticUi(){
-    $('homePumpList').innerHTML=pumps.map(p=>`<div class="component-row"><div class="component-row-top"><span>Pump ${p.id} Liquid</span><span id="homeP${p.id}Target"></span></div><div class="component-row-bottom"><span id="homeP${p.id}Profile"></span><span id="homeP${p.id}Status"></span></div></div>`).join('');
-    $('recipePumpList').innerHTML=pumps.map(p=>`<div class="pump-edit"><div><h3>Pump ${p.id}</h3><div class="input-wrap"><input id="target${p.id}" type="number" min="0" step="0.1" inputmode="decimal" value="${fmt(p.target)}"><span>g</span></div><div class="target-controls"><button class="btn-ghost btn-small" type="button" onclick="adjustTarget(${p.id},-1)">-1g</button><button class="btn-ghost btn-small" type="button" onclick="adjustTarget(${p.id},-0.1)">-0.1g</button><button class="btn-ghost btn-small" type="button" onclick="adjustTarget(${p.id},0.1)">+0.1g</button><button class="btn-ghost btn-small" type="button" onclick="adjustTarget(${p.id},1)">+1g</button></div></div><div class="stack"><div class="seg"><button id="p${p.id}Low" class="on" onclick="setProfile(${p.id},false)">Water / Low</button><button id="p${p.id}High" onclick="setProfile(${p.id},true)">Glycerol / High</button></div><div class="sub"><span id="recipeP${p.id}Status">Waiting</span></div></div></div>`).join('');
-    $('runPumpList').innerHTML=pumps.map(p=>`<div class="pump-card" id="pump${p.id}Card"><div class="pump-badge">${p.id}</div><div style="display:flex;flex-direction:column;gap:3px;width:100%;overflow:hidden"><div class="pump-card-header"><div class="pump-title">Pump ${p.id} Liquid</div><div class="pump-meta"><span id="p${p.id}RunMeta"></span></div></div><div class="progress"><div class="bar" id="p${p.id}Bar"></div></div><div style="display:flex;justify-content:space-between;align-items:center"><span class="status-tag wait" id="p${p.id}Tag" style="margin:0">WAITING</span></div></div></div>`).join('');
-    $('finalPumpGrid').innerHTML=pumps.map(p=>`<div class="metric"><label>Pump ${p.id} Added</label><strong id="finalP${p.id}">0.00</strong><small> g</small></div>`).join('');
-    $('calPumpButtons').innerHTML=pumps.map(p=>`<button id="calPump${p.id}" onclick="selectCalPump(${p.id})">Pump ${p.id}</button>`).join('');
-    $('calGrid').innerHTML=pumps.map(p=>`<div class="metric"><label>Pump ${p.id}</label><strong id="p${p.id}CalText">700</strong><small> steps/g</small></div>`).join('');
-    $('preRunChecklist').innerHTML = `
-      <div class="check"><span class="box">✓</span><span>Beaker on scale</span></div>
-      <div class="check"><span class="box">✓</span><span>Scale tared</span></div>
-    ` + pumps.map(p => `<div class="check"><span class="box">✓</span><span>Pump ${p.id} line primed</span></div>`).join('');
-    pumps.forEach(p=>{$('target'+p.id).addEventListener('input',readTargets)});
+function switchRecipeTab(tabName) {
+  if (tabName === 'editor') {
+    $('tabRecipeEditor').classList.add('on');
+    $('tabRecipeEditor').classList.remove('btn-ghost');
+    $('tabRecipeLibrary').classList.remove('on');
+    $('tabRecipeLibrary').classList.add('btn-ghost');
+    
+    $('recipeEditorTab').classList.add('active');
+    $('recipeLibraryTab').classList.remove('active');
+  } else {
+    $('tabRecipeEditor').classList.remove('on');
+    $('tabRecipeEditor').classList.add('btn-ghost');
+    $('tabRecipeLibrary').classList.add('on');
+    $('tabRecipeLibrary').classList.remove('btn-ghost');
+    
+    $('recipeEditorTab').classList.remove('active');
+    $('recipeLibraryTab').classList.add('active');
+    
+    renderRecipeLibrary();
   }
+}
 
-  function readTargets(){pumps.forEach(p=>{const value=parseFloat($('target'+p.id).value);p.target=isNaN(value)?0:value});updateUI()}
-  function syncProfileButtons(){pumps.forEach(p=>{$('p'+p.id+'Low').classList.toggle('on',!p.high);$('p'+p.id+'High').classList.toggle('on',p.high)})}
-  async function setProfile(pumpId,high){const p=pumps[pumpId-1];p.high=high;syncProfileButtons();updateUI();await send((high?'H':'L')+pumpId);log('Pump '+pumpId+' profile set to '+profileText(p),'tx')}
-  function selectCalPump(pumpId){calPump=pumpId;pumps.forEach(p=>$('calPump'+p.id).classList.toggle('on',p.id===pumpId));$('calCmdLabel').textContent='C'+pumpId;updateUI()}
-  let fanActive=false;
-  function setFanState(on){fanActive=on;const btn=$('btnFan');if(btn){btn.classList.toggle('on',on);btn.textContent='FAN: '+(on?'ON':'OFF')}}
-  async function toggleFan(){if(demo){setFanState(!fanActive);log('Simulator: DC Fan toggled to '+(fanActive?'ON':'OFF'),'sys')}else{await send(fanActive?'FAN OFF':'FAN ON')}}
-
-  let mixerActive=false;
-  function setMixerState(on){mixerActive=on;const btn=$('btnMixer');if(btn){btn.classList.toggle('on',on);btn.textContent='MIXER: '+(on?'ON':'OFF')}}
-  async function toggleMixer(){if(demo){setMixerState(!mixerActive);log('Simulator: Mixer toggled to '+(mixerActive?'ON':'OFF'),'sys')}else{await send(mixerActive?'MIX STOP':'MIX START')}}
-
-  function adjustTarget(pumpId, delta){const p=pumps[pumpId-1];const input=$('target'+pumpId);let value=parseFloat(input.value);if(isNaN(value))value=0;value=Math.max(0,Math.round((value+delta)*100)/100);input.value=fmt(value);p.target=value;updateUI()}
-  function isFullscreen(){return !!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement)}
-  async function toggleFullscreen(){try{if(!isFullscreen()){if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else if(document.documentElement.webkitRequestFullscreen)await document.documentElement.webkitRequestFullscreen();}else{if(document.exitFullscreen)await document.exitFullscreen();else if(document.webkitExitFullscreen)await document.webkitExitFullscreen();}}catch(e){log('Fullscreen toggle failed: '+e.message,'err')}}
-  function fullscreenChanged(){const btn=$('btnFullscreen');if(btn)btn.textContent=isFullscreen()?'EXIT FULLSCREEN':'FULLSCREEN'}
-
-  async function send(cmd){if(demo)return;if(writer&&connected){try{await writer.write(cmd+'\n');log('TX >> '+cmd,'tx')}catch(e){log('TX failed: '+e.message,'err')}}}
-  async function connect(){if(connected){disconnect();return}try{log('Requesting USB serial access at 9600 baud...');port=await navigator.serial.requestPort();await port.open({baudRate:9600});const enc=new TextEncoderStream();enc.readable.pipeTo(port.writable);writer=enc.writable.getWriter();connected=true;demo=false;$('btnConnect').textContent='DISCONNECT';$('connText').textContent='ONLINE';$('connDot').classList.add('ok');log('Connected to controller.','sys');readLoop()}catch(e){log('Serial connection unavailable: '+e.message,'err');connected=false;demo=true}}
-  function disconnect(){try{if(writer){writer.releaseLock();writer=null}if(port){port.close();port=null}}catch(e){}connected=false;demo=true;$('btnConnect').textContent='CONNECT';$('connText').textContent='SIMULATOR';$('connDot').classList.remove('ok');log('Disconnected. Simulator mode restored.','sys')}
-  async function readLoop(){while(port&&port.readable&&connected){const reader=port.readable.getReader();const dec=new TextDecoder();let buf='';try{while(connected){const {value,done}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});let lines=buf.split('\n');buf=lines.pop();for(const raw of lines){const line=raw.trim();if(line)handleLine(line)}}}catch(e){log('Read error: '+e.message,'err');disconnect()}finally{reader.releaseLock()}}}
-
-  function handleLine(line){
-    if(line.startsWith('TELEMETRY:')){const parts=line.replace('TELEMETRY:','').split(',');const w=parseFloat(parts[0]);const st=parseInt(parts[1]);if(!isNaN(w)&&!isNaN(st))updateTelemetry(w,st);return}
-    log('RX << '+line,'sys');
-    if(line.includes('DC Fan: ON')){setFanState(true)}
-    if(line.includes('DC Fan: OFF')){setFanState(false)}
-    if(line.includes('Mixer: Starting continuous')){setMixerState(true)}
-    if(line.includes('Mixer: Fully stopped') || line.includes('Mixer: Decelerating to stop')){setMixerState(false)}
-    const start=line.match(/Starting Pump\s+(\d)\s+Dispense/i);
-    const done=line.match(/Pump\s+(\d)\s+done/i);
-    const mode=line.match(/Pump\s+(\d)\s+Viscosity Mode:\s+(HIGH|LOW)/i);
-    if(line.includes('Starting Sequential Dispense')){sequence='running';go('Run')}
-    if(start){const id=parseInt(start[1]);startPumpTracking(id)}
-    if(done){const id=parseInt(done[1]);finishPumpTracking(id)}
-    if(line.includes('Entire multi-pump dispensing sequence completed')){sequence='done';activePump=0;go('Complete')}
-    if(mode){const p=pumps[parseInt(mode[1])-1];p.high=mode[2].toUpperCase()==='HIGH';syncProfileButtons()}
-    if(line.includes('SCALE TIMEOUT')||line.includes('ERROR'))triggerFault(line);
-    if(line.includes('Calibration Successful'))log('Calibration value saved by controller.','sys');
+function updatePumpMetadata(pumpId, key, val) {
+  const p = pumps[pumpId - 1];
+  if (p) {
+    p[key] = val;
     updateUI();
   }
-  function startPumpTracking(id){const p=pumps[id-1];activePump=id;sequence='pump'+id;p.start=currentWeight;p.status='running';pumps.forEach(other=>{if(other.id>id&&other.status!=='complete')other.status='waiting'});go('Run')}
-  function finishPumpTracking(id){const p=pumps[id-1];p.final=currentWeight-p.start;p.delivered=p.final;p.status='complete';activePump=0;sequence='between'}
-  function updateTelemetry(w,st){currentWeight=w;dispenseState=st;if(activePump){const p=pumps[activePump-1];p.delivered=Math.max(0,currentWeight-p.start)}if(st===D.ERROR)triggerFault('Controller reported dispense error.');updateUI()}
+}
 
-  async function startRun(){
-    readTargets();
-    const valid=pumps.every(p=>p.target===0||p.target>1.5);
-    if(!valid||activeCount()===0){alert('Pump targets must be greater than 1.50 g, or exactly 0 g to skip. At least one pump must run.');return}
-    resetRun(false);go('Run');
-    if(demo){startSim();return}
-    for(let i=0;i<pumps.length;i++){setTimeout(()=>send(fmt(pumps[i].target)),i*350)}
-    log('Sequential target commands queued for pumps 1 through ' + PUMP_COUNT + '.','tx');
+function parseCsvRow(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === ',' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += c;
+    }
   }
-  function resetRun(full=true){stopSim();dispenseState=0;activePump=0;sequence='ready';nextSimPump=1;pumps.forEach(p=>{p.status='waiting';p.delivered=0;p.final=0;p.start=0});if(full)currentWeight=0;updateUI()}
-  function tare(){currentWeight=0;log('Scale tare requested.','tx');if(demo)updateTelemetry(0,0);else send('T')}
-  async function runCalibration(){log('Starting calibration for Pump '+calPump+'.','tx');if(demo){dispenseState=D.BULK;activePump=calPump;setTimeout(()=>{dispenseState=D.IDLE;activePump=0;currentWeight+=1.25;updateUI();log('Simulator calibration dispense complete. Enter measured mass.','sys')},1200)}else await send('C'+calPump)}
-  async function submitCalibration(){const v=parseFloat($('calMass').value);if(!v||v<=0.02){alert('Enter measured mass greater than 0.02 g.');return}const p=pumps[calPump-1];const steps=(10000/16)/v;if(p.high)p.calHigh=steps;else p.calLow=steps;log('Submitting calibration mass '+fmt(v,3)+' g for Pump '+calPump+'.','tx');if(demo){log('Simulator calculated '+fmt(steps,2)+' steps/g.','sys');dispenseState=D.IDLE;activePump=0}else await send(fmt(v,3));updateUI()}
-  function triggerFault(text){fault=true;$('faultText').textContent=text||'Pump motion has been halted. Confirm the system is safe before clearing.';$('faultOverlay').classList.add('active');sequence='fault';pumps.forEach(p=>{if(p.status==='running')p.status='error'});log('FAULT: '+$('faultText').textContent,'err');updateUI()}
-  function clearFault(){fault=false;$('faultOverlay').classList.remove('active');dispenseState=D.IDLE;activePump=0;sequence='ready';pumps.forEach(p=>{if(p.status==='error')p.status='waiting'});updateUI()}
-  async function estop(){if(demo){triggerFault('Emergency stop pressed. Simulator pump motion halted.');setMixerState(false);stopSim()}else{await send('S');triggerFault('Emergency stop command sent. Pump motion halted.')}}
+  result.push(current.trim());
+  return result;
+}
 
-  function nextRunnablePump(startId){for(let id=startId;id<=PUMP_COUNT;id++){if(pumps[id-1].target>0)return id}return 0}
-  function startSim(){stopSim();currentWeight=0;pumps.forEach(p=>{p.start=0;p.delivered=0;p.final=0;p.status=p.target>0?'waiting':'complete'});nextSimPump=nextRunnablePump(1);if(!nextSimPump){sequence='done';go('Complete');return}simStartPump(nextSimPump);simTimer=setInterval(simTick,100)}
-  function stopSim(){if(simTimer){clearInterval(simTimer);simTimer=null}}
-  function simStartPump(id){const p=pumps[id-1];activePump=id;sequence='pump'+id;p.start=currentWeight;p.status='running';dispenseState=D.BULK;simPhaseTimer=Date.now();log('Simulator: Pump '+id+' started.','sys')}
-  function simTick(){if(fault)return;const p=pumps[activePump-1];if(!p)return;simulatePump(p,()=>{p.final=p.delivered;p.status='complete';const next=nextRunnablePump(activePump+1);if(next){activePump=0;sequence='between';dispenseState=D.IDLE;simWaitStart=Date.now();nextSimPump=next;log('Simulator: waiting before Pump '+next+'.','sys')}else{activePump=0;sequence='done';dispenseState=D.COMPLETE;log('Simulator: ' + PUMP_COUNT + '-pump sequence complete.','sys');stopSim();go('Complete')}});if(sequence==='between'&&Date.now()-simWaitStart>=1200)simStartPump(nextSimPump);updateTelemetry(currentWeight+(Math.random()-.5)*0.003,dispenseState)}
-  function simulatePump(p,done){const elapsed=Date.now()-simPhaseTimer;if(dispenseState===D.BULK){currentWeight+=0.11+(Math.random()-.5)*0.01;if((currentWeight-p.start)>=p.target*.85){dispenseState=D.SETTLE_BULK;simPhaseTimer=Date.now()}}else if(dispenseState===D.SETTLE_BULK){if(elapsed>700){dispenseState=D.TRIM;simPhaseTimer=Date.now()}}else if(dispenseState===D.TRIM){const remaining=p.target-(currentWeight-p.start);currentWeight+=Math.min(Math.max(remaining*.35,0.012),0.08);if((p.target-(currentWeight-p.start))<=0.04||elapsed>500){dispenseState=D.SETTLE_TRIM;simPhaseTimer=Date.now()}}else if(dispenseState===D.SETTLE_TRIM){const remaining=p.target-(currentWeight-p.start);if(elapsed>600){if(remaining<=0.04){dispenseState=D.SUCK;simPhaseTimer=Date.now()}else{dispenseState=D.TRIM;simPhaseTimer=Date.now()}}}else if(dispenseState===D.SUCK){if(elapsed>300){dispenseState=D.RETRACT;simPhaseTimer=Date.now()}}else if(dispenseState===D.RETRACT){if(elapsed>500){dispenseState=D.COMPLETE;p.delivered=currentWeight-p.start;done()}}}
-
-  function updateUI(){
-    pumps.forEach(p=>{const input=$('target'+p.id);if(input){const value=parseFloat(input.value);if(!isNaN(value))p.target=value}});
-    const phase=phaseMap[dispenseState]||['UNKNOWN',''];const total=totalTarget();const delivered=totalDelivered();const overallPct=pct(delivered,total);
-    $('homeWeight').textContent=fmt(currentWeight);$('setupWeight').textContent=fmt(currentWeight);$('runWeight').textContent=fmt(currentWeight);$('homeTotal').textContent=fmt(total);$('recipeTotal').textContent=fmt(total);$('activeCount').textContent=activeCount();$('recipeTol').textContent=fmt(Math.max(0.01,total*0.001));$('homeState').textContent=sequence==='ready'?'Ready':sequence==='done'?'Done':sequence==='between'?'Settling':sequence==='fault'?'Fault':'Running';$('homePump').textContent=activePump?('Pump '+activePump):'None';
-    $('runPhase').firstChild.nodeValue=phase[0];$('runPhaseSub').textContent=phase[1];$('runPump').textContent=activePump?('Pump '+activePump):'None';$('runOverallPct').textContent=fmt(overallPct,0)+'%';$('overallBar').style.width=overallPct+'%';$('finalTotal').textContent=fmt(totalFinal()||delivered);
-    pumps.forEach(p=>{$('homeP'+p.id+'Target').textContent=fmt(p.target)+' g';$('homeP'+p.id+'Profile').textContent=profileText(p);$('homeP'+p.id+'Status').textContent=p.status;const rs=$('recipeP'+p.id+'Status');if(rs)rs.textContent=p.status;const meta=$('p'+p.id+'RunMeta');if(meta)meta.textContent=fmt(p.delivered)+' / '+fmt(p.target)+' g';const bar=$('p'+p.id+'Bar');if(bar)bar.style.width=pct(p.delivered,p.target)+'%';const card=$('pump'+p.id+'Card');if(card)card.classList.toggle('active',activePump===p.id);const tag=$('p'+p.id+'Tag');if(tag)setTag(tag,p.status);const final=$('finalP'+p.id);if(final)final.textContent=fmt(p.final||p.delivered);const cal=$('p'+p.id+'CalText');if(cal)cal.textContent=fmt(p.high?p.calHigh:p.calLow,0)});
-    $('footerInfo').textContent=(demo?'Simulator':'Online')+' • '+(activePump?('Pump '+activePump+' • '+phase[0]):(sequence==='between'?'Settling before next pump':sequence==='done'?'Sequence complete':'Ready for ' + PUMP_COUNT + '-pump sequence'));
+function parseCsvContent(text) {
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.split(/\r?\n/);
+  
+  let headerIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const cols = parseCsvRow(lines[i]);
+    if (cols.length > 0 && cols[0].toLowerCase() === 'pump') {
+      headerIdx = i;
+      break;
+    }
   }
+  
+  let name = '';
+  let desc = '';
+  
+  if (headerIdx !== -1) {
+    const metaLines = lines.slice(0, headerIdx)
+      .map(l => parseCsvRow(l))
+      .filter(cols => cols.length > 0 && cols.some(c => c !== ''));
+      
+    if (metaLines.length > 0) {
+      if (metaLines[0][0].toLowerCase() === 'name') {
+        if (metaLines.length > 1) {
+          name = metaLines[1][0] || '';
+          desc = metaLines[1][1] || '';
+        }
+      } else {
+        name = metaLines[0][0] || '';
+        desc = metaLines[0][1] || '';
+      }
+    }
+  }
+  
+  const rows = [];
+  const startIdx = headerIdx !== -1 ? headerIdx + 1 : 0;
+  
+  for (let i = startIdx; i < lines.length; i++) {
+    const rawLine = lines[i].trim();
+    if (!rawLine) continue;
+    const cols = parseCsvRow(lines[i]);
+    if (cols.length < 2) continue;
+    
+    if (headerIdx === -1 && cols[0].toLowerCase() === 'pump') {
+      continue;
+    }
+    
+    const pumpId = parseInt(cols[0], 10);
+    const target = parseFloat(cols[1]);
+    const viscosity = (cols[2] || '').trim().toLowerCase();
+    const chemical = (cols[3] || '').trim();
+    const notes = (cols[4] || '').trim();
+    
+    rows.push({
+      pumpId: isNaN(pumpId) ? 0 : pumpId,
+      target: isNaN(target) ? 0 : target,
+      viscosity: viscosity,
+      chemical: chemical,
+      notes: notes
+    });
+  }
+  
+  return { name, description: desc, rows };
+}
 
-  buildStaticUi();syncProfileButtons();selectCalPump(1);
-  $('btnConnect').onclick=connect;$('btnStartRun').onclick=startRun;$('btnTare').onclick=tare;$('btnRunCal').onclick=runCalibration;$('btnSubmitCal').onclick=submitCalibration;$('btnEstop').onclick=estop;$('btnAbort').onclick=estop;$('btnClearFault').onclick=clearFault;$('btnClearLog').onclick=()=>{$('consoleLog').innerHTML='<div class="sys">Console cleared.</div>'};
-  window.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();estop()}});
-  window.addEventListener('fullscreenchange',fullscreenChanged);
-  fullscreenChanged();
+function validateCsvRows(rows) {
+  const errors = [];
+  const seenPumps = new Set();
+  
+  if (rows.length === 0) {
+    errors.push("CSV contains no rows of data.");
+  }
+  
+  rows.forEach((row, idx) => {
+    const rowNum = idx + 1;
+    if (row.pumpId < 1 || row.pumpId > 7) {
+      errors.push(`Row ${rowNum}: Pump ID must be between 1 and 7. Found: ${row.pumpId}`);
+    } else {
+      if (seenPumps.has(row.pumpId)) {
+        errors.push(`Row ${rowNum}: Duplicate entry for Pump ${row.pumpId}.`);
+      }
+      seenPumps.add(row.pumpId);
+    }
+    
+    if (row.target < 0) {
+      errors.push(`Row ${rowNum}: Target mass cannot be negative. Found: ${row.target}`);
+    }
+    
+    if (row.viscosity && row.viscosity !== 'low' && row.viscosity !== 'high') {
+      errors.push(`Row ${rowNum}: Viscosity must be 'low' or 'high'. Found: '${row.viscosity}'`);
+    }
+  });
+  
+  const validPumpRows = rows.filter(r => r.pumpId >= 1 && r.pumpId <= 7);
+  if (errors.length === 0 && validPumpRows.length === 0) {
+    errors.push("CSV contains no valid pump rows.");
+  }
+  
+  return errors;
+}
+
+function loadPumpsFromCsv(data) {
+  pumps.forEach(p => {
+    p.target = 0;
+    p.high = false;
+    p.chemical = '';
+    p.notes = '';
+    p.status = 'waiting';
+  });
+  
+  data.rows.forEach(row => {
+    if (row.pumpId >= 1 && row.pumpId <= 7) {
+      const p = pumps[row.pumpId - 1];
+      p.target = row.target;
+      p.high = (row.viscosity === 'high');
+      p.chemical = row.chemical;
+      p.notes = row.notes;
+    }
+  });
+  
+  recipeName = data.name || '';
+  recipeDesc = data.description || '';
+  
+  $('recipeNameInput').value = recipeName;
+  $('recipeDescInput').value = recipeDesc;
+  
+  pumps.forEach(p => {
+    const targetInput = $('target' + p.id);
+    if (targetInput) targetInput.value = p.target.toFixed(2);
+    const chemInput = $('chem' + p.id);
+    if (chemInput) chemInput.value = p.chemical;
+    const notesInput = $('notes' + p.id);
+    if (notesInput) notesInput.value = p.notes;
+  });
+  
+  resetRun(true);
+  syncProfileButtons();
   updateUI();
+}
+
+function onCsvFileSelected(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const text = evt.target.result;
+    try {
+      const data = parseCsvContent(text);
+      const errors = validateCsvRows(data.rows);
+      if (errors.length > 0) {
+        log('CSV Validation Failed:', 'err');
+        errors.forEach(err => log(err, 'err'));
+        alert('CSV Validation Failed!\n\n' + errors.join('\n'));
+        return;
+      }
+      loadPumpsFromCsv(data);
+      log(`Loaded recipe "${data.name || 'Unnamed'}" from CSV.`, 'sys');
+    } catch (err) {
+      log('CSV Parsing Error: ' + err.message, 'err');
+      alert('Error parsing CSV file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function setupDragAndDrop() {
+  const screen = $('screenRecipe');
+  if (!screen) return;
+  
+  screen.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    screen.classList.add('drag-over-highlight');
+  });
+  
+  screen.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    screen.classList.remove('drag-over-highlight');
+  });
+  
+  screen.addEventListener('drop', (e) => {
+    e.preventDefault();
+    screen.classList.remove('drag-over-highlight');
+    
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    
+    if (!file.name.endsWith('.csv') && file.type !== 'text/csv') {
+      alert('Please drop a valid CSV file.');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const text = evt.target.result;
+      try {
+        const data = parseCsvContent(text);
+        const errors = validateCsvRows(data.rows);
+        if (errors.length > 0) {
+          log('CSV Drag-and-Drop Validation Failed:', 'err');
+          errors.forEach(err => log(err, 'err'));
+          alert('CSV Validation Failed!\n\n' + errors.join('\n'));
+          return;
+        }
+        loadPumpsFromCsv(data);
+        log(`Loaded recipe "${data.name || 'Unnamed'}" via Drag-and-Drop.`, 'sys');
+      } catch (err) {
+        log('CSV Parsing Error: ' + err.message, 'err');
+        alert('Error parsing CSV file: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function getRecipes() {
+  const data = localStorage.getItem('grav_recipes_v1');
+  if (!data) {
+    const examples = [
+      {
+        id: 'ex-water-mix',
+        name: 'Standard Water Mix',
+        description: 'A basic testing recipe using water on pumps 1, 2 and 5.',
+        createdAt: new Date().toISOString(),
+        pumps: [
+          { pump: 1, target: 10.00, viscosity: 'low', chemical: 'Water A', notes: 'Inlet 1' },
+          { pump: 2, target: 5.00, viscosity: 'low', chemical: 'Water B', notes: 'Inlet 2' },
+          { pump: 3, target: 0.00, viscosity: 'low', chemical: '', notes: '' },
+          { pump: 4, target: 0.00, viscosity: 'low', chemical: '', notes: '' },
+          { pump: 5, target: 12.50, viscosity: 'low', chemical: 'Water C', notes: 'Inlet 3' },
+          { pump: 6, target: 0.00, viscosity: 'low', chemical: '', notes: '' },
+          { pump: 7, target: 0.00, viscosity: 'low', chemical: '', notes: '' }
+        ]
+      },
+      {
+        id: 'ex-glyc-mix',
+        name: 'High Viscosity Run',
+        description: 'A test mixture demonstrating high viscosity Glycerol dispensing.',
+        createdAt: new Date().toISOString(),
+        pumps: [
+          { pump: 1, target: 15.00, viscosity: 'high', chemical: 'Glycerol', notes: 'Viscous stock' },
+          { pump: 2, target: 2.50, viscosity: 'low', chemical: 'Buffer Solution', notes: 'Low viscosity diluent' },
+          { pump: 3, target: 0.00, viscosity: 'low', chemical: '', notes: '' },
+          { pump: 4, target: 0.00, viscosity: 'low', chemical: '', notes: '' },
+          { pump: 5, target: 0.00, viscosity: 'low', chemical: '', notes: '' },
+          { pump: 6, target: 0.00, viscosity: 'low', chemical: '', notes: '' },
+          { pump: 7, target: 0.00, viscosity: 'low', chemical: '', notes: '' }
+        ]
+      }
+    ];
+    localStorage.setItem('grav_recipes_v1', JSON.stringify(examples));
+    return examples;
+  }
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveRecipes(recipes) {
+  localStorage.setItem('grav_recipes_v1', JSON.stringify(recipes));
+}
+
+function saveRecipeToLibrary() {
+  readTargets();
+  const name = ($('recipeNameInput').value || '').trim();
+  const desc = ($('recipeDescInput').value || '').trim();
+  
+  if (!name) {
+    alert('Please enter a Recipe Name before saving.');
+    return;
+  }
+  
+  const newRecipe = {
+    id: 'rec-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+    name: name,
+    description: desc,
+    createdAt: new Date().toISOString(),
+    pumps: pumps.map(p => ({
+      pump: p.id,
+      target: p.target,
+      viscosity: p.high ? 'high' : 'low',
+      chemical: p.chemical || '',
+      notes: p.notes || ''
+    }))
+  };
+  
+  const recipes = getRecipes();
+  recipes.push(newRecipe);
+  saveRecipes(recipes);
+  log(`Recipe "${name}" saved to library.`, 'sys');
+  alert(`Recipe "${name}" saved successfully to library!`);
+  renderRecipeLibrary();
+}
+
+function loadRecipeFromLibrary(id) {
+  const recipes = getRecipes();
+  const r = recipes.find(item => item.id === id);
+  if (!r) {
+    alert('Recipe not found in library.');
+    return;
+  }
+  
+  pumps.forEach(p => {
+    p.target = 0;
+    p.high = false;
+    p.chemical = '';
+    p.notes = '';
+    p.status = 'waiting';
+  });
+  
+  r.pumps.forEach(item => {
+    if (item.pump >= 1 && item.pump <= 7) {
+      const p = pumps[item.pump - 1];
+      p.target = item.target;
+      p.high = (item.viscosity === 'high');
+      p.chemical = item.chemical || '';
+      p.notes = item.notes || '';
+    }
+  });
+  
+  recipeName = r.name || '';
+  recipeDesc = r.description || '';
+  
+  $('recipeNameInput').value = recipeName;
+  $('recipeDescInput').value = recipeDesc;
+  
+  pumps.forEach(p => {
+    const targetInput = $('target' + p.id);
+    if (targetInput) targetInput.value = p.target.toFixed(2);
+    const chemInput = $('chem' + p.id);
+    if (chemInput) chemInput.value = p.chemical;
+    const notesInput = $('notes' + p.id);
+    if (notesInput) notesInput.value = p.notes;
+  });
+  
+  resetRun(true);
+  syncProfileButtons();
+  updateUI();
+  log(`Loaded recipe "${recipeName}" from library.`, 'sys');
+  switchRecipeTab('editor');
+}
+
+function deleteRecipe(id) {
+  const recipes = getRecipes();
+  const index = recipes.findIndex(item => item.id === id);
+  if (index === -1) return;
+  
+  const name = recipes[index].name;
+  if (!confirm(`Are you sure you want to delete the recipe "${name}"?`)) {
+    return;
+  }
+  
+  recipes.splice(index, 1);
+  saveRecipes(recipes);
+  log(`Recipe "${name}" deleted from library.`, 'sys');
+  renderRecipeLibrary();
+}
+
+function clearEditor() {
+  recipeName = '';
+  recipeDesc = '';
+  $('recipeNameInput').value = '';
+  $('recipeDescInput').value = '';
+  
+  pumps.forEach(p => {
+    p.target = 0;
+    p.high = false;
+    p.chemical = '';
+    p.notes = '';
+    p.status = 'waiting';
+    const targetInput = $('target' + p.id);
+    if (targetInput) targetInput.value = '0.00';
+    const chemInput = $('chem' + p.id);
+    if (chemInput) chemInput.value = '';
+    const notesInput = $('notes' + p.id);
+    if (notesInput) notesInput.value = '';
+  });
+  
+  resetRun(true);
+  syncProfileButtons();
+  updateUI();
+  log('Recipe editor cleared.', 'sys');
+}
+
+function exportRecipeAsCsv() {
+  readTargets();
+  const name = ($('recipeNameInput').value || 'Exported Recipe').trim();
+  const desc = ($('recipeDescInput').value || '').trim();
+  
+  let csvText = `Name,Description\n`;
+  csvText += `"${name.replace(/"/g, '""')}","${desc.replace(/"/g, '""')}"\n\n`;
+  csvText += `Pump,Target_g,Viscosity,Chemical,Notes\n`;
+  
+  pumps.forEach(p => {
+    const chem = (p.chemical || '').replace(/"/g, '""');
+    const notes = (p.notes || '').replace(/"/g, '""');
+    csvText += `${p.id},${p.target.toFixed(2)},${p.high ? 'high' : 'low'},"${chem}","${notes}"\n`;
+  });
+  
+  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `${name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}_recipe.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  log(`Exported recipe "${name}" as CSV file.`, 'sys');
+}
+
+function renderRecipeLibrary() {
+  const recipes = getRecipes();
+  const container = $('libraryList');
+  if (!container) return;
+  
+  if (recipes.length === 0) {
+    container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--muted); font-size:12px;">No recipes saved in library.</div>`;
+    return;
+  }
+  
+  container.innerHTML = recipes.map(r => {
+    const activePumpsText = r.pumps
+      .filter(p => p.target > 0)
+      .map(p => `P${p.pump} (${p.target.toFixed(1)}g)`)
+      .join(', ') || 'No active pumps';
+      
+    const dateStr = new Date(r.createdAt).toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    return `
+      <div class="recipe-card">
+        <div class="recipe-card-header">
+          <span>${escapeHtml(r.name)}</span>
+        </div>
+        <div class="recipe-card-desc">${escapeHtml(r.description || 'No description')}</div>
+        <div class="recipe-card-pumps">Active: ${escapeHtml(activePumpsText)}</div>
+        <div class="recipe-card-footer">
+          <span class="recipe-card-date">${dateStr}</span>
+          <div class="recipe-card-actions">
+            <button class="btn-small btn-primary" onclick="loadRecipeFromLibrary('${r.id}')">LOAD</button>
+            <button class="btn-small btn-red" onclick="deleteRecipe('${r.id}')">DELETE</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+let runTimeouts = [];
+let adjustTimeout = null;
+let adjustInterval = null;
+
+function clearRunTimeouts(){
+  runTimeouts.forEach(t=>clearTimeout(t));
+  runTimeouts = [];
+}
+
+function buildStaticUi(){
+  $('homePumpList').innerHTML=pumps.map(p=>`<div class="component-row"><div class="component-row-top"><span>Pump ${p.id} Liquid</span><span id="homeP${p.id}Target"></span></div><div class="component-row-bottom"><span id="homeP${p.id}Profile"></span><span id="homeP${p.id}Status"></span></div></div>`).join('');
+  $('recipePumpList').innerHTML=pumps.map(p=>`
+    <div class="pump-grid-row">
+      <div class="pump-label">P${p.id}</div>
+      <div class="target-adjuster">
+        <button class="adj-btn" 
+                onmousedown="event.preventDefault(); startAdjusting(${p.id},-1)" 
+                ontouchstart="event.preventDefault(); startAdjusting(${p.id},-1)" 
+                onmouseup="stopAdjusting()" 
+                onmouseleave="stopAdjusting()" 
+                ontouchend="stopAdjusting()" 
+                ontouchcancel="stopAdjusting()">-</button>
+        <input id="target${p.id}" type="number" min="0" step="0.01" value="${fmt(p.target)}">
+        <button class="adj-btn" 
+                onmousedown="event.preventDefault(); startAdjusting(${p.id},1)" 
+                ontouchstart="event.preventDefault(); startAdjusting(${p.id},1)" 
+                onmouseup="stopAdjusting()" 
+                onmouseleave="stopAdjusting()" 
+                ontouchend="stopAdjusting()" 
+                ontouchcancel="stopAdjusting()">+</button>
+      </div>
+      <button id="viscBtn${p.id}" class="visc-btn ${p.high ? 'high' : 'low'}" onclick="toggleProfile(${p.id})">
+        ${p.high ? 'High' : 'Low'}
+      </button>
+      <input id="chem${p.id}" class="chem-input" type="text" placeholder="Chemical" value="${p.chemical || ''}" oninput="updatePumpMetadata(${p.id}, 'chemical', this.value)">
+    </div>
+  `).join('');
+  $('runPumpList').innerHTML=pumps.map(p=>`<div class="pump-card" id="pump${p.id}Card"><div class="pump-badge">${p.id}</div><div style="display:flex;flex-direction:column;gap:3px;width:100%;overflow:hidden"><div class="pump-card-header"><div class="pump-title">Pump ${p.id} Liquid</div><div class="pump-meta"><span id="p${p.id}RunMeta"></span></div></div><div class="progress"><div class="bar" id="p${p.id}Bar"></div></div><div style="display:flex;justify-content:space-between;align-items:center"><span class="status-tag wait" id="p${p.id}Tag" style="margin:0">WAITING</span></div></div></div>`).join('');
+  $('finalPumpGrid').innerHTML=pumps.map(p=>`<div class="metric"><label>Pump ${p.id} Added</label><strong id="finalP${p.id}">0.00</strong><small> g</small></div>`).join('');
+  $('calPumpButtons').innerHTML=pumps.map(p=>`<button id="calPump${p.id}" onclick="selectCalPump(${p.id})">Pump ${p.id}</button>`).join('');
+  $('calGrid').innerHTML=pumps.map(p=>`<div class="metric"><label>Pump ${p.id}</label><strong id="p${p.id}CalText">700</strong><small> steps/g</small></div>`).join('');
+  $('preRunChecklist').innerHTML = `
+    <div class="check"><span class="box">✓</span><span>Beaker on scale</span></div>
+    <div class="check"><span class="box">✓</span><span>Scale tared</span></div>
+  ` + pumps.map(p => `<div class="check"><span class="box">✓</span><span>Pump ${p.id} line primed</span></div>`).join('');
+  pumps.forEach(p=>{$('target'+p.id).addEventListener('input',readTargets)});
+  $('recipeNameInput').addEventListener('input', (e) => { recipeName = e.target.value; });
+  $('recipeDescInput').addEventListener('input', (e) => { recipeDesc = e.target.value; });
+}
+
+function readTargets(){pumps.forEach(p=>{const value=parseFloat($('target'+p.id).value);p.target=isNaN(value)?0:value});updateUI()}
+function adjustTarget(pumpId,delta){const p=pumps[pumpId-1];p.target=Math.max(0,parseFloat((p.target+delta).toFixed(2)));const input=$('target'+pumpId);if(input)input.value=p.target.toFixed(2);updateUI()}
+function startAdjusting(pumpId, direction) {
+  stopAdjusting();
+  const startTime = Date.now();
+  adjustTarget(pumpId, direction * 0.01);
+  adjustTimeout = setTimeout(() => {
+    adjustInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      let deltaVal = 0.01;
+      if (elapsed >= 8500) {
+        deltaVal = 1.0;
+      } else if (elapsed >= 5000) {
+        deltaVal = 0.1;
+      }
+      adjustTarget(pumpId, direction * deltaVal);
+    }, 75);
+  }, 400);
+}
+function stopAdjusting() {
+  if (adjustTimeout) { clearTimeout(adjustTimeout); adjustTimeout = null; }
+  if (adjustInterval) { clearInterval(adjustInterval); adjustInterval = null; }
+}
+function syncProfileButtons(){
+  pumps.forEach(p=>{
+    const btn = $('viscBtn'+p.id);
+    if(btn){
+      btn.className = 'visc-btn ' + (p.high ? 'high' : 'low');
+      btn.textContent = p.high ? 'High' : 'Low';
+    }
+  });
+}
+async function setProfile(pumpId,high){const p=pumps[pumpId-1];p.high=high;syncProfileButtons();updateUI();await send((high?'H':'L')+pumpId);log('Pump '+pumpId+' profile set to '+profileText(p),'tx')}
+async function toggleProfile(pumpId){
+  const p = pumps[pumpId-1];
+  p.high = !p.high;
+  syncProfileButtons();
+  updateUI();
+  await send((p.high?'H':'L')+pumpId);
+  log('Pump '+pumpId+' profile set to '+profileText(p),'tx');
+}
+function selectCalPump(pumpId){calPump=pumpId;pumps.forEach(p=>$('calPump'+p.id).classList.toggle('on',p.id===pumpId));$('calCmdLabel').textContent='C'+pumpId;updateUI()}
+let fanActive=false;
+function setFanState(on){fanActive=on;const btn=$('btnFan');if(btn){btn.classList.toggle('on',on);btn.textContent='FAN: '+(on?'ON':'OFF')}}
+async function toggleFan(){if(demo){setFanState(!fanActive);log('Simulator: DC Fan toggled to '+(fanActive?'ON':'OFF'),'sys')}else{await send(fanActive?'FAN OFF':'FAN ON')}}
+
+let mixerActive=false;
+function setMixerState(on){mixerActive=on;const btn=$('btnMixer');if(btn){btn.classList.toggle('on',on);btn.textContent='MIXER: '+(on?'ON':'OFF')}}
+async function toggleMixer(){if(demo){setMixerState(!mixerActive);log('Simulator: Mixer toggled to '+(mixerActive?'ON':'OFF'),'sys')}else{await send(mixerActive?'MIX STOP':'MIX START')}}
+
+async function send(cmd){if(demo)return;if(writer&&connected){try{await writer.write(cmd+'\n');log('TX >> '+cmd,'tx')}catch(e){log('TX failed: '+e.message,'err')}}}
+async function connect(){if(connected){disconnect();return}try{log('Requesting USB serial access at 9600 baud...');port=await navigator.serial.requestPort();await port.open({baudRate:9600});const enc=new TextEncoderStream();enc.readable.pipeTo(port.writable);writer=enc.writable.getWriter();connected=true;demo=false;$('btnConnect').textContent='DISCONNECT';$('connText').textContent='ONLINE';$('connDot').classList.add('ok');log('Connected to controller.','sys');readLoop()}catch(e){log('Serial connection unavailable: '+e.message,'err');connected=false;demo=true}}
+function disconnect(){try{if(writer){writer.releaseLock();writer=null}if(port){port.close();port=null}}catch(e){}connected=false;demo=true;$('btnConnect').textContent='CONNECT';$('connText').textContent='SIMULATOR';$('connDot').classList.remove('ok');log('Disconnected. Simulator mode restored.','sys')}
+async function readLoop(){while(port&&port.readable&&connected){const reader=port.readable.getReader();const dec=new TextDecoder();let buf='';try{while(connected){const {value,done}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});let lines=buf.split('\n');buf=lines.pop();for(const raw of lines){const line=raw.trim();if(line)handleLine(line)}}}catch(e){log('Read error: '+e.message,'err');disconnect()}finally{reader.releaseLock()}}}
+
+function handleLine(line){
+  if(line.startsWith('TELEMETRY:')){const parts=line.replace('TELEMETRY:','').split(',');const w=parseFloat(parts[0]);const st=parseInt(parts[1]);if(!isNaN(w)&&!isNaN(st))updateTelemetry(w,st);return}
+  log('RX << '+line,'sys');
+  if(line.includes('DC Fan: ON')){setFanState(true)}
+  if(line.includes('DC Fan: OFF')){setFanState(false)}
+  if(line.includes('Mixer: Starting continuous')){setMixerState(true)}
+  if(line.includes('Mixer: Fully stopped') || line.includes('Mixer: Decelerating to stop')){setMixerState(false)}
+  const start=line.match(/Starting Pump\s+(\d)\s+Dispense/i);
+  const done=line.match(/Pump\s+(\d)\s+done/i);
+  const mode=line.match(/Pump\s+(\d)\s+Viscosity Mode:\s+(HIGH|LOW)/i);
+  if(line.includes('Starting Sequential Dispense')){sequence='running';go('Run')}
+  if(start){const id=parseInt(start[1]);startPumpTracking(id)}
+  if(done){const id=parseInt(done[1]);finishPumpTracking(id)}
+  if(line.includes('Entire multi-pump dispensing sequence completed')){sequence='done';activePump=0;go('Complete')}
+  if(mode){const p=pumps[parseInt(mode[1])-1];p.high=mode[2].toUpperCase()==='HIGH';syncProfileButtons()}
+  if(line.includes('SCALE TIMEOUT')||line.includes('ERROR'))triggerFault(line);
+  if(line.includes('Calibration Successful'))log('Calibration value saved by controller.','sys');
+  updateUI();
+}
+function startPumpTracking(id){const p=pumps[id-1];activePump=id;sequence='pump'+id;p.start=currentWeight;p.status='running';pumps.forEach(other=>{if(other.id>id&&other.status!=='complete')other.status='waiting'});go('Run')}
+function finishPumpTracking(id){const p=pumps[id-1];p.final=currentWeight-p.start;p.delivered=p.final;p.status='complete';activePump=0;sequence='between'}
+function updateTelemetry(w,st){currentWeight=w;dispenseState=st;if(activePump){const p=pumps[activePump-1];p.delivered=Math.max(0,currentWeight-p.start)}if(st===D.ERROR)triggerFault('Controller reported dispense error.');updateUI()}
+
+async function startRun(){
+  readTargets();
+  const valid=pumps.every(p=>p.target>=0);
+  if(!valid||activeCount()===0){alert('Pump targets must be greater than 0 g, or exactly 0 g to skip. At least one pump must run.');return}
+  resetRun(false);go('Run');
+  if(demo){startSim();return}
+  
+  clearRunTimeouts();
+  let delay = 0;
+  for(let i=0;i<pumps.length;i++){
+    const cmd = (pumps[i].high ? 'H' : 'L') + pumps[i].id;
+    const t = setTimeout(()=>send(cmd), delay);
+    runTimeouts.push(t);
+    delay += 350;
+  }
+  for(let i=0;i<pumps.length;i++){
+    const targetVal = pumps[i].target;
+    const t = setTimeout(()=>send(fmt(targetVal)), delay);
+    runTimeouts.push(t);
+    delay += 350;
+  }
+  log('Viscosity profiles and target commands queued for pumps 1 through ' + PUMP_COUNT + '.','tx');
+}
+function resetRun(full=true){clearRunTimeouts();stopSim();dispenseState=0;activePump=0;sequence='ready';nextSimPump=1;pumps.forEach(p=>{p.status='waiting';p.delivered=0;p.final=0;p.start=0});if(full)currentWeight=0;updateUI()}
+function tare(){currentWeight=0;log('Scale tare requested.','tx');if(demo)updateTelemetry(0,0);else send('T')}
+async function runCalibration(){log('Starting calibration for Pump '+calPump+'.','tx');if(demo){dispenseState=D.BULK;activePump=calPump;setTimeout(()=>{dispenseState=D.IDLE;activePump=0;currentWeight+=1.25;updateUI();log('Simulator calibration dispense complete. Enter measured mass.','sys')},1200)}else await send('C'+calPump)}
+async function submitCalibration(){const v=parseFloat($('calMass').value);if(!v||v<=0.02){alert('Enter measured mass greater than 0.02 g.');return}const p=pumps[calPump-1];const steps=(10000/16)/v;if(p.high)p.calHigh=steps;else p.calLow=steps;log('Submitting calibration mass '+fmt(v,3)+' g for Pump '+calPump+'.','tx');if(demo){log('Simulator calculated '+fmt(steps,2)+' steps/g.','sys');dispenseState=D.IDLE;activePump=0}else await send(fmt(v,3));updateUI()}
+function triggerFault(text){fault=true;$('faultText').textContent=text||'Pump motion has been halted. Confirm the system is safe before clearing.';$('faultOverlay').classList.add('active');sequence='fault';pumps.forEach(p=>{if(p.status==='running')p.status='error'});log('FAULT: '+$('faultText').textContent,'err');updateUI()}
+function clearFault(){fault=false;$('faultOverlay').classList.remove('active');dispenseState=D.IDLE;activePump=0;sequence='ready';pumps.forEach(p=>{if(p.status==='error')p.status='waiting'});updateUI()}
+async function estop(){clearRunTimeouts();if(demo){triggerFault('Emergency stop pressed. Simulator pump motion halted.');setMixerState(false);stopSim()}else{await send('S');triggerFault('Emergency stop command sent. Pump motion halted.')}}
+
+function nextRunnablePump(startId){for(let id=startId;id<=PUMP_COUNT;id++){if(pumps[id-1].target>0)return id}return 0}
+function startSim(){stopSim();currentWeight=0;pumps.forEach(p=>{p.start=0;p.delivered=0;p.final=0;p.status=p.target>0?'waiting':'complete'});nextSimPump=nextRunnablePump(1);if(!nextSimPump){sequence='done';go('Complete');return}simStartPump(nextSimPump);simTimer=setInterval(simTick,100)}
+function stopSim(){if(simTimer){clearInterval(simTimer);simTimer=null}}
+function simStartPump(id){const p=pumps[id-1];activePump=id;sequence='pump'+id;p.start=currentWeight;p.status='running';dispenseState=D.BULK;simPhaseTimer=Date.now();log('Simulator: Pump '+id+' started.','sys')}
+
+function simTick(){
+  if(fault)return;
+  if(sequence==='between'){
+    if(Date.now()-simWaitStart>=1200){
+      simStartPump(nextSimPump);
+    }
+  }
+  const p=pumps[activePump-1];
+  if(p){
+    simulatePump(p,()=>{
+      p.final=p.delivered;
+      p.status='complete';
+      const next=nextRunnablePump(activePump+1);
+      if(next){
+        activePump=0;
+        sequence='between';
+        dispenseState=D.IDLE;
+        simWaitStart=Date.now();
+        nextSimPump=next;
+        log('Simulator: waiting before Pump '+next+'.','sys');
+      }else{
+        activePump=0;
+        sequence='done';
+        dispenseState=D.COMPLETE;
+        log('Simulator: ' + PUMP_COUNT + '-pump sequence complete.','sys');
+        stopSim();
+        go('Complete');
+      }
+    });
+  }
+  updateTelemetry(currentWeight+(Math.random()-.5)*0.003,dispenseState);
+}
+
+function simulatePump(p,done){const elapsed=Date.now()-simPhaseTimer;if(dispenseState===D.BULK){currentWeight+=0.11+(Math.random()-.5)*0.01;if((currentWeight-p.start)>=p.target*.85){dispenseState=D.SETTLE_BULK;simPhaseTimer=Date.now()}}else if(dispenseState===D.SETTLE_BULK){if(elapsed>700){dispenseState=D.TRIM;simPhaseTimer=Date.now()}}else if(dispenseState===D.TRIM){const remaining=p.target-(currentWeight-p.start);currentWeight+=Math.min(Math.max(remaining*.35,0.012),0.08);if((p.target-(currentWeight-p.start))<=0.04||elapsed>500){dispenseState=D.SETTLE_TRIM;simPhaseTimer=Date.now()}}else if(dispenseState===D.SETTLE_TRIM){const remaining=p.target-(currentWeight-p.start);if(elapsed>600){if(remaining<=0.04){dispenseState=D.SUCK;simPhaseTimer=Date.now()}else{dispenseState=D.TRIM;simPhaseTimer=Date.now()}}}else if(dispenseState===D.SUCK){if(elapsed>300){dispenseState=D.RETRACT;simPhaseTimer=Date.now()}}else if(dispenseState===D.RETRACT){if(elapsed>500){dispenseState=D.COMPLETE;p.delivered=currentWeight-p.start;done()}}}
+
+function updateUI(){
+  pumps.forEach(p=>{const input=$('target'+p.id);if(input){const value=parseFloat(input.value);if(!isNaN(value))p.target=value}});
+  const phase=phaseMap[dispenseState]||['UNKNOWN',''];const total=totalTarget();const delivered=totalDelivered();const overallPct=pct(delivered,total);
+  $('homeWeight').textContent=fmt(currentWeight);$('setupWeight').textContent=fmt(currentWeight);$('runWeight').textContent=fmt(currentWeight);$('homeTotal').textContent=fmt(total);$('recipeTotal').textContent=fmt(total);$('activeCount').textContent=activeCount();$('recipeTol').textContent=fmt(Math.max(0.01,total*0.001));$('homeState').textContent=sequence==='ready'?'Ready':sequence==='done'?'Done':sequence==='between'?'Settling':sequence==='fault'?'Fault':'Running';$('homePump').textContent=activePump?('Pump '+activePump):'None';
+  $('runPhase').firstChild.nodeValue=phase[0];$('runPhaseSub').textContent=phase[1];$('runPump').textContent=activePump?('Pump '+activePump):'None';$('runOverallPct').textContent=fmt(overallPct,0)+'%';$('overallBar').style.width=overallPct+'%';$('finalTotal').textContent=fmt(totalFinal()||delivered);
+  pumps.forEach(p=>{$('homeP'+p.id+'Target').textContent=fmt(p.target)+' g';$('homeP'+p.id+'Profile').textContent=profileText(p);$('homeP'+p.id+'Status').textContent=p.status;const rs=$('recipeP'+p.id+'Status');if(rs)rs.textContent=p.status;const meta=$('p'+p.id+'RunMeta');if(meta)meta.textContent=fmt(p.delivered)+' / '+fmt(p.target)+' g';const bar=$('p'+p.id+'Bar');if(bar)bar.style.width=pct(p.delivered,p.target)+'%';const card=$('pump'+p.id+'Card');if(card)card.classList.toggle('active',activePump===p.id);const tag=$('p'+p.id+'Tag');if(tag)setTag(tag,p.status);const final=$('finalP'+p.id);if(final)final.textContent=fmt(p.final||p.delivered);const cal=$('p'+p.id+'CalText');if(cal)cal.textContent=fmt(p.high?p.calHigh:p.calLow,0)});
+  $('footerInfo').textContent=(demo?'Simulator':'Online')+' • '+(activePump?('Pump '+activePump+' • '+phase[0]):(sequence==='between'?'Settling before next pump':sequence==='done'?'Sequence complete':'Ready for ' + PUMP_COUNT + '-pump sequence'));
+}
+
+function isFullscreen(){return !!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement)}
+async function toggleFullscreen(){try{if(!isFullscreen()){if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else if(document.documentElement.webkitRequestFullscreen)await document.documentElement.webkitRequestFullscreen();}else{if(document.exitFullscreen)await document.exitFullscreen();else if(document.webkitExitFullscreen)await document.webkitExitFullscreen();}}catch(e){log('Fullscreen toggle failed: '+e.message,'err')}}
+function fullscreenChanged(){const btn=$('btnFullscreen');if(btn)btn.textContent=isFullscreen()?'EXIT FULLSCREEN':'FULLSCREEN'}
+
+buildStaticUi();syncProfileButtons();selectCalPump(1);setupDragAndDrop();getRecipes();
+$('btnConnect').onclick=connect;$('btnStartRun').onclick=startRun;$('btnTare').onclick=tare;$('btnRunCal').onclick=runCalibration;$('btnSubmitCal').onclick=submitCalibration;$('btnEstop').onclick=estop;$('btnAbort').onclick=estop;$('btnClearFault').onclick=clearFault;$('btnClearLog').onclick=()=>{$('consoleLog').innerHTML='<div class="sys">Console cleared.</div>'};
+window.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();estop()}});
+window.addEventListener('fullscreenchange',fullscreenChanged);
+fullscreenChanged();
+updateUI();
 </script>
 </body>
 </html>

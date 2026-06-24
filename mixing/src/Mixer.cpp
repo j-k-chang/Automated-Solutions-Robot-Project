@@ -7,10 +7,10 @@ Mixer::Mixer(int stepPin, int dirPin, int enPin)
       _stepper(AccelStepper::DRIVER, stepPin, dirPin),
       _driver(&Serial4, 0.11f, 0b00), // Hardware Serial4 (Pins 14/15), R_sense = 0.11 Ohm, Address = 0
       _currentState(STATE_IDLE),
-      _targetRPM(400.0f),
+      _targetRPM(200.0f),
       _acceleration(STANDARD_ACCEL_STEPS_SEC2),
       _isAutoRamping(false),
-      _autoRampTargetRPM(400.0f),
+      _autoRampTargetRPM(200.0f),
       _autoRampStepRPM(50.0f),
       _autoRampIntervalMs(3000),
       _lastRampTimeMs(0) {}

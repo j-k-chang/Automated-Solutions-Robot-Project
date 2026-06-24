@@ -25,7 +25,7 @@ public:
     // --- Control Commands ---
     void startContinuous();
     void stop();
-    void startAutoRampTest(float startRPM = 100.0f, float targetRPM = 400.0f, float stepRPM = 25.0f, unsigned long intervalMs = 2000);
+    void startAutoRampTest(float startRPM = 100.0f, float targetRPM = 200.0f, float stepRPM = 25.0f, unsigned long intervalMs = 2000);
 
     // --- Settings & Status ---
     MixerState getState() const { return _currentState; }
@@ -70,8 +70,8 @@ private:
 
     // Constants
     static constexpr float STEPS_PER_REV = 1600.0f; // 1/8 microstepping on 1.8 deg motor
-    static constexpr float STANDARD_SPEED_STEPS_SEC = 10666.67f; // 400 RPM (at 1600 steps/rev)
-    static constexpr float STANDARD_ACCEL_STEPS_SEC2 = 1523.81f;  // Gradual 7-second ramp-up to 400 RPM to prevent stalling
+    static constexpr float STANDARD_SPEED_STEPS_SEC = 5333.33f; // 200 RPM (at 1600 steps/rev)
+    static constexpr float STANDARD_ACCEL_STEPS_SEC2 = 761.90f;  // Gradual 7-second ramp-up to 200 RPM to prevent stalling
 };
 
 #endif // MIXER_H
