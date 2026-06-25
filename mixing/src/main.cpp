@@ -2,8 +2,8 @@
 #include "Mixer.h"
 
 // --- Global Mixer Instance ---
-// Standard pins: STEP = 10, DIR = 11, EN = 12
-Mixer mixer(10, 11, 12);
+// Standard pins: STEP = 52, DIR = 48, EN = 50
+Mixer mixer(52, 48, 50);
 
 // Serial command parsing buffers
 String inputBuffer = "";

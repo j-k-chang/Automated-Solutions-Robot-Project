@@ -16,8 +16,8 @@ public:
     };
 
     // --- Constructor ---
-    // Pins: Step = 10, Dir = 11, Enable = 12
-    Mixer(int stepPin = 10, int dirPin = 11, int enPin = 12);
+    // Pins: Step = 52, Dir = 48, Enable = 50
+    Mixer(int stepPin = 52, int dirPin = 48, int enPin = 50);
 
     // --- Lifecycle Methods ---
     void begin();

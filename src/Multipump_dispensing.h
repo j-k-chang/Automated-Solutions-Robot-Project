@@ -12,19 +12,19 @@
 namespace MultiPump {
 
 // --- Shared Global Pins (Parallel Wiring) ---
-const int SHARED_DIR = 3;   ///< Shared Direction pin for both stepper drivers
-const int SHARED_EN  = 4;   ///< Shared Enable pin for both stepper drivers (active LOW)
-const int SHARED_MS1 = 5;   ///< Shared Microstepping configuration pin 1
-const int SHARED_MS2 = 6;   ///< Shared Microstepping configuration pin 2
+const int SHARED_DIR = 27;  ///< Shared Direction pin for both stepper drivers
+const int SHARED_EN  = 29;  ///< Shared Enable pin for both stepper drivers (active LOW)
+const int SHARED_MS1 = 25;  ///< Shared Microstepping configuration pin 1
+const int SHARED_MS2 = 23;  ///< Shared Microstepping configuration pin 2
 
 // --- Pump Specific STEP Pins ---
-const int PUMP1_STEP = 2;   ///< Separate Step pin for Pump 1 stepper motor driver
-const int PUMP2_STEP = 7;   ///< Separate Step pin for Pump 2 stepper motor driver
-const int PUMP3_STEP = 8;   ///< Separate Step pin for Pump 3 stepper motor driver
-const int PUMP4_STEP = 9;   ///< Separate Step pin for Pump 4 stepper motor driver
-const int PUMP5_STEP = 24;  ///< Separate Step pin for Pump 5 stepper motor driver
-const int PUMP6_STEP = 26;  ///< Separate Step pin for Pump 6 stepper motor driver
-const int PUMP7_STEP = 28;  ///< Separate Step pin for Pump 7 stepper motor driver
+const int PUMP1_STEP = 53;  ///< Separate Step pin for Pump 1 stepper motor driver
+const int PUMP2_STEP = 51;  ///< Separate Step pin for Pump 2 stepper motor driver
+const int PUMP3_STEP = 49;  ///< Separate Step pin for Pump 3 stepper motor driver
+const int PUMP4_STEP = 47;  ///< Separate Step pin for Pump 4 stepper motor driver
+const int PUMP5_STEP = 45;  ///< Separate Step pin for Pump 5 stepper motor driver
+const int PUMP6_STEP = 43;  ///< Separate Step pin for Pump 6 stepper motor driver
+const int PUMP7_STEP = 41;  ///< Separate Step pin for Pump 7 stepper motor driver
 const int FAN_PIN    = 22;  ///< Relay control pin for the DC fan
 
 const int PUMP_COUNT = 7;   ///< Total number of pumps on the shared bus

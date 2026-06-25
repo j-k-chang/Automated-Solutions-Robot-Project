@@ -22,9 +22,9 @@ Connect your components according to the table below. Make sure all power is off
 
 | Arduino Giga Pin | TMC2209 Driver Pin | Function / Description |
 | :--- | :--- | :--- |
-| **`10`** | `STEP` | Step pulse input (creates rotation) |
-| **`11`** | `DIR` | Direction input (determines direction) |
-| **`12`** | `EN` | Enable input (Active **LOW**. Disables motor to keep cool when idle) |
+| **`52`** | `STEP` | Step pulse input (creates rotation) |
+| **`48`** | `DIR` | Direction input (determines direction) |
+| **`50`** | `EN` | Enable input (Active **LOW**. Disables motor to keep cool when idle) |
 | **`3.3V`** | `VIO` | Logic Power supply (Uses 3.3V Logic) |
 | **`GND`** | `GND` | Logic Ground reference |
 

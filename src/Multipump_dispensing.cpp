@@ -3,7 +3,7 @@
 
 namespace MultiPump {
 
-Mixer mixer(10, 11, 12);
+Mixer mixer(52, 48, 50);
 
 // --- Dispensing Configuration ---
 const float BULK_SPEED = 10000.0f;

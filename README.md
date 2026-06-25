@@ -8,14 +8,17 @@ The firmware dispenses by mass using live scale feedback over `Serial1`. It runs
 
 | Arduino Giga Pin | Function |
 | :--- | :--- |
-| `2` | Pump 1 `STEP` |
-| `7` | Pump 2 `STEP` |
-| `8` | Pump 3 `STEP` |
-| `9` | Pump 4 `STEP` |
-| `3` | Shared `DIR` |
-| `4` | Shared `EN`, active low |
-| `5` | Shared `MS1` |
-| `6` | Shared `MS2` |
+| `53` | Pump 1 `STEP` |
+| `51` | Pump 2 `STEP` |
+| `49` | Pump 3 `STEP` |
+| `47` | Pump 4 `STEP` |
+| `45` | Pump 5 `STEP` |
+| `43` | Pump 6 `STEP` |
+| `41` | Pump 7 `STEP` |
+| `27` | Shared `DIR` |
+| `29` | Shared `EN`, active low |
+| `25` | Shared `MS1` |
+| `23` | Shared `MS2` |
 | `Serial1` | Scale serial input at 9600 baud |
 | USB `Serial` | Host/dashboard command interface at 9600 baud |
 
