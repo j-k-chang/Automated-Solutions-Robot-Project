@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <AccelStepper.h>
+#include "config.h"
 
 /**
  * @namespace MultiPump
@@ -17,17 +18,8 @@ const int SHARED_EN  = 29;  ///< Shared Enable pin for both stepper drivers (act
 const int SHARED_MS1 = 25;  ///< Shared Microstepping configuration pin 1
 const int SHARED_MS2 = 23;  ///< Shared Microstepping configuration pin 2
 
-// --- Pump Specific STEP Pins ---
-const int PUMP1_STEP = 53;  ///< Separate Step pin for Pump 1 stepper motor driver
-const int PUMP2_STEP = 51;  ///< Separate Step pin for Pump 2 stepper motor driver
-const int PUMP3_STEP = 49;  ///< Separate Step pin for Pump 3 stepper motor driver
-const int PUMP4_STEP = 47;  ///< Separate Step pin for Pump 4 stepper motor driver
-const int PUMP5_STEP = 45;  ///< Separate Step pin for Pump 5 stepper motor driver
-const int PUMP6_STEP = 43;  ///< Separate Step pin for Pump 6 stepper motor driver
-const int PUMP7_STEP = 41;  ///< Separate Step pin for Pump 7 stepper motor driver
+// --- DC Fan Relay Pin ---
 const int FAN_PIN    = 22;  ///< Relay control pin for the DC fan
-
-const int PUMP_COUNT = 7;   ///< Total number of pumps on the shared bus
 
 // --- Communication Settings ---
 const long SCALE_BAUD = 9600; ///< Baud rate for serial communication with the digital scale (Serial1)
@@ -67,10 +59,13 @@ enum DispenseState {
 enum SequenceState {
   SEQ_PROMPT_TARGET,
   SEQ_DISPENSE_ACTIVE,
-  SEQ_SETTLE_BETWEEN,   ///< Wait for scale to settle between pump cycles
+  SEQ_MIXING_BETWEEN,   ///< Run mixer between pump cycles
+  SEQ_SETTLE_AFTER_MIX, ///< Wait for liquid to settle after mixer stops
+  SEQ_FINAL_MIXING,     ///< Run mixer at the end of the recipe
   SEQ_DONE,
   SEQ_CALIBRATE_RUN,
-  SEQ_CALIBRATE_WAIT_INPUT
+  SEQ_CALIBRATE_WAIT_INPUT,
+  SEQ_MAINTENANCE_RUN   ///< Active priming, purging, or flushing sequence
 };
 
 /**

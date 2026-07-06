@@ -1,6 +1,6 @@
-# Four-Pump Gravimetric Dispensing Controller
+# Seven-Pump Gravimetric Dispensing Controller
 
-This project controls a four-pump liquid dispensing system on an Arduino Giga R1 WiFi. Each pump uses a TMC2209 stepper driver with a dedicated step pin and shared direction, enable, and microstepping pins.
+This project controls a seven-pump liquid dispensing system (expandable up to 16 channels) on an Arduino Giga R1 WiFi. Each pump uses a TMC2209 stepper driver with a dedicated step pin and shared direction, enable, and microstepping pins.
 
 The firmware dispenses by mass using live scale feedback over `Serial1`. It runs each pump sequentially, waits for the scale to settle between pumps, and supports calibration plus low/high viscosity profiles.
 

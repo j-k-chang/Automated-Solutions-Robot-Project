@@ -27,8 +27,20 @@ def run_test():
     for idx, p in enumerate(ports):
         print(f"[{idx}] {p}")
         
-    port_idx = input("Select Port index (default 0): ").strip()
-    port = ports[int(port_idx)] if port_idx else ports[0]
+    while True:
+        port_idx = input("Select Port index (default 0): ").strip()
+        if not port_idx:
+            port = ports[0]
+            break
+        try:
+            idx = int(port_idx)
+            if 0 <= idx < len(ports):
+                port = ports[idx]
+                break
+            else:
+                print(f"Index out of range. Must be between 0 and {len(ports) - 1}.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
     
     print(f"\nConnecting to {port} at 9600 Baud...")
     try:
