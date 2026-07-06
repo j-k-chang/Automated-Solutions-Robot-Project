@@ -16,12 +16,13 @@
 #define PUMP6_STEP                43
 #define PUMP7_STEP                41
 
-// Placeholder pins for extra channels (8-16) - set to -1 or duplicate pins
-#define PUMP8_STEP                -1
-#define PUMP9_STEP                -1
-#define PUMP10_STEP               -1
-#define PUMP11_STEP               -1
-#define PUMP12_STEP               -1
+#define PUMP8_STEP                39
+#define PUMP9_STEP                37
+#define PUMP10_STEP               35
+#define PUMP11_STEP               33
+#define PUMP12_STEP               31
+
+// Placeholder pins for extra channels (13-16) - set to -1
 #define PUMP13_STEP               -1
 #define PUMP14_STEP               -1
 #define PUMP15_STEP               -1
