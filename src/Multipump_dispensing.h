@@ -28,7 +28,6 @@ const long USB_BAUD   = 9600; ///< Baud rate for USB serial communication with t
 // --- Dispensing Configuration ---
 extern const float BULK_SPEED;     ///< High speed for volumetric bulk fill
 extern const float TRICKLE_SPEED;  ///< Speed for fine micro-pulsing
-extern const float CALIBRATE_SPEED;///< Speed during calibration run
 
 // --- Retraction Constants ---
 extern const long retractStepsWater;    ///< Retraction steps for Water (1/64)
@@ -64,7 +63,9 @@ enum SequenceState {
   SEQ_FINAL_MIXING,     ///< Run mixer at the end of the recipe
   SEQ_DONE,
   SEQ_CALIBRATE_RUN,
+  SEQ_CALIBRATE_RETRACT,
   SEQ_CALIBRATE_WAIT_INPUT,
+  SEQ_DROP_CAL,
   SEQ_MAINTENANCE_RUN   ///< Active priming, purging, or flushing sequence
 };
 

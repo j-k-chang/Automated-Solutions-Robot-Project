@@ -1,201 +1,624 @@
-import serial
-import time
+#!/usr/bin/env python3
+"""
+Multi-pump gravimetric accuracy tests.
+
+Examples:
+  python accuracy_test.py --mode all-pumps --target 10 --tol 0.01
+  python accuracy_test.py --mode sweep --pump 1
+  python accuracy_test.py --mode multi-sweep --pumps 1,2,4,6 --targets 10,20,50 --tol 0.01
+
+Acceptance (plan Phase 6): |error| <= 0.01g at 10g for pumps 1-7.
+"""
+
+from __future__ import annotations
+
+import argparse
 import csv
-import sys
 import re
+import sys
+import time
+from typing import Iterable, List, Optional, Sequence
 
-# Sweep targets from 10g to 100g for accuracy check
-TEST_TARGETS = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
-DUMMY_TARGETS = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]  # Pump 2-7 targets, 0.0g skips each pump
+PUMP_COUNT = 7
+DEFAULT_TOL_G = 0.01
+DEFAULT_SWEEP_TARGETS = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
 
-def find_serial_ports():
+
+def find_serial_ports() -> List[str]:
     import serial.tools.list_ports
-    ports = list(serial.tools.list_ports.comports())
-    return [p.device for p in ports]
+    return [p.device for p in serial.tools.list_ports.comports()]
 
-def run_test():
-    print("==================================================")
-    print("Multi-Pump Accuracy Test Sweep (Pump 1)")
-    print("==================================================")
-    
+
+def select_port(preferred: Optional[str] = None) -> str:
     ports = find_serial_ports()
     if not ports:
         print("No active COM ports found. Please connect your Arduino Board.")
         sys.exit(1)
-        
+    if preferred:
+        if preferred in ports:
+            return preferred
+        print(f"Preferred port {preferred} not found; available: {ports}")
+        sys.exit(1)
+
     print("Available COM Ports:")
     for idx, p in enumerate(ports):
         print(f"[{idx}] {p}")
-        
+
     while True:
         port_idx = input("Select Port index (default 0): ").strip()
         if not port_idx:
-            port = ports[0]
-            break
+            return ports[0]
         try:
             idx = int(port_idx)
             if 0 <= idx < len(ports):
-                port = ports[idx]
-                break
-            else:
-                print(f"Index out of range. Must be between 0 and {len(ports) - 1}.")
+                return ports[idx]
+            print(f"Index out of range. Must be between 0 and {len(ports) - 1}.")
         except ValueError:
             print("Invalid input. Please enter a valid number.")
-    
+
+
+def open_serial(port: str):
+    import serial
     print(f"\nConnecting to {port} at 9600 Baud...")
     try:
         ser = serial.Serial(port, 9600, timeout=1.0)
-        time.sleep(3)  # Wait for Arduino boot and reset
+        time.sleep(3)
     except Exception as e:
         print(f"Error opening serial port: {e}")
         sys.exit(1)
-        
-    print("\nStarting test sweep...")
-    results = []
-    
-    # Read any leftover buffer data
+    return ser
+
+
+def handshake(ser) -> None:
     ser.reset_input_buffer()
-    
-    # Wait for the first telemetry packet to ensure communication is online
     print("Waiting for serial telemetry handshake...")
     start_time = time.time()
     while True:
-        line = ser.readline().decode('utf-8', errors='ignore').strip()
+        line = ser.readline().decode("utf-8", errors="ignore").strip()
         if "TELEMETRY:" in line:
             print(f"Handshake OK: {line}")
-            break
+            return
         if time.time() - start_time > 5.0:
             print("Warning: Telemetry handshake timed out, trying to proceed anyway...")
+            return
+
+
+def readline_text(ser) -> str:
+    return ser.readline().decode("utf-8", errors="ignore").strip()
+
+
+def wait_for(ser, predicates: Sequence[str], timeout_s: float = 600.0) -> str:
+    """Read until any predicate substring appears. Returns matching line."""
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        line = readline_text(ser)
+        if not line:
+            continue
+        print(f"[Serial] {line}")
+        if "!!! ERROR:" in line or "FAULT" in line:
+            raise RuntimeError(f"Controller fault while waiting: {line}")
+        for pred in predicates:
+            if pred in line:
+                return line
+    raise TimeoutError(f"Timed out waiting for any of: {predicates}")
+
+
+def send_line(ser, text: str) -> None:
+    ser.write(f"{text}\n".encode())
+
+
+def tare_scale(ser, settle_s: float = 1.0) -> None:
+    """
+    Software-tare the controller scale (USB command 'T').
+    Waits briefly so a fresh cup on the scale is stable, then tares and
+    confirms telemetry reports near 0 g.
+    """
+    print(f"Waiting {settle_s:.1f}s for scale settle before tare...")
+    time.sleep(settle_s)
+    # Drain stale lines so wait_for sees the tare ack.
+    ser.reset_input_buffer()
+    print("Sending scale tare (T)...")
+    send_line(ser, "T")
+    wait_for(ser, ["Scale Software Tared."], timeout_s=10.0)
+
+    # Confirm post-tare weight is near zero (read a few telemetry samples).
+    deadline = time.time() + 3.0
+    last = None
+    while time.time() < deadline:
+        line = readline_text(ser)
+        if not line:
+            continue
+        if line.startswith("TELEMETRY:"):
+            try:
+                last = float(line.split(":", 1)[1].split(",")[0])
+            except (IndexError, ValueError):
+                continue
+            if abs(last) <= 0.05:
+                print(f"Tare OK (telemetry {last:.2f}g).")
+                return
+    if last is None:
+        print("Warning: No telemetry after tare; proceeding anyway.")
+    else:
+        print(
+            f"Warning: Post-tare weight is {last:.2f}g (expected ~0). "
+            "Empty/replace the cup and consider re-running."
+        )
+
+
+def parse_pump_list(text: str) -> List[int]:
+    pumps: List[int] = []
+    for part in text.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        n = int(part)
+        if n < 1 or n > PUMP_COUNT:
+            raise ValueError(f"Pump {n} out of range 1-{PUMP_COUNT}")
+        pumps.append(n)
+    if not pumps:
+        raise ValueError("No pumps specified")
+    return pumps
+
+
+def parse_targets(text: Optional[str]) -> List[float]:
+    if not text:
+        return list(DEFAULT_SWEEP_TARGETS)
+    return [float(x.strip()) for x in text.split(",") if x.strip()]
+
+
+def send_recipe_targets(ser, targets_by_pump: Sequence[float]) -> None:
+    """targets_by_pump is length PUMP_COUNT, grams (0 skips)."""
+    assert len(targets_by_pump) == PUMP_COUNT
+    for pump_id, target in enumerate(targets_by_pump, start=1):
+        time.sleep(0.35)
+        print(f"Sending Pump {pump_id} target: {target:.2f}g")
+        send_line(ser, f"{target:.2f}")
+        wait_for(ser, [f"Pump {pump_id} Target set to:"], timeout_s=30.0)
+
+
+def collect_dispense_results(ser, expected_pumps: Iterable[int]) -> dict:
+    """
+    Monitor until sequence completes. Return {pump_id: dispensed_g}
+    for pumps that logged 'Pump N done. Dispensed:'.
+    """
+    expected = set(expected_pumps)
+    results: dict = {}
+    print("Dispensing... monitoring output...")
+    while True:
+        line = readline_text(ser)
+        if not line:
+            continue
+        print(f"[Serial] {line}")
+        if "!!! ERROR:" in line:
+            raise RuntimeError(line)
+        m = re.search(r"Pump\s+(\d+)\s+done\.\s+Dispensed:\s*([-\d\.]+)", line)
+        if m:
+            pump_id = int(m.group(1))
+            results[pump_id] = float(m.group(2))
+        if "Entire multi-pump dispensing sequence completed successfully!" in line:
             break
-            
-    for target in TEST_TARGETS:
-        print(f"\n--- Testing Target: {target}g ---")
-        
-        # Step 1: Send Target for Pump 1
-        print(f"Sending Pump 1 target weight: {target}g")
-        ser.write(f"{target}\n".encode())
-        
-        # Wait for Pump 1 target configuration confirmation
-        print("Waiting for Pump 1 target confirmation...")
-        while True:
-            line = ser.readline().decode('utf-8', errors='ignore').strip()
-            if line:
-                print(f"[Serial] {line}")
-            if "Pump 1 Target set to:" in line:
-                break
-                
-        # Step 2: Send Target for Pumps 2-7
-        for offset, dummy_target in enumerate(DUMMY_TARGETS, start=2):
-            time.sleep(0.5)
-            print(f"Sending Pump {offset} dummy target weight: {dummy_target}g")
-            ser.write(f"{dummy_target}\n".encode())
+    missing = expected - set(results.keys())
+    if missing:
+        raise RuntimeError(f"Missing dispense results for pumps: {sorted(missing)}")
+    return results
 
-            print(f"Waiting for Pump {offset} target confirmation...")
-            while True:
-                line = ser.readline().decode('utf-8', errors='ignore').strip()
-                if line:
-                    print(f"[Serial] {line}")
-                if f"Pump {offset} Target set to:" in line:
-                    break
 
-        # Step 3: Monitor Pump 1 dispense and parse final delivered amount
-        actual_dispensed = None
-        print("Pump 1 dispensing... monitoring output...")
-        while True:
-            line = ser.readline().decode('utf-8', errors='ignore').strip()
-            if line:
-                print(f"[Serial] {line}")
-            if "Pump 1 done. Dispensed:" in line:
-                match = re.search(r"Dispensed:\s*([\d\.]+)", line)
-                if match:
-                    actual_dispensed = float(match.group(1))
-                    break
-            if "!!! ERROR: SCALE TIMEOUT WATCHDOG !!!" in line:
-                print("Error: Scale timeout watchdog triggered! Aborting test run.")
-                ser.close()
-                sys.exit(1)
-                
-        # Step 4: Wait for the whole sequence to finish
-        print("Waiting for sequence completion...")
-        while True:
-            line = ser.readline().decode('utf-8', errors='ignore').strip()
-            if line:
-                print(f"[Serial] {line}")
-            if "Entire multi-pump dispensing sequence completed successfully!" in line:
-                break
-                
-        # Calculate error stats
-        error = actual_dispensed - target
-        pct_error = (error / target) * 100.0
-        results.append({
-            'Target': target,
-            'Actual': actual_dispensed,
-            'Error': error,
-            'Error_Pct': pct_error
-        })
-        print(f"Result -> Target: {target}g | Actual: {actual_dispensed}g | Error: {error:+.3f}g ({pct_error:+.2f}%)")
-        time.sleep(2) # Brief cooldown settle before next cycle
-        
-    ser.close()
-    
-    # Save to CSV
-    csv_file = "accuracy_results.csv"
-    try:
-        with open(csv_file, mode='w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['Target (g)', 'Actual (g)', 'Error (g)', 'Error (%)'])
-            for r in results:
-                writer.writerow([r['Target'], r['Actual'], f"{r['Error']:.3f}", f"{r['Error_Pct']:.2f}"])
-        print(f"\nResults successfully saved to CSV: {csv_file}")
-    except Exception as e:
-        print(f"Error saving CSV file: {e}")
-            
-    # Generate accuracy plot
-    generate_plot(results)
-            
+def evaluate(results: List[dict], tol_g: float) -> bool:
+    ok = True
     print("\n==================================================")
-    print("Test Sweep Complete!")
-    print("==================================================")
-    print(f"{'Target (g)':<12}{'Actual (g)':<12}{'Error (g)':<12}{'Error (%)':<12}")
+    print(f"{'Pump':<6}{'Target':<10}{'Actual':<10}{'Error':<12}{'Pass':<6}")
     for r in results:
-        print(f"{r['Target']:<12.1f}{r['Actual']:<12.2f}{r['Error']:<12+.3f}{r['Error_Pct']:<12+.2f}")
+        err = r["Error"]
+        passed = abs(err) <= tol_g
+        ok = ok and passed
+        print(
+            f"{r['Pump']:<6}"
+            f"{r['Target']:<10.2f}"
+            f"{r['Actual']:<10.3f}"
+            f"{err:<+12.3f}"
+            f"{'YES' if passed else 'NO':<6}"
+        )
+    print(f"Tolerance: ±{tol_g:.3f}g  Overall: {'PASS' if ok else 'FAIL'}")
     print("==================================================")
+    return ok
 
-def generate_plot(results):
+
+def save_csv(path: str, results: List[dict]) -> None:
+    with open(path, mode="w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Pump", "Target (g)", "Actual (g)", "Error (g)", "Pass"])
+        for r in results:
+            writer.writerow(
+                [
+                    r["Pump"],
+                    r["Target"],
+                    f"{r['Actual']:.3f}",
+                    f"{r['Error']:.3f}",
+                    "YES" if abs(r["Error"]) <= r["Tol"] else "NO",
+                ]
+            )
+    print(f"Results saved to CSV: {path}")
+
+
+def generate_plot(results: List[dict], title: str) -> None:
     try:
         import matplotlib.pyplot as plt
-        
-        targets = [r['Target'] for r in results]
-        errors = [r['Error'] for r in results]
-        pct_errors = [r['Error_Pct'] for r in results]
-        
-        # Create a figure with two subplots: absolute error and percent error
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
-        
-        # Plot 1: Absolute Error
-        ax1.plot(targets, errors, marker='o', color='#1a73e8', linewidth=2, label='Measured Error')
-        ax1.axhline(0, color='red', linestyle='--', alpha=0.6)
-        ax1.fill_between(targets, -0.05, 0.05, color='#e8f0fe', alpha=0.4, label='Common Settle Tolerance (±0.05g)')
-        ax1.set_ylabel('Absolute Error (g)', fontsize=11)
-        ax1.set_title('Dispensing Accuracy Test Results (Pump 1)', fontsize=14, fontweight='bold', pad=10)
-        ax1.grid(True, linestyle=':', alpha=0.6)
-        ax1.legend(loc='upper right')
-        
-        # Plot 2: Percentage Error
-        ax2.plot(targets, pct_errors, marker='s', color='#34a853', linewidth=2, label='Measured Error %')
-        ax2.axhline(0, color='red', linestyle='--', alpha=0.6)
-        ax2.set_xlabel('Target Weight (g)', fontsize=12)
-        ax2.set_ylabel('Percentage Error (%)', fontsize=11)
-        ax2.grid(True, linestyle=':', alpha=0.6)
-        ax2.legend(loc='upper right')
-        
-        plt.tight_layout()
-        plot_file = "accuracy_plot.png"
-        plt.savefig(plot_file, dpi=300, bbox_inches='tight')
-        print(f"Plot successfully saved to: {plot_file}")
     except ImportError:
-        print("\nNote: matplotlib is not installed. To automatically generate plots from this data, run:")
-        print("      C:\\Users\\littl\\AppData\\Roaming\\uv\\python\\cpython-3.14.3-windows-x86_64-none\\python.exe -m pip install matplotlib")
+        print("\nNote: matplotlib is not installed; skipping plot.")
+        return
+
+    targets = [r["Target"] for r in results]
+    errors = [r["Error"] for r in results]
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(targets, errors, marker="o", linewidth=2, label="Measured Error")
+    ax.axhline(0, color="red", linestyle="--", alpha=0.6)
+    tol = results[0]["Tol"] if results else DEFAULT_TOL_G
+    ax.fill_between(targets, -tol, tol, color="#e8f0fe", alpha=0.5, label=f"±{tol:.3f}g")
+    ax.set_xlabel("Target Weight (g)")
+    ax.set_ylabel("Absolute Error (g)")
+    ax.set_title(title)
+    ax.grid(True, linestyle=":", alpha=0.6)
+    ax.legend(loc="best")
+    plt.tight_layout()
+    plot_file = "accuracy_plot.png"
+    plt.savefig(plot_file, dpi=300, bbox_inches="tight")
+    print(f"Plot saved to: {plot_file}")
+
+
+def run_all_pumps(ser, target_g: float, tol_g: float, do_tare: bool = True) -> List[dict]:
+    print(f"\n=== All-pumps acceptance: {target_g}g ±{tol_g}g on pumps 1-{PUMP_COUNT} ===")
+    # Skip between/final mix so pump-to-pump timing stays in the accuracy path.
+    send_line(ser, "MIX DISABLE")
+    time.sleep(0.3)
+    send_line(ser, "MIX STOP")
+    time.sleep(0.3)
+    if do_tare:
+        tare_scale(ser)
+    targets = [target_g] * PUMP_COUNT
+    send_recipe_targets(ser, targets)
+    dispensed = collect_dispense_results(ser, range(1, PUMP_COUNT + 1))
+    rows = []
+    for pump_id in range(1, PUMP_COUNT + 1):
+        actual = dispensed[pump_id]
+        rows.append(
+            {
+                "Pump": pump_id,
+                "Target": target_g,
+                "Actual": actual,
+                "Error": actual - target_g,
+                "Tol": tol_g,
+            }
+        )
+    return rows
+
+
+def run_sweep(
+    ser, pump_id: int, targets: Sequence[float], tol_g: float, do_tare: bool = True
+) -> List[dict]:
+    print(f"\n=== Sweep Pump {pump_id}: targets {list(targets)} ===")
+    rows = []
+    for target in targets:
+        print(f"\n--- Pump {pump_id} target {target}g ---")
+        if do_tare:
+            tare_scale(ser)
+        recipe = [0.0] * PUMP_COUNT
+        recipe[pump_id - 1] = float(target)
+        send_recipe_targets(ser, recipe)
+        dispensed = collect_dispense_results(ser, [pump_id])
+        actual = dispensed[pump_id]
+        rows.append(
+            {
+                "Pump": pump_id,
+                "Target": float(target),
+                "Actual": actual,
+                "Error": actual - float(target),
+                "Tol": tol_g,
+            }
+        )
+        time.sleep(2.0)
+    return rows
+
+
+def run_multi_sweep(
+    ser,
+    pumps: Sequence[int],
+    targets: Sequence[float],
+    tol_g: float,
+    do_tare: bool = True,
+) -> List[dict]:
+    rows: List[dict] = []
+    for pump_id in pumps:
+        rows.extend(run_sweep(ser, pump_id, targets, tol_g, do_tare=do_tare))
+    return rows
+
+
+def sample_stdev(values: Sequence[float]) -> float:
+    n = len(values)
+    if n < 2:
+        return 0.0
+    mean = sum(values) / n
+    return (sum((v - mean) ** 2 for v in values) / (n - 1)) ** 0.5
+
+
+def summarize_characterize(
+    samples: List[dict], target_g: float, pct_spec: float = 0.1
+) -> List[dict]:
+    """
+    Per-pump stats and min mass for relative accuracy (default 0.1% by weight).
+
+    Expanded single-shot uncertainty U = |bias| + 2*s (approx. k=2 coverage of bias+repeatability).
+    Min mass for pct_spec: M_min = U / (pct_spec/100)  so that U/M <= pct_spec/100.
+    """
+    summaries = []
+    pump_ids = sorted({int(r["Pump"]) for r in samples})
+    rel = pct_spec / 100.0
+    for pump_id in pump_ids:
+        rows = [r for r in samples if int(r["Pump"]) == pump_id]
+        errors = [float(r["Error"]) for r in rows]
+        abs_errs = [abs(e) for e in errors]
+        n = len(errors)
+        mean_err = sum(errors) / n
+        s = sample_stdev(errors)
+        u_mean = s / (n**0.5) if n > 0 else 0.0
+        # Single-dispense expanded uncertainty (conservative)
+        u_expanded = abs(mean_err) + 2.0 * s
+        max_abs = max(abs_errs) if abs_errs else 0.0
+        # Capability uses the larger of expanded U and observed worst-case |error|
+        limit_of_error = max(u_expanded, max_abs)
+        m_min = (limit_of_error / rel) if rel > 0 else float("inf")
+        summaries.append(
+            {
+                "Pump": pump_id,
+                "N": n,
+                "Target_g": target_g,
+                "Mean_g": sum(float(r["Actual"]) for r in rows) / n,
+                "MeanError_g": mean_err,
+                "StdDev_g": s,
+                "StdErrMean_g": u_mean,
+                "MaxAbsError_g": max_abs,
+                "ExpandedU_g": u_expanded,
+                "LimitOfError_g": limit_of_error,
+                "MinMass_0p1pct_g": m_min,
+                "RelAccuracy_at_target_pct": (limit_of_error / target_g) * 100.0
+                if target_g
+                else 0.0,
+            }
+        )
+    return summaries
+
+
+def run_characterize(
+    ser,
+    pumps: Sequence[int],
+    target_g: float,
+    reps: int,
+    do_tare: bool = True,
+) -> List[dict]:
+    print(
+        f"\n=== Characterize pumps {list(pumps)}: {reps} reps @ {target_g}g each ==="
+    )
+    # Keep mixing off so replicates stay practical.
+    send_line(ser, "MIX DISABLE")
+    time.sleep(0.3)
+    send_line(ser, "MIX TIME BETWEEN 0")
+    time.sleep(0.3)
+    send_line(ser, "MIX TIME FINAL 0")
+    time.sleep(0.3)
+
+    samples: List[dict] = []
+    for pump_id in pumps:
+        for rep in range(1, reps + 1):
+            print(f"\n--- Pump {pump_id}  rep {rep}/{reps}  target {target_g}g ---")
+            # Ensure prompt is at pump 1 before sending a single-pump recipe.
+            send_line(ser, "S")
+            try:
+                wait_for(ser, ["Pump 1 Enter weight", "Enter weight (g):"], timeout_s=15.0)
+            except TimeoutError:
+                print("Warning: did not see pump-1 prompt after reset; continuing.")
+
+            if do_tare:
+                tare_scale(ser)
+
+            recipe = [0.0] * PUMP_COUNT
+            recipe[pump_id - 1] = float(target_g)
+            send_recipe_targets(ser, recipe)
+            dispensed = collect_dispense_results(ser, [pump_id])
+            actual = dispensed[pump_id]
+            err = actual - float(target_g)
+            samples.append(
+                {
+                    "Pump": pump_id,
+                    "Rep": rep,
+                    "Target": float(target_g),
+                    "Actual": actual,
+                    "Error": err,
+                    "Tol": float(target_g) * 0.001,  # 0.1% of target
+                }
+            )
+            print(
+                f"Result P{pump_id} R{rep}: {actual:.3f}g  error {err:+.3f}g"
+            )
+            time.sleep(1.0)
+    return samples
+
+
+def save_characterize_csv(samples_path: str, summary_path: str, samples: List[dict], summaries: List[dict]) -> None:
+    with open(samples_path, mode="w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Pump", "Rep", "Target (g)", "Actual (g)", "Error (g)"])
+        for r in samples:
+            writer.writerow(
+                [
+                    r["Pump"],
+                    r["Rep"],
+                    r["Target"],
+                    f"{r['Actual']:.3f}",
+                    f"{r['Error']:.3f}",
+                ]
+            )
+    print(f"Sample results saved to: {samples_path}")
+
+    with open(summary_path, mode="w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                "Pump",
+                "N",
+                "Target (g)",
+                "Mean Actual (g)",
+                "Mean Error (g)",
+                "Std Dev (g)",
+                "Std Err of Mean (g)",
+                "Max |Error| (g)",
+                "Expanded U |bias|+2s (g)",
+                "Limit of Error (g)",
+                "Rel accuracy at target (%)",
+                "Min mass for 0.1% (g)",
+            ]
+        )
+        for s in summaries:
+            writer.writerow(
+                [
+                    s["Pump"],
+                    s["N"],
+                    f"{s['Target_g']:.2f}",
+                    f"{s['Mean_g']:.3f}",
+                    f"{s['MeanError_g']:.3f}",
+                    f"{s['StdDev_g']:.3f}",
+                    f"{s['StdErrMean_g']:.3f}",
+                    f"{s['MaxAbsError_g']:.3f}",
+                    f"{s['ExpandedU_g']:.3f}",
+                    f"{s['LimitOfError_g']:.3f}",
+                    f"{s['RelAccuracy_at_target_pct']:.3f}",
+                    f"{s['MinMass_0p1pct_g']:.1f}",
+                ]
+            )
+    print(f"Summary saved to: {summary_path}")
+
+
+def print_characterize_summary(summaries: List[dict], pct_spec: float = 0.1) -> None:
+    print("\n==================================================")
+    print(f"Characterization summary ({pct_spec}% by-weight capability)")
+    print(
+        f"{'Pump':<6}{'MeanErr':<10}{'s':<8}{'Max|e|':<9}{'U_exp':<9}{'M_min@0.1%':<12}"
+    )
+    for s in summaries:
+        print(
+            f"{s['Pump']:<6}"
+            f"{s['MeanError_g']:<+10.3f}"
+            f"{s['StdDev_g']:<8.3f}"
+            f"{s['MaxAbsError_g']:<9.3f}"
+            f"{s['ExpandedU_g']:<9.3f}"
+            f"{s['MinMass_0p1pct_g']:<12.1f}"
+        )
+    print("U_exp = |mean error| + 2*s (single-shot expanded)")
+    print("M_min = LimitOfError / 0.001  (mass where LOE is 0.1% of dose)")
+    print("==================================================")
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(description="Multi-pump dispensing accuracy test")
+    p.add_argument(
+        "--mode",
+        choices=("all-pumps", "sweep", "multi-sweep", "characterize"),
+        default="all-pumps",
+        help="all-pumps / sweep / multi-sweep / characterize (N reps per pump for uncertainty).",
+    )
+    p.add_argument("--port", default=None, help="COM port (e.g. COM5). Interactive if omitted.")
+    p.add_argument("--pump", type=int, default=1, help="Pump id for --mode sweep (1-7).")
+    p.add_argument("--pumps", default="1,2,3,4,5,6,7", help="Comma list for multi-sweep/characterize.")
+    p.add_argument("--target", type=float, default=10.0, help="Mass for all-pumps/characterize.")
+    p.add_argument("--targets", default=None, help="Comma list for sweep modes.")
+    p.add_argument("--reps", type=int, default=5, help="Replicates per pump for characterize mode.")
+    p.add_argument("--tol", type=float, default=DEFAULT_TOL_G, help="Pass/fail absolute error (g).")
+    p.add_argument("--csv", default="accuracy_results.csv", help="CSV output path.")
+    p.add_argument(
+        "--no-tare",
+        action="store_true",
+        help="Skip automatic scale tare before each recipe.",
+    )
+    return p
+
+
+def main() -> int:
+    args = build_parser().parse_args()
+    do_tare = not args.no_tare
+    print("==================================================")
+    print("Multi-Pump Accuracy Test")
+    print(f"Mode: {args.mode}  Tolerance: ±{args.tol}g  Auto-tare: {do_tare}")
+    print("==================================================")
+
+    port = select_port(args.port)
+    ser = open_serial(port)
+    try:
+        handshake(ser)
+        if args.mode == "all-pumps":
+            results = run_all_pumps(ser, args.target, args.tol, do_tare=do_tare)
+            title = f"All-pumps accuracy @ {args.target}g"
+            save_csv(args.csv, results)
+            generate_plot(results, title)
+            ok = evaluate(results, args.tol)
+            return 0 if ok else 1
+        if args.mode == "sweep":
+            if args.pump < 1 or args.pump > PUMP_COUNT:
+                print(f"Pump must be 1-{PUMP_COUNT}")
+                return 2
+            targets = parse_targets(args.targets)
+            results = run_sweep(ser, args.pump, targets, args.tol, do_tare=do_tare)
+            title = f"Dispensing Accuracy Sweep (Pump {args.pump})"
+            save_csv(args.csv, results)
+            generate_plot(results, title)
+            ok = evaluate(results, args.tol)
+            return 0 if ok else 1
+        if args.mode == "multi-sweep":
+            pumps = parse_pump_list(args.pumps)
+            targets = parse_targets(args.targets) if args.targets else [10.0, 20.0, 50.0]
+            results = run_multi_sweep(ser, pumps, targets, args.tol, do_tare=do_tare)
+            title = f"Multi-pump sweep ({','.join(map(str, pumps))})"
+            save_csv(args.csv, results)
+            generate_plot(results, title)
+            ok = evaluate(results, args.tol)
+            return 0 if ok else 1
+
+        # characterize
+        if args.reps < 2:
+            print("--reps must be >= 2 for uncertainty")
+            return 2
+        pumps = parse_pump_list(args.pumps)
+        samples = run_characterize(
+            ser, pumps, args.target, args.reps, do_tare=do_tare
+        )
+        summaries = summarize_characterize(samples, args.target, pct_spec=0.1)
+        samples_csv = args.csv if args.csv != "accuracy_results.csv" else "accuracy_characterize_samples.csv"
+        summary_csv = "accuracy_characterize_summary.csv"
+        save_characterize_csv(samples_csv, summary_csv, samples, summaries)
+        print_characterize_summary(summaries, pct_spec=0.1)
+        # Also write sample rows to plot path helper using flat results shape
+        plot_rows = [
+            {
+                "Pump": r["Pump"],
+                "Target": r["Target"],
+                "Actual": r["Actual"],
+                "Error": r["Error"],
+                "Tol": r["Tol"],
+            }
+            for r in samples
+        ]
+        generate_plot(plot_rows, f"Characterize {args.reps}x @ {args.target}g")
+        # Pass if every pump's limit of error at this target is within 0.1% of target
+        limit = args.target * 0.001
+        ok = all(s["LimitOfError_g"] <= limit for s in summaries)
+        print(
+            f"\n0.1% band at {args.target}g is ±{limit:.3f}g. "
+            f"All pumps within band: {'YES' if ok else 'NO'}"
+        )
+        return 0 if ok else 1
+    except (RuntimeError, TimeoutError, ValueError) as exc:
+        print(f"\nTest aborted: {exc}")
+        return 2
+    finally:
+        ser.close()
+
 
 if __name__ == "__main__":
-    run_test()
+    sys.exit(main())

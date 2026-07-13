@@ -382,7 +382,7 @@ button{border:0;border-radius:14px;color:var(--txt);background:var(--panel2);fon
           </div>
           <p class="sub">When disabled, recipes skip intermediate and final mixing.</p>
           <p class="sub" id="maintStatusText" style="color:var(--cyan);font-weight:800;">System ready for maintenance.</p>
-          <p class="sub"><strong>Reference times</strong><br>Water (1 cP): 10s prime, 15s flush<br>Glycerol (1000 cP): 30s prime, 45s flush</p>
+          <p class="sub"><strong>Reference times</strong><br>Water (1 cP): 10s prime, 15s flush<br>Glycerol (1000 cP): 13s prime, 45s flush</p>
         </div>
       </div>
     </section>
@@ -1302,8 +1302,8 @@ function setMaintDirection(dir) {
   $('maintDirPurge').classList.toggle('on', dir === -1);
 }
 
-const PRIME_TIME_MIN_SEC = 2;
-const PRIME_TIME_MAX_SEC = 5;
+const PRIME_TIME_MIN_SEC = 10;
+const PRIME_TIME_MAX_SEC = 13;
 const PRIME_REF_LOW_VISC = 1.0;
 const PRIME_REF_HIGH_VISC = 1000.0;
 
@@ -1714,7 +1714,7 @@ async function startRun(){
 function resetRun(full=true){clearRunTimeouts();stopSim();dispenseState=0;activePump=0;sequence='ready';nextSimPump=1;pumps.forEach(p=>{p.status='waiting';p.delivered=0;p.final=0;p.start=0});if(full)currentWeight=0;updateUI()}
 function tare(){currentWeight=0;log('Scale tare requested.','tx');if(demo)updateTelemetry(0,0);else send('T')}
 async function runCalibration(){log('Starting calibration for Pump '+calPump+'.','tx');if(demo){dispenseState=D.BULK;activePump=calPump;setTimeout(()=>{dispenseState=D.IDLE;activePump=0;currentWeight+=1.25;updateUI();log('Simulator calibration dispense complete. Enter measured mass.','sys')},1200)}else await send('C'+calPump)}
-async function submitCalibration(){const v=parseFloat($('calMass').value);if(!v||v<=0.02){showAlert('Invalid Mass','Enter measured mass greater than 0.02 g.');return}const p=pumps[calPump-1];const steps=(10000/16)/v;if(p.high)p.calHigh=steps;else p.calLow=steps;log('Submitting calibration mass '+fmt(v,3)+' g for Pump '+calPump+'.','tx');if(demo){log('Simulator calculated '+fmt(steps,2)+' steps/g.','sys');dispenseState=D.IDLE;activePump=0}else await send(fmt(v,3));updateUI()}
+async function submitCalibration(){const v=parseFloat($('calMass').value);if(!v||v<=0.02){showAlert('Invalid Mass','Enter measured mass greater than 0.02 g.');return}const p=pumps[calPump-1];const steps=(50000/8)/v;if(p.high)p.calHigh=steps;else p.calLow=steps;log('Submitting calibration mass '+fmt(v,3)+' g for Pump '+calPump+'.','tx');if(demo){log('Simulator calculated '+fmt(steps,2)+' steps/g.','sys');dispenseState=D.IDLE;activePump=0}else await send(fmt(v,3));updateUI()}
 function triggerFault(text){fault=true;$('faultText').textContent=text||'Pump motion has been halted. Confirm the system is safe before clearing.';$('faultOverlay').classList.add('active');sequence='fault';pumps.forEach(p=>{if(p.status==='running')p.status='error'});log('FAULT: '+$('faultText').textContent,'err');updateUI()}
 function clearFault(){fault=false;$('faultOverlay').classList.remove('active');dispenseState=D.IDLE;activePump=0;sequence='ready';pumps.forEach(p=>{if(p.status==='error')p.status='waiting'});updateUI()}
 async function estop(){clearRunTimeouts();if(demo){triggerFault('Emergency stop pressed. Simulator pump motion halted.');setMixerState(false);stopSim()}else{await send('S');triggerFault('Emergency stop command sent. Pump motion halted.')}}
@@ -1832,15 +1832,18 @@ function simTick(){
 }
 
 function getDynamicBulkFraction(visc, targetG) {
+  // Approx mirror of firmware getDynamicBulkFraction + low/high min trim margins.
+  // Simulator only — not a physics model of peristaltic tip hang.
   if (targetG <= 0) return 0.85;
   const factor = Math.log10(visc + 9.0);
-  const minMargin = 1.5;
-  const maxMargin = (visc >= 100.0) ? 20.0 : 10.0;
-  
+  const highVisc = visc >= 100.0;
+  const minMargin = highVisc ? 1.5 : 0.50;
+  const maxMargin = highVisc ? 20.0 : 1.25;
+
   let trimMargin = targetG * 0.02 * factor;
   if (trimMargin < minMargin) trimMargin = minMargin;
   if (trimMargin > maxMargin) trimMargin = maxMargin;
-  
+
   let bulkFraction = 1.0 - (trimMargin / targetG);
   if (bulkFraction < 0.10) bulkFraction = 0.10;
   return bulkFraction;
@@ -1851,7 +1854,9 @@ function simulatePump(p,done){
   if(dispenseState===D.BULK){
     currentWeight+=0.11+(Math.random()-.5)*0.01;
     const bulkFrac = getDynamicBulkFraction(p.visc || 1.0, p.target);
-    if((currentWeight-p.start)>=p.target*bulkFrac){
+    // Rough bulk undercut (~firmware BULK_SETTLE_UNDERCUT_LOW_G) for sim pacing only.
+    const undercut = (p.visc || 1.0) >= 100 ? 1.20 : 0.55;
+    if((currentWeight-p.start)>=Math.max(p.target*bulkFrac-undercut, p.target*0.45)){
       dispenseState=D.SETTLE_BULK;
       simPhaseTimer=Date.now();
     }
@@ -1862,7 +1867,8 @@ function simulatePump(p,done){
     }
   }else if(dispenseState===D.TRIM){
     const remaining=p.target-(currentWeight-p.start);
-    currentWeight+=Math.min(Math.max(remaining*.35,0.012),0.08);
+    // Sim trim tol intentionally loose (0.04g): demo UX only, not firmware ±0.01g.
+    currentWeight+=Math.min(Math.max(remaining*.35,0.005),0.08);
     if((p.target-(currentWeight-p.start))<=0.04||elapsed>500){
       dispenseState=D.SETTLE_TRIM;
       simPhaseTimer=Date.now();
