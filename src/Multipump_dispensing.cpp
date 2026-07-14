@@ -208,7 +208,7 @@ float maintenanceSpeed[MAX_PUMP_COUNT] = {0.0f};
 
 // Maintenance runs pumps in 2 phases to keep shared DIR coherent:
 //  - Phase 1: odd-orientation group (pumps 1/3/5/7 => pumpDirSign == +1)
-//  - Phase 2: even-orientation group (pumps 2/4/6   => pumpDirSign == -1)
+//  - Phase 2: even-orientation group (pumps 2/4/6/8 => pumpDirSign == -1)
 static uint32_t maintenancePendingOddMask = 0;
 static uint32_t maintenancePendingEvenMask = 0;
 static bool maintenanceModePrime = false; // true=PRIME/PURGE, false=FLUSH
@@ -377,11 +377,11 @@ AccelStepper& getPump(int pumpIndex) {
 // Pumps mounted on the right side are mechanically mirrored, so their sign is flipped.
 static int pumpDirSign(int pumpIndex) {
   if (pumpIndex < 0 || pumpIndex >= MAX_PUMP_COUNT) return 1;
-  // 1,3,5,7 (0,2,4,6 idx) => standard ; 2,4,6 (1,3,5 idx) => mirrored mount
+  // 1,3,5,7 (0,2,4,6 idx) => standard ; 2,4,6,8 (1,3,5,7 idx) => mirrored mount
   return (pumpIndex % 2 == 0) ? 1 : -1;
 }
 
-// Mirrored pumps (2/4/6) invert the shared DIR pin in AccelStepper so all pumps
+// Mirrored pumps (2/4/6/8) invert the shared DIR pin in AccelStepper so all pumps
 // use positive speed for forward dispense and negative for retract/suck-back.
 static bool pumpMirrored(int pumpIndex) {
   return pumpDirSign(pumpIndex) < 0;
@@ -1670,7 +1670,7 @@ void multipumpSetup() {
       pinMode(pumpStepPins[index], OUTPUT);
       // Signature: setPinsInverted(directionInvert, stepInvert, enableInvert).
       // Standard pumps use inverted DIR (original behavior); mirrored pumps
-      // (2/4/6) use non-inverted DIR so positive speed dispenses forward.
+      // (2/4/6/8) use non-inverted DIR so positive speed dispenses forward.
       pumps[index]->setPinsInverted(!pumpMirrored(index), false, false);
       pumps[index]->setMaxSpeed(16000);
       pumps[index]->setAcceleration(8000);

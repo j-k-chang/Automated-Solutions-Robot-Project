@@ -465,7 +465,7 @@ button{border:0;border-radius:14px;color:var(--txt);background:var(--panel2);fon
   </div>
 </div>
 <script>
-let PUMP_COUNT=7;
+let PUMP_COUNT=8;
 const D={IDLE:0,BULK:1,SETTLE_BULK:2,TRIM:3,SETTLE_TRIM:4,SUCK:5,RELIEF_FAST:6,RELIEF_FINISH:7,RETRACT:8,COMPLETE:9,ERROR:10};
 const phaseMap={0:['READY','System waiting'],1:['BULK DOSING','Fast fill phase'],2:['SETTLING','Waiting for stable scale'],3:['TRIM DOSING','Fine pulse dosing'],4:['SETTLING','Verifying final mass'],5:['PREVENTING DRIPS','Suck-back starting'],6:['PRESSURE RELIEF','Fast reverse relief'],7:['PRESSURE RELIEF','Controlled relief finish'],8:['RETRACTING','Reversing pump'],9:['COMPLETE','Component finished'],10:['ERROR','Scale or pump fault']};
 let port=null,writer=null,serialReader=null,encoderStream=null,serialAbortController=null,readLoopPromise=null,disconnectPromise=null,disconnecting=false,connected=false,demo=true;
@@ -717,8 +717,8 @@ function validateCsvRows(rows) {
   
   rows.forEach((row, idx) => {
     const rowNum = idx + 1;
-    if (row.pumpId < 1 || row.pumpId > 7) {
-      errors.push(`Row ${rowNum}: Pump ID must be between 1 and 7. Found: ${row.pumpId}`);
+    if (row.pumpId < 1 || row.pumpId > PUMP_COUNT) {
+      errors.push(`Row ${rowNum}: Pump ID must be between 1 and ${PUMP_COUNT}. Found: ${row.pumpId}`);
     } else {
       if (seenPumps.has(row.pumpId)) {
         errors.push(`Row ${rowNum}: Duplicate entry for Pump ${row.pumpId}.`);
@@ -735,7 +735,7 @@ function validateCsvRows(rows) {
     }
   });
   
-  const validPumpRows = rows.filter(r => r.pumpId >= 1 && r.pumpId <= 7);
+  const validPumpRows = rows.filter(r => r.pumpId >= 1 && r.pumpId <= PUMP_COUNT);
   if (errors.length === 0 && validPumpRows.length === 0) {
     errors.push("CSV contains no valid pump rows.");
   }
@@ -754,7 +754,7 @@ function loadPumpsFromCsv(data) {
   });
   
   data.rows.forEach(row => {
-    if (row.pumpId >= 1 && row.pumpId <= 7) {
+    if (row.pumpId >= 1 && row.pumpId <= PUMP_COUNT) {
       const p = pumps[row.pumpId - 1];
       p.target = row.target;
       applyRecipeViscosity(p, row.viscosity);
@@ -959,7 +959,7 @@ function loadRecipeFromLibrary(id) {
   });
   
   r.pumps.forEach(item => {
-    if (item.pump >= 1 && item.pump <= 7) {
+    if (item.pump >= 1 && item.pump <= PUMP_COUNT) {
       const p = pumps[item.pump - 1];
       p.target = item.target;
       applyRecipeViscosity(p, item.viscosity);
