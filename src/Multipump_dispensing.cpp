@@ -175,6 +175,7 @@ bool completionAnnounced = false;
 
 float targetWeights[MAX_PUMP_COUNT] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 int dispenseOrder[MAX_PUMP_COUNT] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+uint32_t targetReceivedMask = 0;
 
 float stepsPerGramLow[MAX_PUMP_COUNT] = {700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f};
 float stepsPerGramHigh[MAX_PUMP_COUNT] = {1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f};
@@ -586,6 +587,40 @@ static bool applyDispenseOrderCommand(char* args) {
   return true;
 }
 
+static uint32_t allPumpTargetsMask() {
+  return (PUMP_COUNT >= 32) ? 0xFFFFFFFFUL : ((1UL << PUMP_COUNT) - 1UL);
+}
+
+static void printTargetAccepted(int pumpIndex, float target) {
+  Serial.print("Pump ");
+  Serial.print(pumpIndex + 1);
+  if (target <= 0.0f) {
+    Serial.println(" Target set to: 0.00g (Skip)");
+  } else {
+    Serial.print(" Target set to: ");
+    Serial.print(target, 2);
+    Serial.println("g");
+  }
+}
+
+static bool setTargetForPump(int pumpIndex, float target, bool isZero) {
+  if (!isValidPumpIndex(pumpIndex)) {
+    Serial.print("ERROR: Target pump must be 1 through ");
+    Serial.print(PUMP_COUNT);
+    Serial.println(".");
+    return false;
+  }
+  if (!(isZero || target > 1.5f)) {
+    Serial.println("ERROR: Invalid target. Must be > 1.50g (or 0.00g to skip).");
+    return false;
+  }
+
+  targetWeights[pumpIndex] = isZero ? 0.0f : target;
+  targetReceivedMask |= (1UL << pumpIndex);
+  printTargetAccepted(pumpIndex, targetWeights[pumpIndex]);
+  return true;
+}
+
 static float dropCalMean(const float* values, int n) {
   if (n <= 0) return 0.0f;
   float sum = 0.0f;
@@ -700,6 +735,7 @@ void resetRunState() {
   }
 
   targetEntryPumpIndex = 0;
+  targetReceivedMask = 0;
   activePumpIndex = -1;
   calibratingPumpIndex = 0;
   nextPumpIndex = -1;
@@ -2321,6 +2357,7 @@ void handleUsbCommands() {
           Serial.print("INFO:MIXEN=");
           Serial.println(mixingEnabled ? "1" : "0");
           Serial.println("INFO:ORDER=1");
+          Serial.println("INFO:TARGET=1");
         }
         else if (strStartsWithIgnoreCase(usbBuffer, "VISC ")) {
           int pumpNum = 0;
@@ -2340,6 +2377,27 @@ void handleUsbCommands() {
               Serial.println(" cP");
             } else {
               Serial.println("ERROR: Invalid pump index.");
+            }
+          }
+        }
+        else if (strStartsWithIgnoreCase(usbBuffer, "TARGET ")) {
+          char* args = usbBuffer + 7;
+          char* space1 = strchr(args, ' ');
+          if (space1 == nullptr) {
+            Serial.println("ERROR: TARGET command must be TARGET <pump> <grams>.");
+          } else {
+            *space1 = '\0';
+            int pumpNumber = atoi(args);
+            char* valueText = space1 + 1;
+            while (*valueText == ' ') valueText++;
+            float target = strtof(valueText, nullptr);
+            bool isZero = (strcmp(valueText, "0") == 0 ||
+                           strcmp(valueText, "0.0") == 0 ||
+                           strcmp(valueText, "0.00") == 0);
+            if (sequenceState == SEQ_PROMPT_TARGET &&
+                setTargetForPump(pumpNumber - 1, target, isZero) &&
+                ((targetReceivedMask & allPumpTargetsMask()) == allPumpTargetsMask())) {
+              startFirstActivePump();
             }
           }
         }
@@ -2598,21 +2656,8 @@ void handleUsbCommands() {
           bool isZero = (strcmp(usbBuffer, "0") == 0 || strcmp(usbBuffer, "0.0") == 0 || strcmp(usbBuffer, "0.00") == 0);
 
           if (sequenceState == SEQ_PROMPT_TARGET && (isZero || target > 1.5f)) {
-            float finalTarget = isZero ? 0.0f : target;
             int pumpIndex = targetEntryPumpIndex;
-            targetWeights[pumpIndex] = finalTarget;
-
-            if (finalTarget <= 0.0f) {
-              Serial.print("Pump ");
-              Serial.print(pumpIndex + 1);
-              Serial.println(" Target set to: 0.00g (Skip)");
-            } else {
-              Serial.print("Pump ");
-              Serial.print(pumpIndex + 1);
-              Serial.print(" Target set to: ");
-              Serial.print(finalTarget, 2);
-              Serial.println("g");
-            }
+            setTargetForPump(pumpIndex, target, isZero);
 
             if (targetEntryPumpIndex < PUMP_COUNT - 1) {
               targetEntryPumpIndex++;

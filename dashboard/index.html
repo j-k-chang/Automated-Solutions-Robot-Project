@@ -513,6 +513,7 @@ const phaseMap={0:['READY','System waiting'],1:['BULK DOSING','Fast fill phase']
 let port=null,writer=null,serialReader=null,encoderStream=null,serialAbortController=null,readLoopPromise=null,disconnectPromise=null,disconnecting=false,connected=false,demo=true;
 let currentWeight=0,dispenseState=0,activePump=0,sequence='ready';
 let controllerSupportsOrder=false;
+let controllerSupportsTargetCommand=false;
 let calPump=1,fault=false,simTimer=null,simPhaseTimer=0,simWaitStart=0,nextSimPump=1,simMixBaseWeight=0;
 const simMixDropMax=3.0;
 let recipeName='',recipeDesc='';
@@ -1641,6 +1642,7 @@ async function connect(){
     connected=true;
     demo=false;
     controllerSupportsOrder=false;
+    controllerSupportsTargetCommand=false;
     setConnectButtonState({ label: 'DISCONNECT', online: true, busy: false });
     log('Connected to controller.','sys');
     readLoopPromise=readLoop();
@@ -1756,6 +1758,7 @@ async function readLoop(){
 function handleLine(line){
   if(line.startsWith('INFO:PUMPS=')){const count=parseInt(line.replace('INFO:PUMPS=',''));if(!isNaN(count))reinitPumps(count);return}
   if(line.startsWith('INFO:ORDER=')){controllerSupportsOrder=line.replace('INFO:ORDER=','').trim()==='1';return}
+  if(line.startsWith('INFO:TARGET=')){controllerSupportsTargetCommand=line.replace('INFO:TARGET=','').trim()==='1';return}
   if(line.startsWith('INFO:VISC=')){
     const parts=line.replace('INFO:VISC=','').split(',');
     for(let i=0;i<parts.length&&i<pumps.length;i++){
@@ -1809,7 +1812,7 @@ async function startRun(){
   const invalid=pumps.filter(p=>p.target<0||(p.target>0&&p.target<=1.5));
   if(invalid.length){showAlert('Invalid Targets','Each target must be 0.00 g (skip) or greater than 1.50 g.\nCheck pump '+invalid.map(p=>p.id).join(', ')+'.');return}
   if(activeCount()===0){showAlert('Invalid Targets','At least one pump must have a target greater than 1.50 g.');return}
-  if(!demo&&!controllerSupportsOrder&&sequenceText()!==normalizePumpSequence([]).join(',')){
+  if(!demo&&sequenceText()!==normalizePumpSequence([]).join(',')&&(!controllerSupportsOrder||!controllerSupportsTargetCommand)){
     showAlert('Firmware Update Required','This controller has not reported ORDER support. Reflash the Arduino with the current firmware before using a custom pump order.');
     return;
   }
@@ -1843,8 +1846,11 @@ async function startRun(){
     delay += 250;
   }
   for(let i=0;i<pumps.length;i++){
-    const targetVal = pumps[i].target;
-    const t = setTimeout(()=>send(fmt(targetVal)), delay);
+    const targetVal = fmt(pumps[i].target);
+    const cmd = controllerSupportsTargetCommand
+      ? ("TARGET " + pumps[i].id + " " + targetVal)
+      : targetVal;
+    const t = setTimeout(()=>send(cmd), delay);
     runTimeouts.push(t);
     delay += 250;
   }
