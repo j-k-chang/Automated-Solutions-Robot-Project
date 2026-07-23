@@ -65,6 +65,27 @@ button{border:0;border-radius:14px;color:var(--txt);background:var(--panel2);fon
 .pump-grid-row .visc-btn.high{background:rgba(255, 191, 66, 0.12);border-color:var(--amber);color:var(--amber)}
 .pump-grid-row .chem-input{height:46px;background:#081421;border:1px solid #274662;border-radius:7px;color:var(--txt);padding:0 8px;font-size:13px;outline:none;width:100%}
 .pump-grid-row .chem-input:focus{border-color:var(--cyan)}
+.sequence-panel{display:flex;flex-direction:column;gap:5px;min-height:0}
+.sequence-head{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.sequence-head h2{margin:0;font-size:14px;color:var(--cyan)}
+.sequence-head button{min-height:44px;font-size:12px;padding:6px 10px;border-radius:9px}
+.sequence-list{display:flex;flex-direction:column;gap:4px;max-height:132px;overflow-y:auto;padding-right:2px}
+.sequence-row{display:grid;grid-template-columns:30px minmax(0,1fr) 52px 52px;gap:5px;align-items:center;background:#0a1728;border:1px solid #1d3450;border-radius:8px;padding:4px;min-height:52px}
+.sequence-row.inactive{opacity:.48}
+.sequence-position{font-size:12px;font-weight:900;color:var(--muted);text-align:center}
+.sequence-pump{min-width:0;font-size:13px;font-weight:900;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sequence-pump small{display:block;font-size:10px;color:var(--muted);font-weight:800;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sequence-chem{display:block;font-size:11px;color:var(--green);font-weight:900;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sequence-btn{min-height:44px;min-width:48px;padding:0;border-radius:8px;background:#11233b;border:1px solid var(--line);color:var(--cyan);font-size:25px;line-height:1;display:flex;align-items:center;justify-content:center}
+.sequence-btn:disabled{opacity:.28;color:var(--muted)}
+.sequence-dialog{width:92%;max-width:520px;max-height:92%;background:var(--panel);border:2px solid var(--cyan);border-radius:18px;padding:14px;box-shadow:0 0 25px rgba(32,217,255,.15);display:flex;flex-direction:column;gap:10px}
+.sequence-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sequence-dialog-head h2{font-size:20px;margin:0;color:var(--cyan)}
+.sequence-dialog-list{display:flex;flex-direction:column;gap:6px;overflow-y:auto;min-height:0}
+.sequence-dialog-list .sequence-row{min-height:58px;grid-template-columns:34px minmax(0,1fr) 58px 58px}
+.sequence-dialog-list .sequence-btn{min-height:50px;min-width:54px;font-size:28px}
+.sequence-dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:none}
+.sequence-dialog-actions button{min-height:54px}
 .recipe-card{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:10px;margin-bottom:6px;transition:border-color 0.2s}
 .recipe-card:hover{border-color:var(--cyan)}
 .recipe-card-header{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:900;color:var(--cyan)}
@@ -191,7 +212,7 @@ button{border:0;border-radius:14px;color:var(--txt);background:var(--panel2);fon
           <button class="btn-amber btn-wide" onclick="go('Recipe')">EDIT RECIPE</button>
           <button class="btn-ghost btn-wide" onclick="go('Calibration')">CALIBRATE PUMPS</button>
           <button class="btn-ghost btn-wide" onclick="go('Diagnostics')">ADVANCED DIAGNOSTICS</button>
-          <p class="sub">Targets sent in pump order.<br>Enter 0.00 g to skip a pump.</p>
+          <p class="sub">Targets run in selected recipe order.<br>Enter 0.00 g to skip a pump.</p>
         </div>
       </div>
     </section>
@@ -220,6 +241,7 @@ button{border:0;border-radius:14px;color:var(--txt);background:var(--panel2);fon
         <div class="recipe-tabs">
           <button id="tabRecipeEditor" class="btn-small on" onclick="switchRecipeTab('editor')">RECIPE EDITOR</button>
           <button id="tabRecipeLibrary" class="btn-small btn-ghost" onclick="switchRecipeTab('library')">RECIPE LIBRARY</button>
+          <button id="btnOpenSequence" class="btn-small btn-primary" onclick="openSequenceOverlay()">ORDER PUMPS</button>
         </div>
         
         <!-- Editor Tab -->
@@ -247,6 +269,13 @@ button{border:0;border-radius:14px;color:var(--txt);background:var(--panel2);fon
                 <div class="metric"><label>Command</label><strong>7-Step</strong></div>
                 <div class="metric"><label>Active Pumps</label><strong id="activeCount">0</strong></div>
                 <div class="metric"><label>Tolerance</label><strong id="recipeTol">0.01</strong><small> g min</small></div>
+              </div>
+              <div class="sequence-panel">
+                <div class="sequence-head">
+                  <h2>Dispense Sequence</h2>
+                  <button class="btn-small btn-ghost" onclick="resetPumpSequence()">RESET</button>
+                </div>
+                <div class="sequence-list" id="pumpSequenceList"></div>
               </div>
               <button class="btn-green btn-wide" id="btnStartRun">START RUN</button>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
@@ -463,6 +492,19 @@ button{border:0;border-radius:14px;color:var(--txt);background:var(--panel2);fon
       </div>
     </div>
   </div>
+  <div class="overlay" id="sequenceOverlay">
+    <div class="sequence-dialog">
+      <div class="sequence-dialog-head">
+        <h2>Pump Order</h2>
+        <button class="btn-small btn-ghost" onclick="closeSequenceOverlay()">CLOSE</button>
+      </div>
+      <div class="sequence-dialog-list" id="pumpSequenceOverlayList"></div>
+      <div class="sequence-dialog-actions">
+        <button class="btn-ghost" onclick="resetPumpSequence()">RESET</button>
+        <button class="btn-green" onclick="closeSequenceOverlay()">DONE</button>
+      </div>
+    </div>
+  </div>
 </div>
 <script>
 let PUMP_COUNT=8;
@@ -470,6 +512,7 @@ const D={IDLE:0,BULK:1,SETTLE_BULK:2,TRIM:3,SETTLE_TRIM:4,SUCK:5,RELIEF_FAST:6,R
 const phaseMap={0:['READY','System waiting'],1:['BULK DOSING','Fast fill phase'],2:['SETTLING','Waiting for stable scale'],3:['TRIM DOSING','Fine pulse dosing'],4:['SETTLING','Verifying final mass'],5:['PREVENTING DRIPS','Suck-back starting'],6:['PRESSURE RELIEF','Fast reverse relief'],7:['PRESSURE RELIEF','Controlled relief finish'],8:['RETRACTING','Reversing pump'],9:['COMPLETE','Component finished'],10:['ERROR','Scale or pump fault']};
 let port=null,writer=null,serialReader=null,encoderStream=null,serialAbortController=null,readLoopPromise=null,disconnectPromise=null,disconnecting=false,connected=false,demo=true;
 let currentWeight=0,dispenseState=0,activePump=0,sequence='ready';
+let controllerSupportsOrder=false;
 let calPump=1,fault=false,simTimer=null,simPhaseTimer=0,simWaitStart=0,nextSimPump=1,simMixBaseWeight=0;
 const simMixDropMax=3.0;
 let recipeName='',recipeDesc='';
@@ -479,6 +522,7 @@ let mixFinalDuration = 300;   // seconds
 let mixerSettleGuard = 15;    // seconds
 let mixerSettleWindow = 3;    // seconds
 let mixerSettleTolerance = 0.01; // grams
+const CALIBRATION_RUN_FULL_STEPS = 6250;
 
 function loadSettings() {
   mixBetweenDuration = parseFloat(localStorage.getItem('mixBetweenDuration')) || 180;
@@ -538,6 +582,7 @@ async function saveMixerSettings() {
 }
 let defaultTargets=[10,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 let pumps=Array.from({length:PUMP_COUNT},(_,i)=>({id:i+1,target:defaultTargets[i]||0,high:false,visc:1.0,status:'waiting',start:0,delivered:0,final:0,calLow:700,calHigh:1400,chemical:'',notes:''}));
+let pumpSequence=Array.from({length:PUMP_COUNT},(_,i)=>i+1);
 
 function reinitPumps(newCount) {
   if (newCount < 1 || newCount > 16) return;
@@ -568,6 +613,7 @@ function reinitPumps(newCount) {
       });
     }
   }
+  pumpSequence = normalizePumpSequence(pumpSequence);
   
   buildStaticUi();
   applyKeypadMode();
@@ -582,6 +628,69 @@ function totalTarget(){return pumps.reduce((sum,p)=>sum+p.target,0)}
 function totalDelivered(){return pumps.reduce((sum,p)=>sum+p.delivered,0)}
 function totalFinal(){return pumps.reduce((sum,p)=>sum+(p.final||p.delivered),0)}
 function activeCount(){return pumps.filter(p=>p.target>0).length}
+function normalizePumpSequence(order){
+  const seen=new Set();
+  const normalized=[];
+  (Array.isArray(order)?order:[]).forEach(id=>{
+    id=parseInt(id,10);
+    if(id>=1&&id<=PUMP_COUNT&&!seen.has(id)){seen.add(id);normalized.push(id)}
+  });
+  for(let id=1;id<=PUMP_COUNT;id++){
+    if(!seen.has(id))normalized.push(id);
+  }
+  return normalized.slice(0,PUMP_COUNT);
+}
+function parsePumpSequence(value){
+  if(Array.isArray(value))return normalizePumpSequence(value);
+  if(!value)return normalizePumpSequence([]);
+  return normalizePumpSequence(String(value).split(/[,\s>]+/).map(v=>parseInt(v,10)));
+}
+function sequenceText(){
+  return pumpSequence.join(',');
+}
+function resetPumpSequence(){
+  pumpSequence=normalizePumpSequence([]);
+  renderPumpSequence();
+  updateUI();
+  log('Dispense sequence reset to pump 1 through '+PUMP_COUNT+'.','sys');
+}
+function movePumpInSequence(pumpId,delta){
+  const index=pumpSequence.indexOf(pumpId);
+  const next=index+delta;
+  if(index<0||next<0||next>=pumpSequence.length)return;
+  const copy=[...pumpSequence];
+  [copy[index],copy[next]]=[copy[next],copy[index]];
+  pumpSequence=copy;
+  renderPumpSequence();
+  updateUI();
+}
+function renderPumpSequence(){
+  pumpSequence=normalizePumpSequence(pumpSequence);
+  const html=pumpSequence.map((pumpId,index)=>{
+    const p=pumps[pumpId-1]||{target:0,chemical:''};
+    const chemical=(p.chemical||'').trim();
+    const targetMeta=p.target>0?fmt(p.target)+' g':'skip';
+    const chemMeta=chemical?escapeHtml(chemical):'No chemical set';
+    return `
+      <div class="sequence-row ${p.target>0?'':'inactive'}">
+        <div class="sequence-position">${index+1}</div>
+        <div class="sequence-pump">Pump ${pumpId}<span class="sequence-chem">${chemMeta}</span><small>${targetMeta}</small></div>
+        <button type="button" class="sequence-btn" onclick="movePumpInSequence(${pumpId},-1)" ${index===0?'disabled':''} aria-label="Move pump ${pumpId} earlier">&#9650;</button>
+        <button type="button" class="sequence-btn" onclick="movePumpInSequence(${pumpId},1)" ${index===pumpSequence.length-1?'disabled':''} aria-label="Move pump ${pumpId} later">&#9660;</button>
+      </div>`;
+  }).join('');
+  const inline=$('pumpSequenceList');
+  if(inline)inline.innerHTML=html;
+  const overlay=$('pumpSequenceOverlayList');
+  if(overlay)overlay.innerHTML=html;
+}
+function openSequenceOverlay(){
+  renderPumpSequence();
+  $('sequenceOverlay').classList.add('active');
+}
+function closeSequenceOverlay(){
+  $('sequenceOverlay').classList.remove('active');
+}
 function profileText(p){return (p.visc || 1.0) + ' cP'}
 function pct(a,b){return b>0?Math.max(0,Math.min(100,(a/b)*100)):0}
 function go(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('screen'+name).classList.add('active');if(name==='Maintenance')buildMaintPumpSelector();updateUI()}
@@ -657,6 +766,7 @@ function parseCsvContent(text) {
   
   let name = '';
   let desc = '';
+  let order = [];
   
   if (headerIdx !== -1) {
     const metaLines = lines.slice(0, headerIdx)
@@ -673,6 +783,12 @@ function parseCsvContent(text) {
         name = metaLines[0][0] || '';
         desc = metaLines[0][1] || '';
       }
+      metaLines.forEach(cols => {
+        const label = (cols[0] || '').trim().toLowerCase();
+        if (label === 'sequence' || label === 'order' || label === 'dispense sequence') {
+          order = parsePumpSequence(cols.slice(1).join(','));
+        }
+      });
     }
   }
   
@@ -704,7 +820,7 @@ function parseCsvContent(text) {
     });
   }
   
-  return { name, description: desc, rows };
+  return { name, description: desc, rows, order };
 }
 
 function validateCsvRows(rows) {
@@ -762,6 +878,7 @@ function loadPumpsFromCsv(data) {
       p.notes = row.notes;
     }
   });
+  pumpSequence = normalizePumpSequence(data.order && data.order.length ? data.order : data.rows.map(row => row.pumpId));
   
   recipeName = data.name || '';
   recipeDesc = data.description || '';
@@ -924,6 +1041,7 @@ function saveRecipeToLibrary() {
     name: name,
     description: desc,
     createdAt: new Date().toISOString(),
+    order: normalizePumpSequence(pumpSequence),
     pumps: pumps.map(p => ({
       pump: p.id,
       target: p.target,
@@ -967,6 +1085,7 @@ function loadRecipeFromLibrary(id) {
       p.notes = item.notes || '';
     }
   });
+  pumpSequence = normalizePumpSequence(r.order || r.pumps.map(item => item.pump));
   
   recipeName = r.name || '';
   recipeDesc = r.description || '';
@@ -982,6 +1101,7 @@ function loadRecipeFromLibrary(id) {
     const notesInput = $('notes' + p.id);
     if (notesInput) notesInput.value = p.notes;
   });
+  pumpSequence = normalizePumpSequence([]);
   
   resetRun(true);
   syncProfileButtons();
@@ -1038,6 +1158,7 @@ function exportRecipeAsCsv() {
   
   let csvText = `Name,Description\n`;
   csvText += `"${name.replace(/"/g, '""')}","${desc.replace(/"/g, '""')}"\n\n`;
+  csvText += `Sequence,"${sequenceText()}"\n\n`;
   csvText += `Pump,Target_g,Viscosity,Chemical,Notes\n`;
   
   pumps.forEach(p => {
@@ -1242,6 +1363,7 @@ function buildStaticUi(){
   pumps.forEach(p=>{$('target'+p.id).addEventListener('input',readTargets)});
   $('recipeNameInput').addEventListener('input', (e) => { recipeName = e.target.value; });
   $('recipeDescInput').addEventListener('input', (e) => { recipeDesc = e.target.value; });
+  renderPumpSequence();
   buildMaintPumpSelector();
 }
 
@@ -1518,6 +1640,7 @@ async function connect(){
     writer=encoderStream.writable.getWriter();
     connected=true;
     demo=false;
+    controllerSupportsOrder=false;
     setConnectButtonState({ label: 'DISCONNECT', online: true, busy: false });
     log('Connected to controller.','sys');
     readLoopPromise=readLoop();
@@ -1632,6 +1755,7 @@ async function readLoop(){
 
 function handleLine(line){
   if(line.startsWith('INFO:PUMPS=')){const count=parseInt(line.replace('INFO:PUMPS=',''));if(!isNaN(count))reinitPumps(count);return}
+  if(line.startsWith('INFO:ORDER=')){controllerSupportsOrder=line.replace('INFO:ORDER=','').trim()==='1';return}
   if(line.startsWith('INFO:VISC=')){
     const parts=line.replace('INFO:VISC=','').split(',');
     for(let i=0;i<parts.length&&i<pumps.length;i++){
@@ -1647,6 +1771,14 @@ function handleLine(line){
   }
   if(line.startsWith('TELEMETRY:')){const parts=line.replace('TELEMETRY:','').split(',');const w=parseFloat(parts[0]);const st=parseInt(parts[1]);if(!isNaN(w)&&!isNaN(st))updateTelemetry(w,st);return}
   log('RX << '+line,'sys');
+  if(line.startsWith('ERROR: Invalid target') || line.startsWith('ERROR: Invalid dispense order')){
+    clearRunTimeouts();
+    sequence='ready';
+    activePump=0;
+    showAlert('Run Setup Rejected','The controller rejected a setup command, so the remaining queued run commands were cancelled.\n\nIf this happened immediately after ORDER PUMPS, reflash the Arduino with the current firmware.');
+    updateUI();
+    return;
+  }
   if(line.includes('DC Fan: ON')){setFanState(true)}
   if(line.includes('DC Fan: OFF')){setFanState(false)}
   if(line.includes('Mixer: Starting continuous') || line.includes('Starting intermediate mixing') || line.includes('Starting final mixing')){setMixerState(true)}
@@ -1662,7 +1794,7 @@ function handleLine(line){
   if(line.includes('Recipe completed dispensing. Starting final mixing')){sequence='final_mixing';go('Run')}
   if(line.includes('Entire multi-pump dispensing sequence completed')){sequence='done';activePump=0;setMixerState(false);go('Complete')}
   if(mode){const p=pumps[parseInt(mode[1])-1];p.high=mode[2].toUpperCase()==='HIGH';syncProfileButtons()}
-  if(line.includes('SCALE TIMEOUT')||line.includes('ERROR'))triggerFault(line);
+  if(line.includes('SCALE TIMEOUT')||line.includes('!!! ERROR'))triggerFault(line);
   if(line.includes('Calibration Successful'))log('Calibration value saved by controller.','sys');
   updateUI();
 }
@@ -1677,6 +1809,10 @@ async function startRun(){
   const invalid=pumps.filter(p=>p.target<0||(p.target>0&&p.target<=1.5));
   if(invalid.length){showAlert('Invalid Targets','Each target must be 0.00 g (skip) or greater than 1.50 g.\nCheck pump '+invalid.map(p=>p.id).join(', ')+'.');return}
   if(activeCount()===0){showAlert('Invalid Targets','At least one pump must have a target greater than 1.50 g.');return}
+  if(!demo&&!controllerSupportsOrder&&sequenceText()!==normalizePumpSequence([]).join(',')){
+    showAlert('Firmware Update Required','This controller has not reported ORDER support. Reflash the Arduino with the current firmware before using a custom pump order.');
+    return;
+  }
   resetRun(false);go('Run');
   if(demo){startSim();return}
   
@@ -1691,6 +1827,9 @@ async function startRun(){
     "MIX SETTLE WINDOW " + mixerSettleWindow,
     "MIX SETTLE TOL " + mixerSettleTolerance.toFixed(3)
   ];
+  if(controllerSupportsOrder){
+    syncCmds.push("ORDER " + sequenceText());
+  }
   syncCmds.forEach(cmd => {
     const t = setTimeout(()=>send(cmd), delay);
     runTimeouts.push(t);
@@ -1709,18 +1848,30 @@ async function startRun(){
     runTimeouts.push(t);
     delay += 250;
   }
-  log('Mixer configurations, viscosity profiles and target commands queued for pumps 1 through ' + PUMP_COUNT + '.','tx');
+  log('Mixer configurations, dispense order ' + sequenceText() + ', viscosity profiles and target commands queued.','tx');
 }
 function resetRun(full=true){clearRunTimeouts();stopSim();dispenseState=0;activePump=0;sequence='ready';nextSimPump=1;pumps.forEach(p=>{p.status='waiting';p.delivered=0;p.final=0;p.start=0});if(full)currentWeight=0;updateUI()}
 function tare(){currentWeight=0;log('Scale tare requested.','tx');if(demo)updateTelemetry(0,0);else send('T')}
 async function runCalibration(){log('Starting calibration for Pump '+calPump+'.','tx');if(demo){dispenseState=D.BULK;activePump=calPump;setTimeout(()=>{dispenseState=D.IDLE;activePump=0;currentWeight+=1.25;updateUI();log('Simulator calibration dispense complete. Enter measured mass.','sys')},1200)}else await send('C'+calPump)}
-async function submitCalibration(){const v=parseFloat($('calMass').value);if(!v||v<=0.02){showAlert('Invalid Mass','Enter measured mass greater than 0.02 g.');return}const p=pumps[calPump-1];const steps=(50000/8)/v;if(p.high)p.calHigh=steps;else p.calLow=steps;log('Submitting calibration mass '+fmt(v,3)+' g for Pump '+calPump+'.','tx');if(demo){log('Simulator calculated '+fmt(steps,2)+' steps/g.','sys');dispenseState=D.IDLE;activePump=0}else await send(fmt(v,3));updateUI()}
+async function submitCalibration(){const v=parseFloat($('calMass').value);if(!v||v<=0.02){showAlert('Invalid Mass','Enter measured mass greater than 0.02 g.');return}const p=pumps[calPump-1];const steps=CALIBRATION_RUN_FULL_STEPS/v;if(p.high)p.calHigh=steps;else p.calLow=steps;log('Submitting calibration mass '+fmt(v,3)+' g for Pump '+calPump+'.','tx');if(demo){log('Simulator calculated '+fmt(steps,2)+' steps/g.','sys');dispenseState=D.IDLE;activePump=0}else await send(fmt(v,3));updateUI()}
 function triggerFault(text){fault=true;$('faultText').textContent=text||'Pump motion has been halted. Confirm the system is safe before clearing.';$('faultOverlay').classList.add('active');sequence='fault';pumps.forEach(p=>{if(p.status==='running')p.status='error'});log('FAULT: '+$('faultText').textContent,'err');updateUI()}
 function clearFault(){fault=false;$('faultOverlay').classList.remove('active');dispenseState=D.IDLE;activePump=0;sequence='ready';pumps.forEach(p=>{if(p.status==='error')p.status='waiting'});updateUI()}
 async function estop(){clearRunTimeouts();if(demo){triggerFault('Emergency stop pressed. Simulator pump motion halted.');setMixerState(false);stopSim()}else{await send('S');triggerFault('Emergency stop command sent. Pump motion halted.')}}
 
-function nextRunnablePump(startId){for(let id=startId;id<=PUMP_COUNT;id++){if(pumps[id-1].target>0)return id}return 0}
-function startSim(){stopSim();currentWeight=0;pumps.forEach(p=>{p.start=0;p.delivered=0;p.final=0;p.status=p.target>0?'waiting':'complete'});nextSimPump=nextRunnablePump(1);if(!nextSimPump){sequence='done';go('Complete');return}simStartPump(nextSimPump);simTimer=setInterval(simTick,100)}
+function nextRunnablePumpAfter(currentId){
+  const order=normalizePumpSequence(pumpSequence);
+  let start=0;
+  if(currentId){
+    const index=order.indexOf(currentId);
+    start=index>=0?index+1:0;
+  }
+  for(let i=start;i<order.length;i++){
+    const id=order[i];
+    if(pumps[id-1]&&pumps[id-1].target>0)return id;
+  }
+  return 0;
+}
+function startSim(){stopSim();currentWeight=0;pumps.forEach(p=>{p.start=0;p.delivered=0;p.final=0;p.status=p.target>0?'waiting':'complete'});nextSimPump=nextRunnablePumpAfter(0);if(!nextSimPump){sequence='done';go('Complete');return}simStartPump(nextSimPump);simTimer=setInterval(simTick,100)}
 function stopSim(){if(simTimer){clearInterval(simTimer);simTimer=null}}
 function simStartPump(id){const p=pumps[id-1];activePump=id;sequence='pump'+id;p.start=currentWeight;p.status='running';dispenseState=D.BULK;simPhaseTimer=Date.now();log('Simulator: Pump '+id+' started.','sys')}
 
@@ -1795,7 +1946,7 @@ function simTick(){
     simulatePump(p,()=>{
       p.final=p.delivered;
       p.status='complete';
-      const next=nextRunnablePump(activePump+1);
+      const next=nextRunnablePumpAfter(activePump);
       if(next){
         if(!mixingEnabled){
           log('Simulator: Pump '+p.id+' complete. Mixing disabled; starting Pump '+next+'...','sys');
@@ -1900,6 +2051,7 @@ function simulatePump(p,done){
 
 function updateUI(){
   pumps.forEach(p=>{const input=$('target'+p.id);if(input){const value=parseFloat(input.value);if(!isNaN(value))p.target=value}});
+  renderPumpSequence();
   const phase=phaseMap[dispenseState]||['UNKNOWN',''];const total=totalTarget();const delivered=totalDelivered();const overallPct=pct(delivered,total);
   $('homeWeight').textContent=fmt(currentWeight);$('setupWeight').textContent=fmt(currentWeight);$('runWeight').textContent=fmt(currentWeight);if($('maintWeight'))$('maintWeight').textContent=fmt(currentWeight);$('homeTotal').textContent=fmt(total);$('recipeTotal').textContent=fmt(total);$('activeCount').textContent=activeCount();$('recipeTol').textContent=fmt(Math.max(0.01,total*0.001));
   

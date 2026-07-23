@@ -119,9 +119,12 @@
 #define DROP_CAL_MAX_EVENTS         32
 #define DROP_CAL_MAX_TOTAL_STEPS    400000L
 
-// --- Calibration run: fixed microstep count at bulk (1/8) resolution ---
-#define CALIBRATION_RUN_STEPS     50000L
-#define CALIBRATION_MICROSTEPS    8
+// --- Calibration run: fixed full-step count at bulk (1/8) resolution ---
+// The stored calibration value is full steps/gram. The firmware converts this
+// to microstep pulses only when commanding the motor.
+#define CALIBRATION_RUN_FULL_STEPS 6250L
+#define CALIBRATION_MICROSTEPS     8
+#define CALIBRATION_RUN_MICROSTEPS (CALIBRATION_RUN_FULL_STEPS * CALIBRATION_MICROSTEPS)
 
 // --- Mixer continuous rotation target (effectively infinite) ---
 #define MIXER_CONTINUOUS_STEPS    1000000000L

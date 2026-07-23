@@ -174,6 +174,7 @@ bool promptedTarget = false;
 bool completionAnnounced = false;
 
 float targetWeights[MAX_PUMP_COUNT] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+int dispenseOrder[MAX_PUMP_COUNT] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
 float stepsPerGramLow[MAX_PUMP_COUNT] = {700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f, 700.0f};
 float stepsPerGramHigh[MAX_PUMP_COUNT] = {1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f, 1400.0f};
@@ -523,13 +524,66 @@ float getStopLeadG(int pumpIndex, bool isTrimPhase) {
   return lead;
 }
 
-int findNextActivePump(int startIndex) {
-  for (int index = startIndex; index < PUMP_COUNT; ++index) {
-    if (targetWeights[index] > 0.0f) {
-      return index;
+static void resetDispenseOrder() {
+  for (int index = 0; index < MAX_PUMP_COUNT; ++index) {
+    dispenseOrder[index] = index;
+  }
+}
+
+static int findFirstActivePumpInOrder() {
+  for (int orderIndex = 0; orderIndex < PUMP_COUNT; ++orderIndex) {
+    int pumpIndex = dispenseOrder[orderIndex];
+    if (isValidPumpIndex(pumpIndex) && targetWeights[pumpIndex] > 0.0f) {
+      return pumpIndex;
     }
   }
   return -1;
+}
+
+static int findNextActivePumpAfter(int currentPumpIndex) {
+  int startOrderIndex = -1;
+  for (int orderIndex = 0; orderIndex < PUMP_COUNT; ++orderIndex) {
+    if (dispenseOrder[orderIndex] == currentPumpIndex) {
+      startOrderIndex = orderIndex + 1;
+      break;
+    }
+  }
+  if (startOrderIndex < 0) startOrderIndex = 0;
+
+  for (int orderIndex = startOrderIndex; orderIndex < PUMP_COUNT; ++orderIndex) {
+    int pumpIndex = dispenseOrder[orderIndex];
+    if (isValidPumpIndex(pumpIndex) && targetWeights[pumpIndex] > 0.0f) {
+      return pumpIndex;
+    }
+  }
+  return -1;
+}
+
+static bool applyDispenseOrderCommand(char* args) {
+  int newOrder[MAX_PUMP_COUNT];
+  bool seen[MAX_PUMP_COUNT] = {false};
+  int count = 0;
+
+  char* token = strtok(args, " ,");
+  while (token != nullptr && count < PUMP_COUNT) {
+    int pumpNum = atoi(token);
+    int pumpIndex = pumpNum - 1;
+    if (!isValidPumpIndex(pumpIndex) || seen[pumpIndex]) {
+      return false;
+    }
+    newOrder[count++] = pumpIndex;
+    seen[pumpIndex] = true;
+    token = strtok(nullptr, " ,");
+  }
+
+  if (count != PUMP_COUNT || token != nullptr) {
+    return false;
+  }
+
+  for (int index = 0; index < PUMP_COUNT; ++index) {
+    dispenseOrder[index] = newOrder[index];
+  }
+  return true;
 }
 
 static float dropCalMean(const float* values, int n) {
@@ -1171,7 +1225,7 @@ void startPumpDispense(int pumpIndex) {
 }
 
 void startFirstActivePump() {
-  int firstActivePump = findNextActivePump(0);
+  int firstActivePump = findFirstActivePumpInOrder();
   if (firstActivePump < 0) {
     Serial.println("All targets set to 0.00g. Dispensing skipped.");
     resetRunState();
@@ -1179,6 +1233,12 @@ void startFirstActivePump() {
   }
 
   Serial.println("Starting Sequential Dispense.");
+  Serial.print("Dispense order: ");
+  for (int orderIndex = 0; orderIndex < PUMP_COUNT; ++orderIndex) {
+    Serial.print(dispenseOrder[orderIndex] + 1);
+    if (orderIndex < PUMP_COUNT - 1) Serial.print(",");
+  }
+  Serial.println();
   activePumpIndex = firstActivePump;
   sequenceState = SEQ_DISPENSE_ACTIVE;
   startPumpDispense(activePumpIndex);
@@ -1780,7 +1840,7 @@ void multipumpLoop() {
           Serial.println(currentWeight - startWeight, 2);
 
           dispenseState = DISPENSE_IDLE;
-          nextPumpIndex = findNextActivePump(activePumpIndex + 1);
+          nextPumpIndex = findNextActivePumpAfter(activePumpIndex);
 
           if (nextPumpIndex < 0) {
             if (!mixingEnabled) {
@@ -1904,10 +1964,10 @@ void multipumpLoop() {
 
           Serial.println("\n-> Calibration run complete.");
           Serial.print("-> Dispensed ");
-          Serial.print(CALIBRATION_RUN_STEPS);
-          Serial.print(" microsteps (");
-          Serial.print((float)CALIBRATION_RUN_STEPS / (float)CALIBRATION_MICROSTEPS, 1);
-          Serial.print(" full steps) at 1/");
+          Serial.print(CALIBRATION_RUN_FULL_STEPS);
+          Serial.print(" full steps (");
+          Serial.print(CALIBRATION_RUN_MICROSTEPS);
+          Serial.print(" microsteps) at 1/");
           Serial.print(CALIBRATION_MICROSTEPS);
           Serial.println(" step (bulk-matched speed)...");
           Serial.println("-> Please weigh the dispensed liquid on your scale.");
@@ -2130,6 +2190,25 @@ void handleUsbCommands() {
           mixer.stop();
           Serial.println("Mixing module: DISABLED (recipes will skip mixing phases)");
         }
+        else if (strEqualsIgnoreCase(usbBuffer, "ORDER DEFAULT") ||
+                 strEqualsIgnoreCase(usbBuffer, "ORDER RESET")) {
+          resetDispenseOrder();
+          Serial.println("Dispense order reset to pump 1 through pump count.");
+        }
+        else if (strStartsWithIgnoreCase(usbBuffer, "ORDER ")) {
+          if (applyDispenseOrderCommand(usbBuffer + 6)) {
+            Serial.print("Dispense order set: ");
+            for (int orderIndex = 0; orderIndex < PUMP_COUNT; ++orderIndex) {
+              Serial.print(dispenseOrder[orderIndex] + 1);
+              if (orderIndex < PUMP_COUNT - 1) Serial.print(",");
+            }
+            Serial.println();
+          } else {
+            Serial.print("ERROR: Invalid dispense order. Send ORDER with ");
+            Serial.print(PUMP_COUNT);
+            Serial.println(" unique pump numbers.");
+          }
+        }
         else if (strStartsWithIgnoreCase(usbBuffer, "MIX RPM ") || strStartsWithIgnoreCase(usbBuffer, "MIXER RPM ")) {
           const char* offsetPtr = strStartsWithIgnoreCase(usbBuffer, "MIXER RPM ") ? usbBuffer + 10 : usbBuffer + 8;
           float rpm = strtof(offsetPtr, nullptr);
@@ -2241,6 +2320,7 @@ void handleUsbCommands() {
           Serial.println();
           Serial.print("INFO:MIXEN=");
           Serial.println(mixingEnabled ? "1" : "0");
+          Serial.println("INFO:ORDER=1");
         }
         else if (strStartsWithIgnoreCase(usbBuffer, "VISC ")) {
           int pumpNum = 0;
@@ -2451,17 +2531,17 @@ void handleUsbCommands() {
           AccelStepper& activePump = getPump(calibratingPumpIndex);
           float calSpeed = BULK_SPEED / getViscosityFactor(calibratingPumpIndex);
           activePump.setCurrentPosition(0);
-          activePump.moveTo(CALIBRATION_RUN_STEPS);
+          activePump.moveTo(CALIBRATION_RUN_MICROSTEPS);
           activePump.setSpeed(calSpeed);
 
           sequenceState = SEQ_CALIBRATE_RUN;
           Serial.print("\n-> Starting calibration run for Pump ");
           Serial.println(calibratingPumpIndex + 1);
           Serial.print("-> Dispensing exactly ");
-          Serial.print(CALIBRATION_RUN_STEPS);
-          Serial.print(" microsteps (");
-          Serial.print((float)CALIBRATION_RUN_STEPS / (float)CALIBRATION_MICROSTEPS, 1);
-          Serial.print(" full steps) at 1/");
+          Serial.print(CALIBRATION_RUN_FULL_STEPS);
+          Serial.print(" full steps (");
+          Serial.print(CALIBRATION_RUN_MICROSTEPS);
+          Serial.print(" microsteps) at 1/");
           Serial.print(CALIBRATION_MICROSTEPS);
           Serial.print(" step, speed ");
           Serial.print(calSpeed, 0);
@@ -2470,8 +2550,9 @@ void handleUsbCommands() {
         else if (sequenceState == SEQ_CALIBRATE_WAIT_INPUT) {
           float measuredWeight = strtof(usbBuffer, nullptr);
           if (measuredWeight > 0.02f) {
-            float fullStepsTaken = (float)CALIBRATION_RUN_STEPS / (float)CALIBRATION_MICROSTEPS;
+            float fullStepsTaken = (float)CALIBRATION_RUN_FULL_STEPS;
             float calculatedSteps = fullStepsTaken / measuredWeight;
+            float microstepsPerGram = (float)CALIBRATION_RUN_MICROSTEPS / measuredWeight;
 
             if (highViscosity[calibratingPumpIndex]) {
               stepsPerGramHigh[calibratingPumpIndex] = calculatedSteps;
@@ -2490,6 +2571,17 @@ void handleUsbCommands() {
             Serial.print(highViscosity[calibratingPumpIndex] ? "Glycerol" : "Water");
             Serial.print("]: ");
             Serial.println(calculatedSteps, 2);
+            Serial.print("Calibration math: ");
+            Serial.print(CALIBRATION_RUN_FULL_STEPS);
+            Serial.print(" full steps; ");
+            Serial.print(fullStepsTaken, 1);
+            Serial.print(" / ");
+            Serial.print(measuredWeight, 3);
+            Serial.print("g = ");
+            Serial.print(calculatedSteps, 2);
+            Serial.print(" full steps/g (");
+            Serial.print(microstepsPerGram, 2);
+            Serial.println(" microsteps/g at calibration resolution).");
             if (calibrationStoreSave(stepsPerGramLow, stepsPerGramHigh, PUMP_COUNT)) {
               Serial.println("Calibration persisted to flash.");
             }
@@ -2529,7 +2621,7 @@ void handleUsbCommands() {
               startFirstActivePump();
             }
           } else if (sequenceState == SEQ_PROMPT_TARGET) {
-            Serial.print("ERROR: Invalid target. Must be > 1.50g (or 0.00g to skip).");
+            Serial.println("ERROR: Invalid target. Must be > 1.50g (or 0.00g to skip).");
           }
         }
 
