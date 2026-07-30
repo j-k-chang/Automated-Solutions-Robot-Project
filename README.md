@@ -100,7 +100,7 @@ Each pump channel executes a multi-stage closed-loop state machine:
 4. **Inchworm Burst Mode**: For final residual mass under $0.045\text{g}$ ($2 \times m_{\text{drop}}$), commands single-step bursts ($64\text{ microsteps}$) to build fluid on nozzle tip until gravitational detachment.
 5. **Suck-Back Retraction**: Reverses motor at cycle end by fixed microsteps ($3,200\text{ uSteps}$ for water, $9,600\text{ uSteps}$ for glycerol) to draw fluid back into nozzle tip, eliminating stringing and hanging droplets.
 
-![Single Pump Dispense Cycle Profile](single_pump_dispense_cycle.png)
+![Single Pump Dispense Cycle Profile](images/single_pump_dispense_cycle.png)
 
 ### Dynamic Microstepping Switching
 
@@ -160,7 +160,7 @@ where:
 
 The system's gravimetric dosing accuracy was characterized across active channels using automated Python benchmark scripts (`accuracy_test.py`). 
 
-![Dispensing Accuracy Plots](dispensing_accuracy_plots.png)
+![Dispensing Accuracy Plots](images/dispensing_accuracy_plots.png)
 
 ### Benchmark Summary Data ($10.00\text{g}$ Target Mass)
 
@@ -181,13 +181,13 @@ The system's gravimetric dosing accuracy was characterized across active channel
 The system includes a single-file Web Dashboard located at [`dashboard/index.html`](file:///C:/Users/littl/Documents/PlatformIO/Projects/Automated%20Solutions%20Robot%20Project/dashboard/index.html).
 
 ### 1. System Overview & Dosing Monitor Screen
-![Dashboard System Overview](dashboard_main_screen.png)
+![Dashboard System Overview](images/dashboard_main_screen.png)
 
 ### 2. Recipe Management & CSV Library
-![Dashboard Recipe Management](dashboard_recipe_screen.png)
+![Dashboard Recipe Management](images/dashboard_recipe_screen.png)
 
 ### 3. Pump Calibration & Diagnostics Interface
-![Dashboard Calibration & Diagnostics](dashboard_calibration_screen.png)
+![Dashboard Calibration & Diagnostics](images/dashboard_calibration_screen.png)
 
 ### Dashboard Highlights:
 - **Web Serial API**: Directly communicates with the microcontroller over USB at 9600 Baud in Chrome/Edge without backend servers.
@@ -364,14 +364,17 @@ Automated Solutions Robot Project/
 │   ├── Multipump_dispensing.cpp # 16-channel Giga firmware implementation
 │   ├── Mixer.h / Mixer.cpp      # PWM mixer motor driver module
 │   └── calibration_store.h/.cpp # EEPROM / Flash calibration storage
-├── scratch/
-│   └── dispenser_simulation.py  # Python simulation model
+├── images/
+│   ├── dispensing_accuracy_plots.png  # Multi-pump accuracy benchmark plot
+│   ├── single_pump_dispense_cycle.png # Single pump dispense cycle profile
+│   ├── dashboard_main_screen.png       # Dashboard overview screenshot
+│   ├── dashboard_recipe_screen.png     # Dashboard recipe manager screenshot
+│   ├── dashboard_calibration_screen.png# Dashboard calibration screenshot
+│   └── dashboard_diagnostics_screen.png# Dashboard diagnostics screenshot
 ├── DROP_CHARACTERISTICS_DATA.md # Tate's Law & droplet mechanics documentation
 ├── CSV-Recipe-Plan.md           # Dashboard CSV recipe specification
 ├── accuracy_test.py             # Automated serial accuracy benchmark script
 ├── drop_characterize.py         # Automated drop characterization analyzer
-├── dispensing_accuracy_plots.png# Empirical accuracy visualizer plot
-├── accuracy_plot.png            # Characterization plot
 ├── platformio.ini               # PlatformIO build configuration
 └── README.md                    # System documentation
 ```
