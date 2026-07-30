@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 // --- Number of active connected pumps (can be dynamically configured up to 16) ---
-#define PUMP_COUNT                8
+#define PUMP_COUNT                12
 
 // --- Max pump count supported by arrays ---
 #define MAX_PUMP_COUNT            16
