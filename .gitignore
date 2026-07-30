@@ -1,5 +1,19 @@
-.pio
-.vscode/.browse.c_cpp.db*
-.vscode/c_cpp_properties.json
-.vscode/launch.json
-.vscode/ipch
+# Build & PlatformIO Caches
+.pio/
+compile_commands.json
+
+# Python Caches & Virtualenvs
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Operating System & IDE Caches
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.cursor/
+.claude/
+.antigravitycli/
+*.code-workspace
