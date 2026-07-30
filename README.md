@@ -100,6 +100,8 @@ Each pump channel executes a multi-stage closed-loop state machine:
 4. **Inchworm Burst Mode**: For final residual mass under $0.045\text{g}$ ($2 \times m_{\text{drop}}$), commands single-step bursts ($64\text{ microsteps}$) to build fluid on nozzle tip until gravitational detachment.
 5. **Suck-Back Retraction**: Reverses motor at cycle end by fixed microsteps ($3,200\text{ uSteps}$ for water, $9,600\text{ uSteps}$ for glycerol) to draw fluid back into nozzle tip, eliminating stringing and hanging droplets.
 
+![Single Pump Dispense Cycle Profile](single_pump_dispense_cycle.png)
+
 ### Dynamic Microstepping Switching
 
 The firmware dynamically reconfigures TMC2209 `MS1` and `MS2` pins on the fly:
