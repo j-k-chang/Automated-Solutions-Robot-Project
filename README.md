@@ -263,8 +263,7 @@ Automated Solutions Robot Project/
 │   ├── Mixer.h / Mixer.cpp      # PWM mixer motor driver module
 │   └── calibration_store.h/.cpp # EEPROM / Flash calibration storage
 ├── scratch/
-│   ├── dispenser_simulation.py  # Python simulation model
-│   └── debug_schematic.py       # KiCad schematic validation helpers
+│   └── dispenser_simulation.py  # Python simulation model
 ├── DROP_CHARACTERISTICS_DATA.md # Tate's Law & droplet mechanics documentation
 ├── CSV-Recipe-Plan.md           # Dashboard CSV recipe specification
 ├── accuracy_test.py             # Automated serial accuracy benchmark script
