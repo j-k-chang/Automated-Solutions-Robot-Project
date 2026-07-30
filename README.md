@@ -178,19 +178,14 @@ The system's gravimetric dosing accuracy was characterized across active channel
 
 The system includes a single-file Web Dashboard located at [`dashboard/index.html`](file:///C:/Users/littl/Documents/PlatformIO/Projects/Automated%20Solutions%20Robot%20Project/dashboard/index.html).
 
-```
- ┌────────────────────────────────────────────────────────────────────────┐
- │ SOLUTION DOSER DASHBOARD                                    [CONNECT]  │
- ├────────────────────────────────────────────────────────────────────────┤
- │  Live Scale Mass:  14.85 g         Dispense Phase: TRIM_PULSE          │
- ├────────────────────────────────────────────────────────────────────────┤
- │  [Pump 1: Water]  ██████████████████████  10.00g / 10.00g (DONE)       │
- │  [Pump 2: Glycerol] █████████░░░░░░░░░░░░  4.85g / 5.00g  (RUNNING)    │
- │  [Pump 3: Buffer]   ░░░░░░░░░░░░░░░░░░░░░  0.00g / 2.50g  (QUEUED)     │
- ├────────────────────────────────────────────────────────────────────────┤
- │  Recipes: [LOAD CSV] [SAVE TO LIBRARY] [EXPORT CSV] [PRIME] [FLUSH]    │
- └────────────────────────────────────────────────────────────────────────┘
-```
+### 1. System Overview & Dosing Monitor Screen
+![Dashboard System Overview](dashboard_main_screen.png)
+
+### 2. Recipe Management & CSV Library
+![Dashboard Recipe Management](dashboard_recipe_screen.png)
+
+### 3. Pump Calibration & Diagnostics Interface
+![Dashboard Calibration & Diagnostics](dashboard_calibration_screen.png)
 
 ### Dashboard Highlights:
 - **Web Serial API**: Directly communicates with the microcontroller over USB at 9600 Baud in Chrome/Edge without backend servers.
