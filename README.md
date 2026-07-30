@@ -69,7 +69,10 @@ The system utilizes a **parallel wiring architecture** on an **Arduino Giga R1 W
 | **Shared ENABLE** | `29` | Shared enable line (**Active LOW**) |
 | **Shared MS1** | `25` | Shared TMC2209 microstep config pin 1 |
 | **Shared MS2** | `23` | Shared TMC2209 microstep config pin 2 |
-| **Mixer PWM Motor**| `52, 48, 50` | PWM direction/speed lines for mixer motor |
+| **Mixer STEP Pin** | `52` | Step pulse line for Mixer motor |
+| **Mixer DIR Pin** | `48` | Direction line for Mixer motor |
+| **Mixer ENABLE Pin**| `50` | Enable line for Mixer motor (**Active LOW**) |
+| **Mixer Driver UART**| `Serial4` (TX4 on `14`, RX4 on `15`) | TMC2209 UART serial config (115200 Baud) |
 | **DC Fan Relay** | `22` | Relay control line for cooling fan |
 | **Digital Scale** | `Serial1` (RX1/TX1) | 9600 Baud ASCII mass reading |
 | **Host PC Interface**| `Serial` (USB CDC) | 9600 Baud CLI & Web Serial interface |
@@ -114,8 +117,9 @@ The firmware dynamically reconfigures TMC2209 `MS1` and `MS2` pins on the fly:
 
 ---
 
-## 💧 Droplet Mechanics & Nozzle Optimization
+## 💧 Droplet Mechanics & Fluid Capacitance
 
+### 1. Droplet Detachment (Tate's Law)
 Nozzle geometry dictates minimum droplet detachment mass according to **Tate's Law**:
 
 $$m_{\text{drop}} = \frac{2\pi r \gamma}{g}$$
@@ -129,6 +133,24 @@ where $r$ is nozzle outer radius, $\gamma$ is surface tension ($0.0728\text{ N/m
 | **16-Gauge Needle (Selected)** | **$0.825\text{ mm}$** | **$0.038\text{ g}$** | **$0.0225\text{ g}$** | **OPTIMAL** (Balances flow \& precision) |
 
 Sizing down to an 18G needle causes a **~400% surge in fluidic resistance** per **Poiseuille’s Law** ($R_{\text{fluid}} \propto \frac{1}{r_{\text{in}}^4}$), risking motor stalls during viscous glycerol dosing. Therefore, **16-Gauge blunt stainless steel dispensing needles** were selected.
+
+### 2. Fluid Capacitance & Elastic Tubing Compliance ($\text{C}_{\text{fluid}}$)
+The elasticity of the flexible silicone tubing stores energy under pressure, acting as a fluidic capacitor:
+
+$$C = \frac{\Delta V}{\Delta P} = \frac{\pi D^3 L}{4 E h}$$
+
+where:
+- $C$: Volumetric fluid capacitance (compliance), representing volume change per pressure change ($\text{m}^3/\text{Pa}$)
+- $\Delta V$: Excess volume stored due to tube wall ballooning ($\text{m}^3$)
+- $\Delta P$: Internal fluid backpressure ($\text{Pa}$), governed by Poiseuille’s Law ($R_{\text{fluid}} \propto \frac{\mu L}{D^4}$)
+- $D$: Inner diameter of unpressurized tubing ($\text{m}$)
+- $L$: Length of elastic tubing section ($\text{m}$)
+- $E$: Young’s Modulus of the tubing material ($\text{Pa}$; lower $E$ = softer, more elastic silicone)
+- $h$: Tubing wall thickness ($\text{m}$)
+
+**Physical Impact & Control Mitigation**:
+1. **Post-Stop Residual Drip**: High backpressure ($\Delta P$) during bulk fill stretches the elastic walls ($E$), storing an excess fluid volume $\Delta V = C \cdot \Delta P$. When the motor stops, the tube wall relaxes, forcing $\Delta V$ out of the nozzle tip as a post-dispense drip.
+2. **Active Retraction Mitigation (`DISPENSE_SUCK_BACK`)**: To counter line expansion, the firmware executes a dedicated reverse step sequence ($3,200\text{ uSteps}$ for water, $9,600\text{ uSteps}$ for glycerol) at cycle completion, generating negative pressure ($\Delta P_{\text{retract}} < 0$) to collapse tube expansion and lock liquid inside the tip.
 
 ---
 
