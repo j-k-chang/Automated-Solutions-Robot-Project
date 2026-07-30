@@ -197,6 +197,106 @@ The system includes a single-file Web Dashboard located at [`dashboard/index.htm
 
 ---
 
+### 🍓 Raspberry Pi 5-Inch Touchscreen Setup & Deployment
+
+The Web Dashboard is designed specifically to run natively on a **Raspberry Pi equipped with a 5-inch touchscreen display** ($800 \times 480$ or $1024 \times 600$ resolution) serving as the stand-alone robot control console.
+
+#### Step 1: Grant USB Serial Access Permissions
+By default, Linux restricts access to USB serial ports (`/dev/ttyACM0` for Arduino Giga). Grant access to the `pi` user by adding it to the `dialout` group:
+
+```bash
+# Add user to dialout group
+sudo usermod -a -G dialout $USER
+
+# Reboot Raspberry Pi to apply group permissions
+sudo reboot
+```
+
+#### Step 2: Install Virtual On-Screen Keyboard
+For entering numeric target weights, recipe names, or calibration values on the 5-inch touchscreen without a physical keyboard:
+
+```bash
+sudo apt update
+sudo apt install -y onboard
+```
+
+#### Step 3: Launch Dashboard in Chromium
+1. Open **Chromium Browser** on Raspberry Pi OS.
+2. Navigate to the local dashboard file path:
+   `file:///home/pi/Automated-Solutions-Robot-Project/dashboard/index.html`
+3. Tap the **CONNECT** button in the top right header.
+4. Select `/dev/ttyACM0` (or `Arduino Giga R1`) from the browser popup dialog and tap **Pair**.
+5. Tap **FULLSCREEN** in the top control bar for borderless 5-inch display operation.
+
+#### Step 4: Configure Auto-Boot Kiosk Mode (Direct Boot on Power-Up)
+
+To make the Raspberry Pi function as a dedicated, standalone robot console that **automatically boots directly into the fullscreen touchscreen dashboard on power-up**, choose one of the following two deployment options:
+
+##### Option A: Local HTTP Systemd Background Server + Kiosk (Recommended Production Setup)
+Running a background local HTTP server on port 8000 ensures maximum stability, avoids browser local file restrictions, and guarantees that the dashboard auto-launches on every boot.
+
+1. **Create the Systemd background web server service**:
+   ```bash
+   sudo nano /etc/systemd/system/dashboard.service
+   ```
+2. **Paste the following service configuration**:
+   ```ini
+   [Unit]
+   Description=Automated Solution Doser Web Dashboard
+   After=network.target
+
+   [Service]
+   Type=simple
+   User=pi
+   WorkingDirectory=/home/pi/Automated-Solutions-Robot-Project/dashboard
+   ExecStart=/usr/bin/python3 -m http.server 8000
+   Restart=always
+
+   [Install]
+   WantedBy=multi-user.target
+   ```
+3. **Enable and start the web server service**:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl enable --now dashboard.service
+   ```
+
+4. **Configure Chromium to auto-boot in fullscreen Kiosk Mode on power-up**:
+   ```bash
+   mkdir -p ~/.config/autostart
+   nano ~/.config/autostart/dashboard.desktop
+   ```
+   Paste the autostart entry:
+   ```ini
+   [Desktop Entry]
+   Type=Application
+   Name=Dispenser Dashboard Kiosk
+   Exec=chromium-browser --kiosk --noerrdialogs --disable-infobars --check-for-update-interval=31536000 "http://localhost:8000"
+   X-GNOME-Autostart-enabled=true
+   ```
+
+---
+
+##### Option B: Direct Local File Autostart Desktop Launcher
+If you prefer not to run a local HTTP service, you can launch the local HTML file directly into Chromium Kiosk Mode on boot:
+
+1. **Create the autostart desktop entry**:
+   ```bash
+   mkdir -p ~/.config/autostart
+   nano ~/.config/autostart/dashboard.desktop
+   ```
+2. **Paste the direct file configuration**:
+   ```ini
+   [Desktop Entry]
+   Type=Application
+   Name=Dispenser Dashboard Kiosk
+   Exec=chromium-browser --kiosk --noerrdialogs --disable-infobars --enable-features=WebUSB,WebSerial "file:///home/pi/Automated-Solutions-Robot-Project/dashboard/index.html"
+   X-GNOME-Autostart-enabled=true
+   ```
+3. Save (`Ctrl+O`, `Enter`, `Ctrl+X`). Upon rebooting the Raspberry Pi (`sudo reboot`), the system will automatically power up straight into the 5-inch fullscreen touchscreen dashboard console!
+
+---
+
 ## 📡 Serial Communication Protocol & CLI Reference
 
 Both Web Dashboard and terminal monitors (9600 Baud, Newline `\n`) communicate using standard ASCII strings:
