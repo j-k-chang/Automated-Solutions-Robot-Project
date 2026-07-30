@@ -26,6 +26,9 @@ button{border:0;border-radius:14px;color:var(--txt);background:var(--panel2);fon
 .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.metric{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px;min-height:58px}.metric label{display:block;font-size:12px;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:4px}.metric strong{font-size:20px;line-height:1}.metric small{font-size:12px;color:var(--muted)}
 .component-list,.pump-list{display:flex;flex-direction:column;gap:7px}.component-row{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px}.component-row-top{display:flex;justify-content:space-between;gap:6px;font-size:14px;font-weight:900}.component-row-bottom{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:5px}
 .pump-edit{background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:8px;display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center}.pump-edit h3{font-size:14px;margin:0 0 5px}.input-wrap{display:flex;align-items:center;background:#081421;border:1px solid #274662;border-radius:10px;padding:0 8px;height:56px}.input-wrap input{width:100%;height:100%;background:transparent;border:0;outline:0;color:var(--txt);font-size:18px;font-weight:900}.input-wrap span{font-size:12px;color:var(--muted);font-weight:800}.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}.seg button{min-height:56px;font-size:14px;background:#0a1728;border:1px solid #1d3450}.seg button.on{background:#123c52;border-color:var(--cyan);color:var(--cyan)}
+.seg.dense{grid-template-columns:repeat(4,1fr);gap:4px}.seg.dense button{min-height:42px;font-size:12px;padding:4px 6px}
+.metric-grid.dense{grid-template-columns:repeat(3,1fr);gap:5px}.metric-grid.dense .metric{min-height:48px;padding:6px}.metric-grid.dense .metric strong{font-size:16px}.metric-grid.dense .metric label{font-size:10px;margin-bottom:2px}
+.checklist.dense{grid-template-columns:repeat(3,1fr);gap:5px}.checklist.dense .check{min-height:40px;padding:6px;font-size:12px}.checklist.dense .box{width:20px;height:20px;font-size:11px}
 .pump-card{border:1px solid #274662;background:#0a1728;border-radius:12px;padding:8px;display:grid;grid-template-columns:54px 1fr;gap:8px;align-items:center;min-height:62px}.pump-card.active{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(32,217,255,.25) inset}.pump-card.active .pump-meta{color:var(--cyan)}.pump-badge{height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#10243b;border:1px solid #26425f;font-size:24px;font-weight:900}.pump-card-header{display:flex;justify-content:space-between;align-items:baseline;gap:6px}.pump-title{font-size:13px;font-weight:900;margin:0}.pump-meta{font-size:15px;color:var(--txt);font-weight:800;line-height:1.2}.status-tag{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--line);font-size:12px;font-weight:900;margin-top:5px;color:var(--muted)}.status-tag.run{color:var(--cyan);border-color:rgba(32,217,255,.5)}.status-tag.done{color:var(--green);border-color:rgba(61,255,180,.5)}.status-tag.err{color:var(--red);border-color:rgba(255,59,92,.5)}
 .progress{width:100%;height:10px;background:#081421;border:1px solid #203954;border-radius:999px;overflow:hidden}.bar{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .25s}.big-readout{text-align:center;padding:4px 0}.big-readout .num{font-size:50px;font-weight:900;line-height:1}.big-readout .unit{font-size:18px;color:var(--muted);margin-left:4px}.phase{font-size:22px;font-weight:900;text-align:center;color:var(--cyan);line-height:1.05}.phase small{display:block;color:var(--muted);font-size:12px;font-weight:700;margin-top:5px}
 .checklist{display:grid;grid-template-columns:1fr 1fr;gap:7px}.check{display:flex;align-items:center;gap:8px;background:#0a1728;border:1px solid #1d3450;border-radius:12px;padding:9px;min-height:52px;font-size:14px;font-weight:800}.box{width:26px;height:26px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#041815;flex:none}
@@ -507,7 +510,7 @@ button{border:0;border-radius:14px;color:var(--txt);background:var(--panel2);fon
   </div>
 </div>
 <script>
-let PUMP_COUNT=8;
+let PUMP_COUNT=12;
 const D={IDLE:0,BULK:1,SETTLE_BULK:2,TRIM:3,SETTLE_TRIM:4,SUCK:5,RELIEF_FAST:6,RELIEF_FINISH:7,RETRACT:8,COMPLETE:9,ERROR:10};
 const phaseMap={0:['READY','System waiting'],1:['BULK DOSING','Fast fill phase'],2:['SETTLING','Waiting for stable scale'],3:['TRIM DOSING','Fine pulse dosing'],4:['SETTLING','Verifying final mass'],5:['PREVENTING DRIPS','Suck-back starting'],6:['PRESSURE RELIEF','Fast reverse relief'],7:['PRESSURE RELIEF','Controlled relief finish'],8:['RETRACTING','Reversing pump'],9:['COMPLETE','Component finished'],10:['ERROR','Scale or pump fault']};
 let port=null,writer=null,serialReader=null,encoderStream=null,serialAbortController=null,readLoopPromise=null,disconnectPromise=null,disconnecting=false,connected=false,demo=true;
@@ -1323,7 +1326,8 @@ function clearRunTimeouts(){
 }
 
 function buildStaticUi(){
-  $('homePumpList').classList.toggle('dense',PUMP_COUNT>8);
+  const dense=PUMP_COUNT>8;
+  $('homePumpList').classList.toggle('dense',dense);
   $('homePumpList').innerHTML=pumps.map(p=>`<div class="home-pump-tile" id="homeP${p.id}Tile"><span class="num">${p.id}</span><span class="grams" id="homeP${p.id}Target"></span><span class="st" id="homeP${p.id}Status"></span></div>`).join('');
   $('recipePumpList').innerHTML=pumps.map(p=>`
     <div class="pump-grid-row">
@@ -1352,11 +1356,15 @@ function buildStaticUi(){
       <input id="chem${p.id}" class="chem-input" type="text" placeholder="Chemical" value="${p.chemical || ''}" oninput="updatePumpMetadata(${p.id}, 'chemical', this.value)">
     </div>
   `).join('');
-  $('runPumpList').classList.toggle('dense',PUMP_COUNT>8);
+  $('runPumpList').classList.toggle('dense',dense);
   $('runPumpList').innerHTML=pumps.map(p=>`<div class="run-pump-tile" id="pump${p.id}Card"><div class="run-pump-fill" id="p${p.id}Bar"></div><div class="run-pump-content"><span class="num">${p.id}</span><span class="meta" id="p${p.id}RunMeta"></span><span class="status-tag wait" id="p${p.id}Tag">WAITING</span></div></div>`).join('');
+  $('finalPumpGrid').classList.toggle('dense',dense);
   $('finalPumpGrid').innerHTML=pumps.map(p=>`<div class="metric"><label>Pump ${p.id} Added</label><strong id="finalP${p.id}">0.00</strong><small> g</small></div>`).join('');
-  $('calPumpButtons').innerHTML=pumps.map(p=>`<button id="calPump${p.id}" onclick="selectCalPump(${p.id})">Pump ${p.id}</button>`).join('');
+  $('calPumpButtons').classList.toggle('dense',dense);
+  $('calPumpButtons').innerHTML=pumps.map(p=>`<button id="calPump${p.id}" onclick="selectCalPump(${p.id})">P${p.id}</button>`).join('');
+  $('calGrid').classList.toggle('dense',dense);
   $('calGrid').innerHTML=pumps.map(p=>`<div class="metric"><label>Pump ${p.id}</label><strong id="p${p.id}CalText">700</strong><small> steps/g</small></div>`).join('');
+  $('preRunChecklist').classList.toggle('dense',dense);
   $('preRunChecklist').innerHTML = `
     <div class="check"><span class="box">✓</span><span>Beaker on scale</span></div>
     <div class="check"><span class="box">✓</span><span>Scale tared</span></div>
